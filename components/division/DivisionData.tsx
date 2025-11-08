@@ -1,0 +1,127 @@
+
+import ErrorComponent from "@/components/common/ErrorComponent";
+import NotFoundComponent from "@/components/common/NotFoundComponent";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Division, getDivisions, District } from "@/apiServices/divisionService";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Badge } from "@/components/ui/badge";
+import { Eye, Pencil } from "lucide-react";
+import Link from "next/link";
+import DeleteButton from "./DeleteButton";
+
+
+const DivisionData = async ({
+  searchParams,
+}: {
+  searchParams: { [key: string]: string | string[] | undefined };
+})=> {
+  const page = typeof searchParams.page === "string" ? Number(searchParams.page) : 1;
+  const params = {
+    search:
+      typeof searchParams.search === "string"
+        ? searchParams.search
+        : undefined,
+    sort_order:
+      typeof searchParams.sort_order === "string"
+        ? searchParams.sort_order
+        : undefined,
+  };
+
+  let data;
+  try {
+    data = await getDivisions( page, params );
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      return <ErrorComponent message={error.message} />;
+    } else {
+      return <ErrorComponent message="An unexpected error occurred." />;
+    }
+  }
+
+  const divisions = data?.data?.divisions || [];
+
+  if (!divisions.length) {
+    return <NotFoundComponent message="No divisions found." />;
+  }
+
+  return (
+    <div className="rounded-md border">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>#</TableHead>
+            <TableHead className="text-center">Action</TableHead>
+            <TableHead>Division Name</TableHead>
+            <TableHead>Total Districts</TableHead>
+            <TableHead>Districts</TableHead>
+          </TableRow>
+        </TableHeader>
+
+        <TableBody>
+          {divisions.map((division: Division , index: number) => (
+            <TableRow key={division.id}>
+              <TableCell>{index + 1}</TableCell>
+              <TableCell className="text-center">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Badge
+                        variant="default"
+                        role="button"
+                        tabIndex={0}
+                        className="cursor-pointer select-none"
+                      >
+                        Action
+                      </Badge>
+                    </DropdownMenuTrigger>
+
+                    <DropdownMenuContent align="center">
+                      <DropdownMenuItem asChild>
+                        <Link
+                          href={`/divisions/${division?.id}`}
+                          className="flex items-center cursor-pointer"
+                        >
+                          <Eye className="mr-2 h-4 w-4" />
+                          Details
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link
+                          href={`/divisions/${division?.id}/edit`}
+                          className="flex items-center cursor-pointer"
+                        >
+                          <Pencil className="mr-2 h-4 w-4" />
+                          Manage
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <DeleteButton id={division?.id} />
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </TableCell>
+              <TableCell className="font-medium">{division.name}</TableCell>
+              <TableCell>{division.districts_count}</TableCell>
+              <TableCell>
+                {division.districts?.length > 0 ? (
+                  division.districts.map((district: District) => (
+                    <span key={district.id} className="block">
+                      {district.name}
+                    </span>
+                  ))
+                ) : (
+                  <span className="text-muted-foreground">No districts</span>
+                )}
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </div>
+  );
+}
+export default DivisionData;

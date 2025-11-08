@@ -1,0 +1,153 @@
+import { getBranches } from "@/apiServices/branchService";
+import ErrorComponent from "@/components/common/ErrorComponent";
+import NotFoundComponent from "@/components/common/NotFoundComponent";
+import { Badge } from "@/components/ui/badge";
+import { Branch } from "@/apiServices/branchService";
+
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Pencil } from "lucide-react";
+import Link from "next/link";
+import DeleteBranchButton from "@/components/lms/branches/DeleteBranchButton";
+import Pagination from "@/components/common/Pagination";
+
+/* ---------------------- Interfaces ---------------------- */
+
+export interface District {
+  id: number;
+  name: string;
+}
+
+
+
+export interface Pagination {
+  current_page: number;
+  last_page: number;
+  per_page: number;
+  total: number;
+  from?: number;
+  to?: number;
+  has_more_pages?: boolean;
+}
+
+/* ---------------------- Component ---------------------- */
+
+export default async function BranchesData() {
+  let data;
+  try {
+    data = await getBranches(1);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      return <ErrorComponent message={error.message} />;
+    } else {
+      return <ErrorComponent message="An unexpected error occurred." />;
+    }
+  }
+
+  const branches: Branch[] = data?.data?.branches ?? [];
+  const pagination: Pagination = data?.data?.pagination ?? {};
+
+  if (branches.length === 0) {
+    return <NotFoundComponent message="No branches found." />;
+  }
+
+  return (
+    <>
+      <div className="rounded-md border overflow-x-auto">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>#</TableHead>
+              <TableHead className="text-center">Action</TableHead>
+              <TableHead>Name</TableHead>
+              <TableHead>District</TableHead>
+              <TableHead>Students</TableHead>
+              <TableHead>Teachers</TableHead>
+              <TableHead>Employees</TableHead>
+              <TableHead>Address</TableHead>
+              <TableHead>Phone</TableHead>
+              <TableHead>Email</TableHead>
+            </TableRow>
+          </TableHeader>
+
+          <TableBody>
+            {branches.map((branch: Branch, i: number) => (
+              <TableRow key={branch.id}>
+                <TableCell>{i + 1}</TableCell>
+
+                {/* ✅ Action Menu */}
+                <TableCell className="text-center">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Badge
+                        variant="default"
+                        role="button"
+                        tabIndex={0}
+                        className="cursor-pointer select-none"
+                      >
+                        Action
+                      </Badge>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="center">
+                      <DropdownMenuItem asChild>
+                        <Link
+                          href={`/lms/branches/${branch.id}/edit`}
+                          className="flex items-center cursor-pointer"
+                        >
+                          <Pencil className="mr-2 h-4 w-4" />
+                          Manage
+                        </Link>
+                      </DropdownMenuItem>
+
+                      {/* Branch Delete Button */}
+                      <DropdownMenuItem asChild>
+                        <DeleteBranchButton id={branch.id} />
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </TableCell>
+
+                {/* ✅ Data Cells */}
+                <TableCell>{branch.name || "N/A"}</TableCell>
+                <TableCell>{branch.district?.name || "N/A"}</TableCell>
+                <TableCell>{branch.student_count ?? 0}</TableCell>
+                <TableCell>{branch.teacher_count ?? 0}</TableCell>
+                <TableCell>{branch.employee_count ?? 0}</TableCell>
+                <TableCell>{branch.address || "N/A"}</TableCell>
+
+                {/* ✅ Phone */}
+                <TableCell className="whitespace-pre-line">
+                  {Array.isArray(branch.phone)
+                    ? branch.phone.map((p, idx) => <div key={idx}>{p}</div>)
+                    : branch.phone || "N/A"}
+                </TableCell>
+
+                {/* ✅ Email */}
+                <TableCell className="whitespace-pre-line">
+                  {Array.isArray(branch.email)
+                    ? branch.email.map((e, idx) => <div key={idx}>{e}</div>)
+                    : branch.email || "N/A"}
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+
+      <Pagination pagination={pagination} />
+      
+    </>
+  );
+}

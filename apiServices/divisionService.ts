@@ -1,0 +1,299 @@
+"use server"
+import { authOptions } from "@/lib/auth"
+import { getServerSession } from "next-auth"
+import { cacheTag, updateTag } from "next/cache"
+
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api/v1"
+
+// District Interface
+export interface District {
+  id: number;
+  name: string;
+}
+
+// Division Interface
+export interface Division {
+  id: number;
+  name: string;
+  districts: District[];
+  districts_count: number;
+}
+
+// Pagination Interface
+export interface Pagination {
+  current_page: number;
+  last_page: number;
+  per_page: number;
+  total: number;
+  from: number;
+  to: number;
+  has_more_pages: boolean;
+}
+
+//  Success Response Interface
+export interface DivisionSuccessResponse {
+  success: true;
+  message: string;
+  code: number;
+  data: {
+    total_divisions: number;
+    divisions: Division[];
+    pagination: Pagination;
+  };
+}
+
+//  Error Response Interface
+export interface DivisionErrorResponse {
+  success: false;
+  message: string;
+  code: number;
+  errors?: Record<string, string[]>;
+}
+
+//  Union Type for Response
+export type DivisionResponseType = DivisionSuccessResponse | DivisionErrorResponse;
+
+// =======================
+// 🔹 Get Divisions (Paginated)
+// =======================
+
+export async function getDivisionsCached(
+  page = 1,
+  token: string,
+  params: Record<string, unknown> = {}
+): Promise<DivisionSuccessResponse> {
+  "use cache"
+  cacheTag("divisions-list")
+
+  try {
+    const urlParams = new URLSearchParams()
+    urlParams.append("page", page.toString())
+
+    for (const key in params) {
+      if (params[key] !== undefined && params[key] !== null && params.hasOwnProperty(key)) {
+        urlParams.append(key, params[key].toString())
+      }
+    }
+
+    const res = await fetch(`${API_BASE}/divisions?${urlParams.toString()}`, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    })
+
+    return await res.json()
+  } catch (error) {
+    console.error("Error in getDivisionsCached:", error)
+    throw new Error(error instanceof Error ? error.message : "Unknown error occurred while fetching divisions")
+  }
+}
+
+export async function getDivisions(
+  page = 1,
+  params: Record<string, unknown> = {}
+): Promise<DivisionSuccessResponse> {
+  try {
+    const session = await getServerSession(authOptions)
+    const token = session?.accessToken
+    
+    
+
+    if (!token) {
+      throw new Error("No valid session or access token found.")
+    }
+
+    return await getDivisionsCached(page, token, params)
+  } catch (error) {
+    console.error("Error in getDivisions:", error)
+    throw new Error(error instanceof Error ? error.message : "Failed to get divisions")
+  }
+}
+
+// =======================
+//  Add Division
+// =======================
+
+export interface DivisionFormData {
+  name: string;
+}
+export async function addDivision(
+  formData: DivisionFormData
+): Promise<DivisionResponseType> {
+  const session = await getServerSession(authOptions);
+  const token = session?.accessToken;
+
+  if (!token) {
+    return {
+      success: false,
+      message: "No valid session or access token found.",
+      code: 401,
+    };
+  }
+
+  const res = await fetch(`${API_BASE}/divisions`, {
+    method: "POST",
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(formData),
+  });
+
+  const result = await res.json();
+  if (!res.ok) {
+    return {
+      success: false,
+      message: result.message || "Failed to add division.",
+      errors: result.errors,
+      code: res.status,
+    };
+  }
+  updateTag("divisions-list");
+  return result;
+}
+
+// =======================
+//  Get Division by ID
+// =======================
+
+
+export interface DivisionDetailsResponse {
+  success: boolean;
+  message: string;
+  data?: {
+    division: Division;
+  };
+}
+
+export async function getDivision(id: number): Promise<DivisionDetailsResponse> {
+  try {
+    const session = await getServerSession(authOptions)
+    const token = session?.accessToken
+
+    if (!token) {
+      throw new Error("No valid session or access token found.")
+    }
+
+    const res = await fetch(`${API_BASE}/divisions/${id}`, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      }
+    })
+
+    return await res.json()
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Failed to fetch division";
+    console.error("Error in getDivision:", error)
+    return { success: false, message };
+  }
+}
+
+// =======================
+//  Update Division
+// =======================
+
+export async function updateDivision(
+  id: number,
+  formData: DivisionFormData
+): Promise<DivisionResponseType> {
+  const session = await getServerSession(authOptions);
+  const token = session?.accessToken;
+
+  if (!token) {
+    return {
+      success: false,
+      message: "No valid session or access token found.",
+      code: 401,
+    };
+  }
+
+  const res = await fetch(`${API_BASE}/divisions/${id}`, {
+    method: "PATCH",
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(formData),
+  });
+
+  const result = await res.json();
+  if (!res.ok) {
+    return {
+      success: false,
+      message: result.message || "Failed to update division.",
+      errors: result.errors,
+      code: res.status,
+    };
+  }
+  updateTag("divisions-list");
+  return result;
+}
+
+// =======================
+//  Delete Division
+// =======================
+
+export async function deleteDivision(id: number): Promise<{ success: boolean; message: string }> {
+  try {
+    const session = await getServerSession(authOptions)
+    const token = session?.accessToken
+
+    if (!token) {
+      throw new Error("Unauthorized")
+    }
+
+    const res = await fetch(`${API_BASE}/divisions/${id}`, {
+      method: "DELETE",
+      headers: {
+        "Authorization": `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    })
+
+    if (!res.ok) {
+      const errorData = await res.json();
+      return { success: false, message: errorData.message || "Failed to delete division." };
+    }
+
+    // If the response is OK, assume success and provide a default message
+    updateTag("divisions-list")
+    return { success: true, message: "Division deleted successfully." };
+  } catch (error) {
+    console.error("Error in deleteDivision:", error)
+    return { success: false, message: error instanceof Error ? error.message : "Failed to delete division" };
+  }
+}
+// =======================
+//  Get Divisions By ID
+// =======================
+export async function getDivisionsById(
+  id: string
+): Promise<DivisionResponseType> {
+  try {
+    const session = await getServerSession(authOptions);
+    const token = session?.accessToken;
+    if (!token) throw new Error("No valid session or access token found.");
+
+    const res = await fetch(`${API_BASE}/divisions/${id}`, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!res.ok) {
+      throw new Error(`Failed to fetch district: ${res.statusText}`);
+    }
+
+    return res.json();
+  } catch (error) {
+    console.error("Error in getDistrictById:", error);
+    throw new Error(
+      error instanceof Error
+        ? error.message
+        : "Unknown error occurred while fetching district"
+    );
+  }
+}

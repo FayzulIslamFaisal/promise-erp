@@ -1,0 +1,132 @@
+
+import ErrorComponent from "@/components/common/ErrorComponent";
+import NotFoundComponent from "@/components/common/NotFoundComponent";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Badge } from "@/components/ui/badge";
+import { Eye, Pencil } from "lucide-react";
+import Link from "next/link";
+import { District, getDistricts } from "@/apiServices/districtService";
+import DeleteButton from "./DeleteButton";
+
+
+const DistrictData = async ({
+  searchParams,
+}: {
+  searchParams: { [key: string]: string | string[] | undefined };
+})=> {
+  const page = typeof searchParams.page === "string" ? Number(searchParams.page) : 1;
+  const params = {
+    search:
+      typeof searchParams.search === "string"
+        ? searchParams.search
+        : undefined,
+    sort_order:
+      typeof searchParams.sort_order === "string"
+        ? searchParams.sort_order
+        : undefined,
+  };
+
+  let results;
+  try {
+    results = await getDistricts( page, params );
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      return <ErrorComponent message={error.message} />;
+    } else {
+      return <ErrorComponent message="An unexpected error occurred." />;
+    }
+  }
+
+  const districts = results?.data?.districts || [];
+  
+  if (!districts.length) {
+    return <NotFoundComponent message="No districts found." />;
+  }
+  
+
+  return (
+    <div className="rounded-md border">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Sl</TableHead>
+            <TableHead className="text-center">Action</TableHead>
+            <TableHead>Division </TableHead>
+            <TableHead>District </TableHead>
+            <TableHead >Branch</TableHead>
+          </TableRow>
+        </TableHeader>
+
+        <TableBody>
+          {districts.map((district: District , index: number) => (
+            <TableRow key={district?.id}>
+              <TableCell>{index + 1}</TableCell>
+              <TableCell className="text-center">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Badge
+                        variant="default"
+                        role="button"
+                        tabIndex={0}
+                        className="cursor-pointer select-none"
+                      >
+                        Action
+                      </Badge>
+                    </DropdownMenuTrigger>
+
+                    <DropdownMenuContent align="center">
+                      <DropdownMenuItem asChild>
+                        <Link
+                          href={`/districts/${district?.id}`}
+                          className="flex items-center cursor-pointer"
+                        >
+                          <Eye className="mr-2 h-4 w-4" />
+                          Details
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link
+                          href={`/districts/${district?.id}/edit`}
+                          className="flex items-center cursor-pointer"
+                        >
+                          <Pencil className="mr-2 h-4 w-4" />
+                          Manage
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <DeleteButton id={district?.id} />
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </TableCell>
+                <TableCell className="font-medium">{district?.division?.name}</TableCell>
+              <TableCell className="font-medium">{district?.name}</TableCell>
+              <TableCell className="font-medium">
+                {district?.branches?.length > 0 ? (
+                  <ul className="space-y-1">
+                    {district?.branches?.map((branch, index: number) => (
+                      <li key={branch?.id}>
+                        {index + 1}: {branch?.name}
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  "No Branch"
+                )}
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </div>
+  );
+}
+export default DistrictData;
+
