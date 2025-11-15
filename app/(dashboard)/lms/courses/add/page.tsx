@@ -13,19 +13,25 @@ export default function AddCoursePage() {
     setFormError: (field: string, message: string) => void,
     resetForm: () => void
   ) => {
-    const result = await createCourse(formData);
+    try {
+      const result = await createCourse(formData);
 
-    if (result.success) {
-      toast.success("Course added successfully!");
-      resetForm();
-      router.push("/lms/courses"); // Redirect to courses list
-    } else {
-      toast.error(result.message || "Failed to add course.");
-      if (result.errors) {
-        for (const key in result.errors) {
-          setFormError(key, result.errors[key][0]);
+      if (result.success) {
+        toast.success("Course added successfully!");
+        resetForm();
+        router.push("/lms/courses"); // Redirect to courses list
+      } else {
+        toast.error(result.message || "Failed to add course.");
+        if (result.errors) {
+          for (const key in result.errors) {
+            setFormError(key, result.errors[key][0]);
+          }
         }
+        console.log(result);
       }
+    } catch (error) {
+      toast.error("An unexpected error occurred.");
+      console.error("Error adding course:", error);
     }
   };
 

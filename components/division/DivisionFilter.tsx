@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useForm, Controller } from "react-hook-form";
 import { Input } from "@/components/ui/input";
@@ -13,30 +13,10 @@ interface FilterFormValues {
   search?: string;
   sort_order?: string;
 }
-
-// Debounce hook
-function useDebounce<T>(value: T, delay: number): T {
-  const [debouncedValue, setDebouncedValue] = useState<T>(value);
-
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      setDebouncedValue(value);
-    }, delay);
-
-    return () => {
-      clearTimeout(handler);
-    };
-  }, [value, delay]);
-
-  return debouncedValue;
-}
-
-export default function DivisionFilter() {
+const DistrictFilter = () => {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const isFirstRender = useRef(true);
-
   const { register, control, reset, watch, setValue } = useForm<FilterFormValues>({
     defaultValues: {
       search: searchParams.get("search") || "",
@@ -45,31 +25,28 @@ export default function DivisionFilter() {
   });
 
   const watchedValues = watch();
-  const debouncedValues = useDebounce(watchedValues, 800);
 
   useEffect(() => {
-    if (isFirstRender.current) {
-      isFirstRender.current = false;
-      return;
-    }
-    const params = new URLSearchParams(searchParams.toString());
-    params.delete("page");
+    const handler = setTimeout(() => {
+      const params = new URLSearchParams(searchParams.toString());
+      params.delete("page");
 
-    Object.entries(debouncedValues).forEach(([key, value]) => {
-      if (value && value !== "") {
-        params.set(key, String(value));
-      } else {
-        params.delete(key);
-      }
-    });
+      Object.entries(watchedValues).forEach(([key, value]) => {
+        if (value && value !== "") {
+          params.set(key, String(value));
+        } else {
+          params.delete(key);
+        }
+      });
 
-    const currentUrl = `${pathname}?${searchParams.toString()}`;
-    const newUrl = `${pathname}?${params.toString()}`;
-
-    if (currentUrl !== newUrl) {
+      const newUrl = `${pathname}?${params.toString()}`;
       router.replace(newUrl, { scroll: false });
-    }
-  }, [debouncedValues, router, pathname, searchParams]);
+    }, 800);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [JSON.stringify(watchedValues), router, pathname]);
 
   const handleSelectChange = (name: keyof FilterFormValues) => (value: string) => {
     setValue(name, value);
@@ -140,3 +117,4 @@ export default function DivisionFilter() {
     </div>
   );
 }
+export default DistrictFilter

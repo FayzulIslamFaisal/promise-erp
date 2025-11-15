@@ -95,7 +95,7 @@ export async function addBranch(branch: BranchCreate): Promise<BranchResponseTyp
     method: "POST",
     headers: {
       Authorization: `Bearer ${token}`,
-      // "Content-Type": "application/json",
+      "Content-Type": "application/json",
     },
     body: JSON.stringify(branch),
   })
@@ -119,34 +119,65 @@ export async function addBranch(branch: BranchCreate): Promise<BranchResponseTyp
    🔹 Get Branches (Paginated)
 ================================== */
 
-export async function getBranchesCached(page = 1, token: string): Promise<BranchResponse> {
-  "use cache"
-  cacheTag("branches-list")
+export async function getBranchesCached(
+  page = 1,
+  token: string,
+  params: Record<string, unknown> = {}
+): Promise<BranchResponse> {
+  "use cache";
+  cacheTag("branches-list");
 
-  const res = await fetch(`${API_BASE}/branches?page=${page}`, {
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-  })
+  try {
+    const urlParams = new URLSearchParams();
+    urlParams.append("page", page.toString());
 
-  if (!res.ok) {
-    const errorData = await res.json().catch(() => ({}))
-    throw new Error(`Message: ${errorData.message || "Unknown error"}`)
+    for (const key in params) {
+      if (
+        params[key] !== undefined &&
+        params[key] !== null &&
+        params.hasOwnProperty(key)
+      ) {
+        urlParams.append(key, params[key].toString());
+      }
+    }
+
+    const res = await fetch(`${API_BASE}/branches?${urlParams.toString()}`, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    
+    return await res.json();
+  } catch (error) {
+    console.error("Error in getBranchesCached:", error);
+    throw new Error(
+      error instanceof Error
+        ? error.message
+        : "Unknown error occurred while fetching branches"
+    );
   }
-
-  return res.json()
 }
 
-export async function getBranches(page = 1): Promise<BranchResponse> {
-  const session = await getServerSession(authOptions)
-  const token = session?.accessToken
+export async function getBranches(
+  page = 1,
+  params: Record<string, unknown> = {}
+): Promise<BranchResponse> {
+  try {
+    const session = await getServerSession(authOptions);
+    const token = session?.accessToken;
 
-  if (!token) {
-    throw new Error("No valid session or access token found.")
+    if (!token) {
+      throw new Error("No valid session or access token found.");
+    }
+
+    return await getBranchesCached(page, token, params);
+  } catch (error) {
+    console.error("Error in get branches:", error);
+    throw new Error(
+      error instanceof Error ? error.message : "Failed to get branches"
+    );
   }
-
-  return getBranchesCached(page, token)
 }
 
 /* ===============================

@@ -59,7 +59,7 @@ export default function DivisionForm({ title, buttonTitle, defaultValues, onSubm
           <label className="block text-sm font-medium mb-1">Division Name</label>
           <Input
             placeholder="Enter division name"
-            {...register("name", { required: "Division name is required" })}
+            {...register("name")}
           />
           {errors.name && (
             <p className="text-sm text-red-500 mt-1">{errors.name.message}</p>

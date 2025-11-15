@@ -25,17 +25,18 @@ import DeleteButton from "./DeleteButton";
 export default async function CoursesData({
   searchParams,
 }: {
-  searchParams: { [key: string]: string | string[] | undefined };
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }> | { [key: string]: string | string[] | undefined };
 }) {
-  const page = typeof searchParams.page === "string" ? Number(searchParams.page) : 1;
+  const resolvedSearchParams = await searchParams;
+  const page = typeof resolvedSearchParams.page === "string" ? Number(resolvedSearchParams.page) : 1;
 
   const params = {
-    search: typeof searchParams.search === "string" ? searchParams.search : undefined,
-    sort_order: typeof searchParams.sort_order === "string" ? searchParams.sort_order : undefined,
-    level: typeof searchParams.level === "string" ? searchParams.level : undefined,
-    division_id: typeof searchParams.division_id === "string" ? searchParams.division_id : undefined,
-    branch_id: typeof searchParams.branch_id === "string" ? searchParams.branch_id : undefined,
-    category_id: typeof searchParams.category_id === "string" ? searchParams.category_id : undefined,
+    search: typeof resolvedSearchParams.search === "string" ? resolvedSearchParams.search : undefined,
+    sort_order: typeof resolvedSearchParams.sort_order === "string" ? resolvedSearchParams.sort_order : undefined,
+    level: typeof resolvedSearchParams.level === "string" ? resolvedSearchParams.level : undefined,
+    division_id: typeof resolvedSearchParams.division_id === "string" ? resolvedSearchParams.division_id : undefined,
+    branch_id: typeof resolvedSearchParams.branch_id === "string" ? resolvedSearchParams.branch_id : undefined,
+    category_id: typeof resolvedSearchParams.category_id === "string" ? resolvedSearchParams.category_id : undefined,
   };
 
   let data;
@@ -80,7 +81,6 @@ export default async function CoursesData({
 
                 {/* 🔹 Action Dropdown */}
                 <TableCell className="text-center">
-                  <TableCell className="text-center">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Badge
@@ -117,7 +117,6 @@ export default async function CoursesData({
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
-                </TableCell>
                 </TableCell>
 
                 {/* 🔹 Course Info */}

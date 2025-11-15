@@ -31,7 +31,8 @@ export default function AddTeacherPage() {
       } else {
         toast.error(res?.message || "Failed to add teacher.");
       }
-    } catch {
+    } catch(error: unknown) {
+      console.error("Something went wrong. Try again later.", error);
       toast.error("Something went wrong. Try again later.");
     }
   };

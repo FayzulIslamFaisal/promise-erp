@@ -13,6 +13,7 @@ import {
   HouseIcon,
   ImagePlay,
   LocationEdit,
+  LockIcon,
   MessageSquare,
   Package,
   Settings,
@@ -43,6 +44,7 @@ import NavSettings from "./NavSettings";
 import NavUserManage from "./NavUserManage";
 import NavRolePermission from "./NavRolePermission";
 import NavDivision from "./NavDivision";
+import NavDistrict from "./NavDistrict";
 
 // This is sample data.
 const data = {
@@ -78,7 +80,7 @@ const data = {
       items: [
         {
           title: "Categories",
-          url: "#",
+          url: "/lms/categories",
         },
         {
           title: "Courses",
@@ -89,8 +91,12 @@ const data = {
           url: "#",
         },
         {
+          title: "Projects",
+          url: "/lms/projects",
+        },
+        {
           title: "Groups",
-          url: "#",
+          url: "/lms/groups",
         },
         {
           title: "Chapters",
@@ -856,6 +862,19 @@ const data = {
       ],
     },
   ],
+  navDistrict: [
+    {
+      title: "District List",
+      url: "#",
+      icon: LockIcon,
+      items: [
+        {
+          title: "Districts",
+          url: "/districts",
+        },
+      ],
+    },
+  ],
   navRolePermission: [
     {
       title: "Role & Permission",
@@ -901,6 +920,7 @@ export default function AppSidebar({
         <NavAccount items={data.navAccount} />
         <NavSettings items={data.navSettings} />
         <NavDivision items={data.navDivision} />
+        <NavDistrict items={data.navDistrict} />
         <NavRolePermission items={data.navRolePermission} />
         <NavUserManage items={data.userManagement} />
       </SidebarContent>

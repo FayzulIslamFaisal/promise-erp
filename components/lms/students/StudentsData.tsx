@@ -26,39 +26,44 @@ import ExportData from "./ExportData";
 export default async function StudentsData({
   searchParams,
 }: {
-  searchParams: { [key: string]: string | string[] | undefined };
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }> | { [key: string]: string | string[] | undefined };
 }) {
+  const resolvedSearchParams = await searchParams;
   const page =
-    typeof searchParams.page === "string" ? Number(searchParams.page) : 1;
+    typeof resolvedSearchParams.page === "string" ? Number(resolvedSearchParams.page) : 1;
 
   const params = {
     search:
-      typeof searchParams.search === "string"
-        ? searchParams.search
+      typeof resolvedSearchParams.search === "string"
+        ? resolvedSearchParams.search
         : undefined,
     sort_order:
-      typeof searchParams.sort_order === "string"
-        ? searchParams.sort_order
+      typeof resolvedSearchParams.sort_order === "string"
+        ? resolvedSearchParams.sort_order
         : undefined,
-    is_paid:
-      typeof searchParams.is_paid === "string"
-        ? searchParams.is_paid
+    status:
+      typeof resolvedSearchParams.status === "string"
+        ? resolvedSearchParams.status
+        : undefined,
+    is_govt:
+      typeof resolvedSearchParams.is_govt === "string"
+        ? resolvedSearchParams.is_govt
         : undefined,
     is_blocked:
-      typeof searchParams.is_blocked === "string"
-        ? searchParams.is_blocked
+      typeof resolvedSearchParams.is_blocked === "string"
+        ? resolvedSearchParams.is_blocked
         : undefined,
     division_id:
-      typeof searchParams.division_id === "string"
-        ? searchParams.division_id
+      typeof resolvedSearchParams.division_id === "string"
+        ? resolvedSearchParams.division_id
         : undefined,
     branch_id:
-      typeof searchParams.branch_id === "string"
-        ? searchParams.branch_id
+      typeof resolvedSearchParams.branch_id === "string"
+        ? resolvedSearchParams.branch_id
         : undefined,
     course_id:
-      typeof searchParams.course_id === "string"
-        ? searchParams.course_id
+      typeof resolvedSearchParams.course_id === "string"
+        ? resolvedSearchParams.course_id
         : undefined,
   };
 
@@ -97,7 +102,7 @@ export default async function StudentsData({
               <TableHead>Courses & Batches</TableHead>
               <TableHead>Branch</TableHead>
               <TableHead>Divisions</TableHead>
-              <TableHead>Enrolled Status</TableHead>
+              <TableHead>Status</TableHead>
             </TableRow>
           </TableHeader>
 
@@ -188,18 +193,30 @@ export default async function StudentsData({
                 <TableCell>{student?.branches}</TableCell>
                 <TableCell>{student?.divisions}</TableCell>
                 <TableCell>
-                  {student?.enrollment_status === "Enrolled" ? (
+                  {student?.status === "PAID_COURSE_ENROLLED" ? (
                     <Badge className="bg-green-600 hover:bg-green-700">
-                      Enrolled
+                      PAID_COURSE_ENROLLED
                     </Badge>
                   ) : (
                     <Badge
                       variant="secondary"
                       className="bg-gray-200 text-gray-700"
                     >
-                      {student?.enrollment_status}
+                      {student?.status}
                     </Badge>
                   )}
+                  <br />
+                  {student?.is_govt ? (
+                    <Badge className="bg-blue-600 hover:bg-blue-700 mt-1">
+                      Govt
+                    </Badge>
+                  ) : null}
+                  <br />
+                  {student?.is_blocked ? (
+                    <Badge className="bg-red-600 hover:bg-red-700 mt-1">
+                      Blocked
+                    </Badge>
+                  ) : null}
                 </TableCell>
               </TableRow>
             ))}

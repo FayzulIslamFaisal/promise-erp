@@ -42,9 +42,10 @@ export default function AddBranchPage() {
     } else {
       toast.error(res?.message || "Failed to add branch.");
     }
-  } catch {
-    toast.error("Something went wrong. Try again later.");
-  }
+  } catch(error: unknown) {
+      console.error("Something went wrong. Try again later.", error);
+      toast.error("Something went wrong. Try again later.");
+    }
 };
 
 

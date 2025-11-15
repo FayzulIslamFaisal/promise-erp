@@ -68,7 +68,7 @@ export default function CourseFilter({
     }, 500)
 
     return () => clearTimeout(timer)
-  }, [watchedValues, router, pathname, searchParams])
+  }, [JSON.stringify(watchedValues), router, pathname])
 
   const handleReset = () => {
     reset({

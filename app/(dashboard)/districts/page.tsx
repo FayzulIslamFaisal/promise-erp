@@ -12,7 +12,6 @@ const DistrictsPage = async ({
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) => {
 const params = await searchParams;
-console.log("page searchParams=>", params);
 
 
   return (

@@ -72,7 +72,7 @@ export default function TeacherFilter({
     }, 500)
 
     return () => clearTimeout(timer)
-  }, [watchedValues, router, pathname, searchParams])
+  }, [JSON.stringify(watchedValues), router, pathname]);
 
   const handleReset = () => {
     reset({

@@ -161,8 +161,9 @@ export async function addDivision(
 export interface DivisionDetailsResponse {
   success: boolean;
   message: string;
+  code: number;
   data?: {
-    division: Division;
+    division?: Division;
   };
 }
 
@@ -184,9 +185,10 @@ export async function getDivision(id: number): Promise<DivisionDetailsResponse> 
 
     return await res.json()
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Failed to fetch division";
-    console.error("Error in getDivision:", error)
-    return { success: false, message };
+    console.error("Error in get Division:", error);
+    throw new Error(
+      error instanceof Error ? error.message : "Failed to get Division"
+    );
   }
 }
 

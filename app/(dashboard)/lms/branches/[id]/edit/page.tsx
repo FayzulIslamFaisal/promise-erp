@@ -61,7 +61,8 @@ export default function EditBranchPage({
       } else {
         toast.error(res?.message || "Failed to update branch.");
       }
-    } catch {
+    } catch(error: unknown) {
+      console.error("Something went wrong. Try again later.", error);
       toast.error("Something went wrong. Try again later.");
     }
   };

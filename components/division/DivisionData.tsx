@@ -18,17 +18,18 @@ import DeleteButton from "./DeleteButton";
 const DivisionData = async ({
   searchParams,
 }: {
-  searchParams: { [key: string]: string | string[] | undefined };
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }> | { [key: string]: string | string[] | undefined };
 })=> {
-  const page = typeof searchParams.page === "string" ? Number(searchParams.page) : 1;
+  const resolvedSearchParams = await searchParams;
+  const page = typeof resolvedSearchParams.page === "string" ? Number(resolvedSearchParams.page) : 1;
   const params = {
     search:
-      typeof searchParams.search === "string"
-        ? searchParams.search
+      typeof resolvedSearchParams.search === "string"
+        ? resolvedSearchParams.search
         : undefined,
     sort_order:
-      typeof searchParams.sort_order === "string"
-        ? searchParams.sort_order
+      typeof resolvedSearchParams.sort_order === "string"
+        ? resolvedSearchParams.sort_order
         : undefined,
   };
 

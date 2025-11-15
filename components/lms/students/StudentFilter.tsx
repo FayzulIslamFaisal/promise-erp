@@ -12,8 +12,6 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Label } from "@/components/ui/label"
 import { Branch } from "@/apiServices/branchService"
 import { Course } from "@/apiServices/courseService"
 import { Division } from "@/apiServices/divisionService"
@@ -22,7 +20,8 @@ import { Search, FilterX } from "lucide-react"
 interface FilterFormValues {
   search?: string
   sort_order?: string
-  is_paid?: boolean
+  is_govt?: boolean
+  status?: string
   is_blocked?: boolean
   division_id?: string
   branch_id?: string
@@ -47,8 +46,9 @@ export default function StudentFilter({
     defaultValues: {
       search: searchParams.get("search") || "",
       sort_order: searchParams.get("sort_order") || "",
-      is_paid: searchParams.get("is_paid") === "true",
-      is_blocked: searchParams.get("is_blocked") === "true",
+      is_govt: searchParams.get("is_govt") === "false",
+      status: searchParams.get("status") || "",
+      is_blocked: searchParams.get("is_blocked") === "false",
       division_id: searchParams.get("division_id") || "",
       branch_id: searchParams.get("branch_id") || "",
       course_id: searchParams.get("course_id") || "",
@@ -72,13 +72,14 @@ export default function StudentFilter({
     }, 500)
 
     return () => clearTimeout(timer)
-  }, [watchedValues, router, pathname, searchParams])
+  }, [JSON.stringify(watchedValues), router, pathname]);
 
   const handleReset = () => {
     reset({
       search: "",
       sort_order: "",
-      is_paid: false,
+      is_govt: false,
+      status: "",
       is_blocked: false,
       division_id: "",
       branch_id: "",
@@ -194,6 +195,55 @@ export default function StudentFilter({
                 ))}
               </SelectContent>
             </Select>
+          )}
+        />
+
+        {/* Status  */}
+        <Controller
+          name="status"
+          control={control}
+          render={({ field }) => (
+            <Select onValueChange={field.onChange} value={field.value}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="NOT_ENROLLED">Not Enrolled</SelectItem>
+                <SelectItem value="FREE_COURSE_ENROLLED">Free Course Enrolled</SelectItem>
+                <SelectItem value="PAID_COURSE_ENROLLED">Paid Course Enrolled</SelectItem>
+              </SelectContent>
+            </Select>
+          )}
+        />
+        {/*  is Govt & Is Blocked */}
+        <Controller
+          name="is_govt"
+          control={control}
+          render={({ field }) => (
+            <Select onValueChange={(val) => field.onChange(val === "true")}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Is Govt" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="true">Yes</SelectItem>
+                <SelectItem value="false">No</SelectItem>
+              </SelectContent>
+            </Select>
+          )}
+        />
+        <Controller
+          name="is_blocked"
+          control={control}
+          render={({ field }) => (
+            <Select onValueChange={(val) => field.onChange(val === "true")} >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Is Blocked" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="true">Yes</SelectItem>
+                <SelectItem value="false">No</SelectItem>
+              </SelectContent>
+            </Select> 
           )}
         />
       </div>

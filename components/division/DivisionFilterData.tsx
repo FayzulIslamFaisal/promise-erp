@@ -1,4 +1,12 @@
-import DivisionFilter from "./DivisionFilter";
+import DistrictFilter from "./DivisionFilter"
 
-export default DivisionFilter;
+
+const DivisionFilterData = () => {
+  return (
+    <DistrictFilter />
+  )
+}
+
+export default DivisionFilterData
+
 

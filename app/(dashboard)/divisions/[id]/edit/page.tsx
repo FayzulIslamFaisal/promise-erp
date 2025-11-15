@@ -1,91 +1,94 @@
 "use client";
-
-import { useEffect, useState } from "react";
-import { useRouter, useParams } from "next/navigation";
-import { toast } from "sonner";
+import { use, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { Division, DivisionFormData, getDivision, updateDivision } from "@/apiServices/divisionService";
 import DivisionForm from "@/components/division/DivisionForm";
-import {
-  getDivision,
-  updateDivision,
-  Division,
-  DivisionFormData,
-  DivisionResponseType,
-} from "@/apiServices/divisionService";
+import { toast } from "sonner";
+import { DivisionDetailsResponse } from "@/apiServices/divisionService";
 import TableSkeleton from "@/components/TableSkeleton";
-import ErrorComponent from "@/components/common/ErrorComponent";
 
-export default function EditDivisionPage() {
+interface EditDivisionPageProps {
+  params: Promise<{ id: string }>;
+}
+
+export default function EditDivisionPage({ params }: EditDivisionPageProps) {
   const router = useRouter();
-  const params = useParams();
-  const id = Number(params.id);
-
-  const [division, setDivision] = useState<Division | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const { id } = use(params);
+  const divisionId = Number(id);
+  const [division, setDivision] = useState<Division | undefined>(undefined);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (id) {
-      const fetchDivision = async () => {
-        try {
-          setIsLoading(true);
-          const res = await getDivision(id);
-          if (res.success && res.data) {
-            setDivision(res.data.division);
-          } else {
-            setError(res.message || "Failed to fetch division data.");
-            toast.error(res.message || "Failed to fetch division data.");
-          }
-        } catch (err) {
-          const errorMessage = err instanceof Error ? err.message : "An unexpected error occurred.";
-          setError(errorMessage);
-          toast.error(errorMessage);
-        } finally {
-          setIsLoading(false);
+    const fetchDivision = async () => {
+      try {
+        setLoading(true);
+        const response: DivisionDetailsResponse = await getDivision(divisionId);
+        if (response.success && response.data?.division) {
+          setDivision(response.data.division);
+        } else {
+          setError(response.message || "Failed to fetch division data.");
+          toast.error(response.message || "Failed to fetch division data.");
         }
-      };
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : "An unknown error occurred.";
+        setError(errorMessage);
+        toast.error(errorMessage);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (divisionId) {
       fetchDivision();
     }
-  }, [id]);
+  }, [divisionId]);
 
   const handleSubmit = async (
     formData: DivisionFormData,
     setFormError: (field: string, message: string) => void
   ) => {
     try {
-      const res: DivisionResponseType = await updateDivision(id, formData);
-
-      if (res.success) {
-        toast.success(res.message || "Division updated successfully!");
+      const result = await updateDivision(divisionId, formData);
+      if (result.success) {
+        toast.success("Division updated successfully!");
         router.push("/divisions");
-      } else if (res.errors) {
-        Object.entries(res.errors).forEach(([field, messages]) => {
-          if (Array.isArray(messages) && messages.length > 0) {
-            setFormError(field, messages[0]);
-          }
-        });
-        toast.error("Please fix the errors below.");
       } else {
-        toast.error(res.message || "Failed to update division.");
+        if (result.errors) {
+          Object.keys(result.errors).forEach((key) => {
+            const errorMessages = result.errors?.[key];
+            if (errorMessages && errorMessages.length > 0) {
+              setFormError(key, errorMessages[0]);
+            }
+          });
+        }
+        toast.error(result.message || "Failed to update division.");
       }
-    } catch {
-      toast.error("Something went wrong. Try again later.");
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "An unknown error occurred.";
+      toast.error(errorMessage);
     }
   };
 
-  if (isLoading) {
-    return <TableSkeleton columns={1} rows={4} />;
+  if (loading) {
+    return <TableSkeleton/>;
   }
 
   if (error) {
-    return <ErrorComponent message={error} />;
+    return <div className="text-red-500 text-center p-4">{error}</div>;
   }
 
   return (
-    <DivisionForm
-      title="Edit Division"
-      buttonTitle="Update Division"
-      defaultValues={division || undefined}
-      onSubmit={handleSubmit}
-    />
+    <div className="max-w-4xl mx-auto p-4">
+      <h1 className="text-2xl font-bold mb-6">Edit Division</h1>
+      {division && (
+        <DivisionForm
+          title="Edit Division"
+          buttonTitle="Update Division"
+          defaultValues={division}
+          onSubmit={handleSubmit}
+        />
+      )}
+    </div>
   );
 }

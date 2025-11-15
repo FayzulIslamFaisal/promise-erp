@@ -49,8 +49,9 @@ export default function EditDistrictPage({ params }: { params: Promise<{ id: str
       } else {
         toast.error(res?.message || 'Failed to update district.')
       }
-    } catch {
-      toast.error('Something went wrong. Try again later.')
+    } catch(error: unknown) {
+      console.error("Something went wrong. Try again later.", error);
+      toast.error("Something went wrong. Try again later.");
     }
   }
 

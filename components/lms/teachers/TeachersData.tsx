@@ -24,35 +24,36 @@ import DeleteButton from "./DeleteButton";
 export default async function TeachersData({
   searchParams,
 }: {
-  searchParams: { [key: string]: string | string[] | undefined };
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }> | { [key: string]: string | string[] | undefined };
 }) {
+  const resolvedSearchParams = await searchParams;
   const page =
-    typeof searchParams.page === "string" ? Number(searchParams.page) : 1;
+    typeof resolvedSearchParams.page === "string" ? Number(resolvedSearchParams.page) : 1;
 
   const params = {
     search:
-      typeof searchParams.search === "string" ? searchParams.search : undefined,
+      typeof resolvedSearchParams.search === "string" ? resolvedSearchParams.search : undefined,
     sort_order:
-      typeof searchParams.sort_order === "string"
-        ? searchParams.sort_order
+      typeof resolvedSearchParams.sort_order === "string"
+        ? resolvedSearchParams.sort_order
         : undefined,
     is_paid:
-      typeof searchParams.is_paid === "string" ? searchParams.is_paid : undefined,
+      typeof resolvedSearchParams.is_paid === "string" ? resolvedSearchParams.is_paid : undefined,
     is_blocked:
-      typeof searchParams.is_blocked === "string"
-        ? searchParams.is_blocked
+      typeof resolvedSearchParams.is_blocked === "string"
+        ? resolvedSearchParams.is_blocked
         : undefined,
     division_id:
-      typeof searchParams.division_id === "string"
-        ? searchParams.division_id
+      typeof resolvedSearchParams.division_id === "string"
+        ? resolvedSearchParams.division_id
         : undefined,
     branch_id:
-      typeof searchParams.branch_id === "string"
-        ? searchParams.branch_id
+      typeof resolvedSearchParams.branch_id === "string"
+        ? resolvedSearchParams.branch_id
         : undefined,
     course_id:
-      typeof searchParams.course_id === "string"
-        ? searchParams.course_id
+      typeof resolvedSearchParams.course_id === "string"
+        ? resolvedSearchParams.course_id
         : undefined,
   };
 

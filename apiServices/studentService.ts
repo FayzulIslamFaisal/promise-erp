@@ -15,7 +15,9 @@ export interface Student {
   is_paid: number
   branches: string
   divisions: string
-  enrollment_status: string
+  status: string
+  is_govt: boolean
+  is_blocked: boolean
   courses: {
     id: number
     title: string
@@ -91,6 +93,7 @@ export async function addStudent(
   updateTag("students-list");
   return { success: true, message: data.message, data };
 }
+
 // Get students
 export async function getStudentsCached(
   page = 1,

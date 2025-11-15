@@ -49,8 +49,9 @@ export default function EditStudentPage({ params }: { params: Promise<{ id: stri
       } else {
         toast.error(res?.message || 'Failed to update student.')
       }
-    } catch {
-      toast.error('Something went wrong. Try again later.')
+    } catch(error: unknown) {
+      console.error("Something went wrong. Try again later.", error);
+      toast.error("Something went wrong. Try again later.");
     }
   }
 

@@ -1,11 +1,16 @@
-
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useForm, Controller } from "react-hook-form";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Search, FilterX } from "lucide-react";
 
@@ -14,30 +19,12 @@ interface FilterFormValues {
   sort_order?: string;
 }
 
-// Debounce hook
-function useDebounce<T>(value: T, delay: number): T {
-  const [debouncedValue, setDebouncedValue] = useState<T>(value);
-
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      setDebouncedValue(value);
-    }, delay);
-
-    return () => {
-      clearTimeout(handler);
-    };
-  }, [value, delay]);
-
-  return debouncedValue;
-}
-
-export default function DistrictFilter() {
+const DistrictFilter = () => {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const isFirstRender = useRef(true);
 
-  const { register, control, reset, watch, setValue } = useForm<FilterFormValues>({
+  const { register, control, reset, watch } = useForm<FilterFormValues>({
     defaultValues: {
       search: searchParams.get("search") || "",
       sort_order: searchParams.get("sort_order") || "",
@@ -45,17 +32,12 @@ export default function DistrictFilter() {
   });
 
   const watchedValues = watch();
-  const debouncedValues = useDebounce(watchedValues, 800);
-
   useEffect(() => {
-    if (isFirstRender.current) {
-      isFirstRender.current = false;
-      return;
-    }
+  const handler = setTimeout(() => {
     const params = new URLSearchParams(searchParams.toString());
     params.delete("page");
 
-    Object.entries(debouncedValues).forEach(([key, value]) => {
+    Object.entries(watchedValues).forEach(([key, value]) => {
       if (value && value !== "") {
         params.set(key, String(value));
       } else {
@@ -63,38 +45,36 @@ export default function DistrictFilter() {
       }
     });
 
-    const currentUrl = `${pathname}?${searchParams.toString()}`;
     const newUrl = `${pathname}?${params.toString()}`;
 
-    if (currentUrl !== newUrl) {
+    if (newUrl !== `${pathname}?${searchParams.toString()}`) {
       router.replace(newUrl, { scroll: false });
     }
-  }, [debouncedValues, router, pathname, searchParams]);
+  }, 800);
 
-  const handleSelectChange = (name: keyof FilterFormValues) => (value: string) => {
-    setValue(name, value);
-  };
+  return () => clearTimeout(handler);
+}, [watchedValues, pathname]);
 
   const handleReset = () => {
     reset({
       search: "",
       sort_order: "",
     });
+    router.replace(pathname, { scroll: false });
   };
 
-  const currentSearch = searchParams.get("search") || "";
-  const currentSortOrder = searchParams.get("sort_order") || "";
-  const hasActiveFilters = currentSearch !== "" || currentSortOrder !== "";
+  const hasActiveFilters =
+    !!searchParams.get("search") || !!searchParams.get("sort_order");
 
   return (
     <div className="p-6 mb-6 border rounded-xl bg-card shadow-sm">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-semibold text-foreground">Filters</h3>
         {hasActiveFilters && (
-          <Button 
-            type="button" 
-            variant="outline" 
-            size="sm" 
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
             onClick={handleReset}
             className="flex items-center gap-2"
           >
@@ -108,8 +88,8 @@ export default function DistrictFilter() {
         {/* Search Input */}
         <div className="relative col-span-1 lg:col-span-2">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input 
-            placeholder="Search districts..." 
+          <Input
+            placeholder="Search districts..."
             className="pl-10"
             {...register("search")}
           />
@@ -119,13 +99,7 @@ export default function DistrictFilter() {
           name="sort_order"
           control={control}
           render={({ field }) => (
-            <Select 
-              onValueChange={(value) => {
-                field.onChange(value);
-                handleSelectChange("sort_order")(value);
-              }} 
-              value={field.value}
-            >
+            <Select onValueChange={field.onChange} value={field.value}>
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Sort Order" />
               </SelectTrigger>
@@ -139,4 +113,8 @@ export default function DistrictFilter() {
       </div>
     </div>
   );
-}
+};
+
+export default DistrictFilter;
+
+

@@ -9,9 +9,9 @@ import DivisionData from "@/components/division/DivisionData";
 const DivisionPage = async ({
   searchParams,
 }: {
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
-}) => {
-const params = await searchParams;
+    searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+  }) => {
+  const params = await searchParams;
 
   return (
     <div className="mx-auto space-y-6 ">

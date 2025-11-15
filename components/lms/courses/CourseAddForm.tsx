@@ -61,12 +61,10 @@ export default function CourseAddForm({
       lm_category_id: initialData?.category?.id.toString() || "",
       title: initialData?.title || "",
       sub_title: initialData?.sub_title || "",
-      slug: initialData?.slug || "",
       short_description: initialData?.short_description || "",
       description: initialData?.description || "",
       video_link: initialData?.video_link || "",
       level: initialData?.level || "beginner",
-      end_date: initialData?.end_date || "",
       status: initialData?.status || "1",
       is_default: initialData?.is_default || false,
       branch_ids: initialData?.branches?.map((b) => b.id) || [],
@@ -79,12 +77,10 @@ export default function CourseAddForm({
         lm_category_id: initialData.category?.id.toString() || "",
         title: initialData.title || "",
         sub_title: initialData.sub_title || "",
-        slug: initialData.slug || "",
         short_description: initialData.short_description || "",
         description: initialData.description || "",
         video_link: initialData.video_link || "",
         level: initialData.level || "beginner",
-        end_date: initialData.end_date || "",
         status: initialData.status || "1",
         is_default: initialData.is_default || false,
         branch_ids: initialData.branches?.map((b) => b.id) || [],
@@ -140,7 +136,6 @@ export default function CourseAddForm({
     formData.append("lm_category_id", data.lm_category_id);
     formData.append("title", data.title);
     if (data.sub_title) formData.append("sub_title", data.sub_title);
-    if (data.slug) formData.append("slug", data.slug);
     if (data.short_description) formData.append("short_description", data.short_description);
     if (data.description) formData.append("description", data.description);
     if (data.featured_image && data.featured_image.length > 0) {
@@ -148,7 +143,6 @@ export default function CourseAddForm({
     }
     if (data.video_link) formData.append("video_link", data.video_link);
     formData.append("level", data.level);
-    if (data.end_date) formData.append("end_date", data.end_date);
     formData.append("status", data.status);
     formData.append("is_default", data.is_default ? "1" : "0");
     data.branch_ids.forEach((id) => formData.append("branch_ids[]", id.toString()));
@@ -202,7 +196,7 @@ export default function CourseAddForm({
             </div>
           </div>
 
-          {/* Sub Title and Slug */}
+          {/* Sub Title and Level */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="grid gap-2">
               <Label htmlFor="sub_title">Sub Title</Label>
@@ -211,14 +205,24 @@ export default function CourseAddForm({
                 placeholder="Course Sub Title"
                 {...register("sub_title")}
               />
+              {errors.sub_title && (
+                <span className="text-sm text-red-600">{errors.sub_title.message}</span>
+              )}
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="slug">Slug</Label>
-              <Input
-                id="slug"
-                placeholder="course-slug"
-                {...register("slug")}
-              />
+              <Label htmlFor="level">Level</Label>
+              <select
+                id="level"
+                {...register("level")}
+                className="border border-gray-300 rounded px-2 py-1"
+              >
+                <option value="beginner">Beginner</option>
+                <option value="intermediate">Intermediate</option>
+                <option value="advanced">Advanced</option>
+              </select>
+              {errors.level && (
+                <span className="text-sm text-red-600">{errors.level.message}</span>
+              )}
             </div>
           </div>
 
@@ -230,6 +234,9 @@ export default function CourseAddForm({
               placeholder="A brief description of the course"
               {...register("short_description")}
             />
+          {errors.short_description && (
+              <span className="text-sm text-red-600">{errors.short_description.message}</span>
+            )}
           </div>
 
           {/* Description */}
@@ -240,6 +247,9 @@ export default function CourseAddForm({
               placeholder="Full course description here..."
               {...register("description")}
             />
+            {errors.description && (
+              <span className="text-sm text-red-600">{errors.description.message}</span>
+            )}
           </div>
 
           {/* Featured Image and Video Link */}
@@ -264,6 +274,9 @@ export default function CourseAddForm({
                   />
                 </div>
               )}
+              {errors.featured_image && (
+                <span className="text-sm text-red-600">{errors.featured_image.message}</span>
+              )}
             </div>
             <div className="grid gap-2">
               <Label htmlFor="video_link">Video Link</Label>
@@ -271,30 +284,6 @@ export default function CourseAddForm({
                 id="video_link"
                 placeholder="https://youtube.com/watch?v=example"
                 {...register("video_link")}
-              />
-            </div>
-          </div>
-
-          {/* Level and End Date */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="grid gap-2">
-              <Label htmlFor="level">Level</Label>
-              <select
-                id="level"
-                {...register("level")}
-                className="border border-gray-300 rounded px-2 py-1"
-              >
-                <option value="beginner">Beginner</option>
-                <option value="intermediate">Intermediate</option>
-                <option value="advanced">Advanced</option>
-              </select>
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="end_date">End Date</Label>
-              <Input
-                id="end_date"
-                type="date"
-                {...register("end_date")}
               />
             </div>
           </div>
@@ -312,6 +301,9 @@ export default function CourseAddForm({
                 <option value="1">Published</option>
                 <option value="2">Archived</option>
               </select>
+              {errors.status && (
+                <span className="text-sm text-red-600">{errors.status.message}</span>
+              )}
             </div>
             <div className="flex items-center space-x-2 mt-6">
               <Checkbox
@@ -319,6 +311,9 @@ export default function CourseAddForm({
                 {...register("is_default")}
               />
               <Label htmlFor="is_default">Mark as Default Course</Label>
+            {errors.is_default && (
+                <span className="text-sm text-red-600">{errors.is_default.message}</span>
+              )}
             </div>
           </div>
 
