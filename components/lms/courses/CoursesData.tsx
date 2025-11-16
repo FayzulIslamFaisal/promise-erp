@@ -72,6 +72,7 @@ export default async function CoursesData({
               <TableHead>Enrolled</TableHead>
               <TableHead>Branches</TableHead>
               <TableHead>Status</TableHead>
+              <TableHead>Description</TableHead>
             </TableRow>
           </TableHeader>
 
@@ -168,6 +169,9 @@ export default async function CoursesData({
                       {course.status}
                     </Badge>
                   )}
+                </TableCell>
+                <TableCell>
+                  <div dangerouslySetInnerHTML={{ __html: course.description || "" }} />
                 </TableCell>
               </TableRow>
             ))}

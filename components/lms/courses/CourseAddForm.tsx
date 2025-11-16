@@ -8,7 +8,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useEffect, useState } from "react";
 import { getCategories } from "@/apiServices/categoryService";
 import { getBranches } from "@/apiServices/branchService";
-import { Textarea } from "@/components/ui/textarea";
+import RichTextEditor from "./RichTextEditor";
+import { Controller } from "react-hook-form";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Course } from "@/apiServices/courseService";
 import Image from "next/image";
@@ -270,12 +271,17 @@ export default function CourseAddForm({
           </div> */}
 
           {/* Description */}
-          <div className="grid gap-2">
+          <div className="grid gap-2 pb-10">
             <Label htmlFor="description">Description</Label>
-            <Textarea
-              id="description"
-              placeholder="Full course description here..."
-              {...register("description")}
+            <Controller
+              name="description"
+              control={control}
+              render={({ field }) => (
+                <RichTextEditor
+                  value={field.value || ""}
+                  onChange={field.onChange}
+                />
+              )}
             />
             {errors.description && (
               <span className="text-sm text-red-600">{errors.description.message}</span>
