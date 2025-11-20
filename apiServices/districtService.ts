@@ -97,10 +97,7 @@ export async function getDistrictsCached(
     return await res.json();
   } catch (error) {
     console.error("Error in getDivisionsCached:", error);
-    throw new Error(
-      error instanceof Error
-        ? error.message
-        : "Unknown error occurred while fetching districts"
+    throw new Error( error.message || "Unknown error occurred while fetching districts"
     );
   }
 }

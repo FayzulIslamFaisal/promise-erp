@@ -3,11 +3,13 @@
 import { authOptions } from "@/lib/auth"
 import { getServerSession } from "next-auth"
 import { cacheTag, updateTag } from "next/cache"
+import { District } from "@/apiServices/districtService"
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api/v1"
+const API_BASE =
+  process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api/v1"
 
 /* ===============================
-   🔹 Interfaces
+   Interfaces
 ================================== */
 
 export interface SocialLink {
@@ -24,8 +26,6 @@ export interface Branch {
   email?: string[] | null;
   google_map?: string | null;
   social_links?: SocialLink[] | null;
-
-  // Add these counts
   student_count: number;
   teacher_count: number;
   employee_count: number;
@@ -36,15 +36,14 @@ export interface Branch {
   };
 }
 
-// ✅ Separate type for creating a new branch (no id or counts)
 export interface BranchCreate {
   name: string
-  division_id: number
+  district_id: number
   address?: string | null
   phone?: string[] | null
   email?: string[] | null
   google_map?: string | null
-  social_links?: string[] | null
+  social_links?: SocialLink[] | null
 }
 
 export interface Pagination {
@@ -75,21 +74,30 @@ export interface BranchSingleResponse {
 export interface BranchResponseType {
   success: boolean
   message?: string
-  errors?: {
-    [key: string]: string[] | string
-  }
+  errors?: Record<string, string[] | string>
   data?: any
 }
 
 /* ===============================
-   🔹 Add Branch
+   Helper – Get Auth Token
 ================================== */
-
-export async function addBranch(branch: BranchCreate): Promise<BranchResponseType> {
+async function getAuthToken(): Promise<string> {
   const session = await getServerSession(authOptions)
-  const token = session?.accessToken
 
-  if (!token) return { success: false, message: "No valid session or access token found." }
+  if (!session?.accessToken) {
+    throw new Error("No valid session or access token found.")
+  }
+
+  return session.accessToken
+}
+
+/* ===============================
+   Add Branch
+================================== */
+export async function addBranch(
+  branch: BranchCreate
+): Promise<BranchResponseType> {
+  const token = await getAuthToken()
 
   const res = await fetch(`${API_BASE}/branches`, {
     method: "POST",
@@ -100,7 +108,7 @@ export async function addBranch(branch: BranchCreate): Promise<BranchResponseTyp
     body: JSON.stringify(branch),
   })
 
-  const data = await res.json()
+  const data = await res.json().catch(() => ({}))
 
   if (!res.ok) {
     return {
@@ -112,11 +120,15 @@ export async function addBranch(branch: BranchCreate): Promise<BranchResponseTyp
 
   updateTag("branches-list")
 
-  return { success: true, message: data.message, data }
+  return {
+    success: true,
+    message: data.message,
+    data,
+  }
 }
 
 /* ===============================
-   🔹 Get Branches (Paginated)
+    Get Branches (Paginated)
 ================================== */
 
 export async function getBranchesCached(
@@ -181,14 +193,12 @@ export async function getBranches(
 }
 
 /* ===============================
-   🔹 Get Single Branch by ID
+  Get Single Branch by ID
 ================================== */
-
-export async function getBranchById(id: string): Promise<BranchSingleResponse> {
-  const session = await getServerSession(authOptions)
-  const token = session?.accessToken
-
-  if (!token) throw new Error("No valid session or access token found.")
+export async function getBranchById(
+  id: string
+): Promise<BranchSingleResponse> {
+  const token = await getAuthToken()
 
   const res = await fetch(`${API_BASE}/branches/${id}`, {
     headers: {
@@ -197,67 +207,84 @@ export async function getBranchById(id: string): Promise<BranchSingleResponse> {
     },
   })
 
-  if (!res.ok) throw new Error(`Failed to fetch branch: ${res.statusText}`)
+  if (!res.ok) {
+    throw new Error(`Failed to fetch branch: ${res.statusText}`)
+  }
+ 
+
 
   return res.json()
 }
 
 /* ===============================
-   🔹 Update Branch
+ Update Branch
 ================================== */
 
-export async function updateBranch(id: string, formData: FormData): Promise<BranchResponseType> {
+export async function updateBranch(
+  id: string,
+  data: Record<string, any>
+): Promise<BranchResponseType> {
   const session = await getServerSession(authOptions);
   const token = session?.accessToken;
 
-  if (!token) return { success: false, message: "No valid session or access token found." }
-
-  formData.append("_method", "PATCH"); // For Laravel to recognize PATCH with FormData
+  if (!token) {
+    return {
+      success: false,
+      message: "No valid session or access token found.",
+    };
+  }
 
   const res = await fetch(`${API_BASE}/branches/${id}`, {
-    method: "POST", // Use POST with _method=PATCH for FormData
+    method: "PATCH", // ✅ সরাসরি PATCH করা হচ্ছে
     headers: {
       Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json", // ✅ এখন JSON পাঠানো হবে
     },
-    body: formData,
-  })
+    body: JSON.stringify(data),
+  });
 
-  const data = await res.json()
+  const result = await res.json().catch(() => ({}));
 
   if (!res.ok) {
     return {
       success: false,
-      message: data.message || "Failed to update branch.",
-      errors: data.errors,
-    }
+      message: result.message || "Failed to update branch.",
+      errors: result.errors,
+    };
   }
 
-  updateTag("branches-list")
+  updateTag("branches-list");
 
-  return { success: true, message: data.message, data }
+  return {
+    success: true,
+    message: result.message,
+    data: result.data,
+  };
 }
 
+
 /* ===============================
-   🔹 Delete Branch
+  Delete Branch
 ================================== */
-
-export async function deleteBranch(id: number): Promise<{ success: boolean; message: string }> {
-  const session = await getServerSession(authOptions)
-  const token = session?.accessToken
-
-  if (!token) throw new Error("No valid session or access token found.")
+export async function deleteBranch(
+  id: number
+): Promise<{ success: boolean; message: string }> {
+  const token = await getAuthToken()
 
   const res = await fetch(`${API_BASE}/branches/${id}`, {
     method: "DELETE",
-    headers: { Authorization: `Bearer ${token}` },
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
   })
 
+  const data = await res.json().catch(() => ({}))
+
   if (!res.ok) {
-    const errorData = await res.json().catch(() => ({}))
-    throw new Error(`Message: ${errorData.message || "Failed to delete branch"}`)
+    throw new Error(data.message || "Failed to delete branch")
   }
 
   updateTag("branches-list")
 
-  return res.json()
+  return data
 }

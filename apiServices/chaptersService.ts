@@ -1,9 +1,11 @@
 "use server";
+
 import { authOptions } from "@/lib/auth";
 import { getServerSession } from "next-auth";
 import { cacheTag, updateTag } from "next/cache";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api/v1";
+
 // Batch
 export interface ChapterBatch {
   id: number;
@@ -15,7 +17,7 @@ export interface ChapterCourse {
   id: number;
   title: string;
 }
-
+  
 // Branch
 export interface ChapterBranch {
   id: number;
@@ -61,7 +63,7 @@ export interface ChaptersResponse {
   errors?: Record<string, string[]>;
 }
 
-//Single Chapter Response
+// Single Chapter Response
 export interface SingleChapterResponse {
   success: boolean;
   message: string;
@@ -69,7 +71,6 @@ export interface SingleChapterResponse {
   data?: Chapter | null;
   errors?: Record<string, string[]>;
 }
-
 
 // =======================
 //  GET CHAPTERS (Paginated)
@@ -93,23 +94,17 @@ export async function getChaptersCached(
       }
     }
 
-    const res = await fetch(
-      `${API_BASE}/chapters?${urlParams.toString()}`,
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
+    const res = await fetch(`${API_BASE}/chapters?${urlParams.toString()}`, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
 
     const data: ChaptersResponse = await res.json();
     return data;
   } catch (error) {
-    console.error("Error in getChaptersCached:", error);
-    throw new Error(
-      error instanceof Error ? error.message : "Failed to fetch chapters"
-    );
+    throw new Error("Failed to fetch chapters");
   }
 }
 
@@ -117,26 +112,19 @@ export async function getChapters(
   page = 1,
   params: Record<string, unknown> = {}
 ): Promise<ChaptersResponse> {
-  try {
-    const session = await getServerSession(authOptions);
-    const token = session?.accessToken;
+  const session = await getServerSession(authOptions);
+  const token = session?.accessToken;
 
-    if (!token) throw new Error("No valid session/token");
+  if (!token) throw new Error("No valid session/token");
 
-    return await getChaptersCached(page, token, params);
-  } catch (error) {
-    console.error("Error in getChapters:", error);
-    throw error;
-  }
+  return await getChaptersCached(page, token, params);
 }
 
 // =======================
 // GET SINGLE CHAPTER
 // =======================
 
-export async function getChapterById(
-  id: number
-): Promise<SingleChapterResponse> {
+export async function getChapterById(id: number): Promise<SingleChapterResponse> {
   try {
     const session = await getServerSession(authOptions);
     const token = session?.accessToken;
@@ -149,17 +137,16 @@ export async function getChapterById(
       },
     });
 
-    const data: SingleChapterResponse = await res.json();
-    return data;
+    return await res.json();
   } catch (error) {
-    console.error("Error in getChapterById:", error);
-    throw error;
+    throw new Error("Failed to fetch chapter");
   }
 }
 
 // =======================
-// CREATE CHAPTER
+// CREATE CHAPTER (POST)
 // =======================
+
 export interface ChapterFormData {
   lm_batch_id: number;
   lm_course_id: number;
@@ -168,6 +155,7 @@ export interface ChapterFormData {
   description: string;
   status: number;
 }
+
 export async function createChapter(
   chapterFormData: ChapterFormData
 ): Promise<SingleChapterResponse> {
@@ -185,13 +173,11 @@ export async function createChapter(
       body: JSON.stringify(chapterFormData),
     });
 
-    const data: SingleChapterResponse = await res.json();
+    const data = await res.json();
     updateTag("chapters-list");
-
     return data;
   } catch (error) {
-    console.error("Error in createChapter:", error);
-    throw error;
+    throw new Error("Failed to create chapter");
   }
 }
 
@@ -207,33 +193,30 @@ export interface ChapterUpdateFormData {
   description: string;
   status: number;
 }
+
 export async function updateChapter(
   id: number,
-  chapterUpdateFormData: ChapterUpdateFormData
+  updateData: ChapterUpdateFormData
 ): Promise<SingleChapterResponse> {
   try {
     const session = await getServerSession(authOptions);
     const token = session?.accessToken;
     if (!token) throw new Error("No token found");
 
-    // chapterUpdateFormData.append("_method", "PATCH");
-
     const res = await fetch(`${API_BASE}/chapters/${id}`, {
-      method: "POST",
+      method: "PATCH", // <-- ✔ Correct method
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(chapterUpdateFormData),
+      body: JSON.stringify(updateData),
     });
 
-    const data: SingleChapterResponse = await res.json();
+    const data = await res.json();
     updateTag("chapters-list");
-
     return data;
   } catch (error) {
-    console.error("Error in updateChapter:", error);
-    throw error;
+    throw new Error("Failed to update chapter");
   }
 }
 
@@ -241,9 +224,7 @@ export async function updateChapter(
 // DELETE CHAPTER
 // =======================
 
-export async function deleteChapter(
-  id: number
-): Promise<SingleChapterResponse> {
+export async function deleteChapter(id: number): Promise<SingleChapterResponse> {
   try {
     const session = await getServerSession(authOptions);
     const token = session?.accessToken;
@@ -257,12 +238,11 @@ export async function deleteChapter(
       },
     });
 
-    const data: SingleChapterResponse = await res.json();
+    const data = await res.json();
     updateTag("chapters-list");
 
     return data;
   } catch (error) {
-    console.error("Error in deleteChapter:", error);
-    throw error;
+    throw new Error("Failed to delete chapter");
   }
 }

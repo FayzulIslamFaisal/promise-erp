@@ -37,6 +37,7 @@ export interface CourseProject {
   course_name: string;
   batch?: Batch | null;
   branch?: Branch | null;
+  course_id: number | null;
 }
 export interface CourseProjectsResponse {
   success: boolean;

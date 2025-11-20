@@ -44,10 +44,17 @@ export interface Pagination {
 
 /* ---------------------- Component ---------------------- */
 
-export default async function BranchesData() {
+export default async function BranchesData({
+  searchParams,
+}: {
+  searchParams?: Promise<{ [key: string]: string | undefined }>
+}) {
+  const params = await searchParams; 
+  const page = Number(params?.page) || 1;
+
   let data;
   try {
-    data = await getBranches(1);
+    data = await getBranches(page, params);
   } catch (error: unknown) {
     if (error instanceof Error) {
       return <ErrorComponent message={error.message} />;
@@ -62,7 +69,6 @@ export default async function BranchesData() {
   if (branches.length === 0) {
     return <NotFoundComponent message="No branches found." />;
   }
-
   return (
     <>
       <div className="rounded-md border overflow-x-auto">
@@ -71,7 +77,7 @@ export default async function BranchesData() {
             <TableRow>
               <TableHead>#</TableHead>
               <TableHead className="text-center">Action</TableHead>
-              <TableHead>Name</TableHead>
+              <TableHead>Branch Name</TableHead>
               <TableHead>District</TableHead>
               <TableHead>Students</TableHead>
               <TableHead>Teachers</TableHead>
@@ -87,7 +93,6 @@ export default async function BranchesData() {
               <TableRow key={branch.id}>
                 <TableCell>{i + 1}</TableCell>
 
-                {/* ✅ Action Menu */}
                 <TableCell className="text-center">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -111,7 +116,6 @@ export default async function BranchesData() {
                         </Link>
                       </DropdownMenuItem>
 
-                      {/* Branch Delete Button */}
                       <DropdownMenuItem asChild>
                         <DeleteBranchButton id={branch.id} />
                       </DropdownMenuItem>
@@ -119,22 +123,17 @@ export default async function BranchesData() {
                   </DropdownMenu>
                 </TableCell>
 
-                {/* ✅ Data Cells */}
                 <TableCell>{branch.name || "N/A"}</TableCell>
                 <TableCell>{branch.district?.name || "N/A"}</TableCell>
                 <TableCell>{branch.student_count ?? 0}</TableCell>
                 <TableCell>{branch.teacher_count ?? 0}</TableCell>
                 <TableCell>{branch.employee_count ?? 0}</TableCell>
                 <TableCell>{branch.address || "N/A"}</TableCell>
-
-                {/* ✅ Phone */}
                 <TableCell className="whitespace-pre-line">
                   {Array.isArray(branch.phone)
                     ? branch.phone.map((p, idx) => <div key={idx}>{p}</div>)
                     : branch.phone || "N/A"}
                 </TableCell>
-
-                {/* ✅ Email */}
                 <TableCell className="whitespace-pre-line">
                   {Array.isArray(branch.email)
                     ? branch.email.map((e, idx) => <div key={idx}>{e}</div>)
@@ -147,7 +146,7 @@ export default async function BranchesData() {
       </div>
 
       <Pagination pagination={pagination} />
-      
     </>
   );
 }
+

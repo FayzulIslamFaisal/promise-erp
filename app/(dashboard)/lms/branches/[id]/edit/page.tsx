@@ -11,16 +11,14 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useEffect, useState, use } from "react";
 
-export default function EditBranchPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
+export default function EditBranchPage({params}: {params: Promise<{ id: string }>}) {
+  //  unwrap the async params
+  const resolvedParams = use(params);
   const router = useRouter();
-  const resolvedParams = use(params); // ✅ unwrap the params promise
   const [branch, setBranch] = useState<Branch | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  //  Fetch branch by ID once params are resolved
   useEffect(() => {
     const fetchBranch = async () => {
       try {
@@ -38,14 +36,16 @@ export default function EditBranchPage({
     fetchBranch();
   }, [resolvedParams.id]);
 
+  // Handle JSON form submit
   const handleSubmit = async (
-    formData: FormData,
-    setFormError: (field: string, message: string) => void
+    jsonData: any,
+    setFormError: (field: string, message: string) => void,
+    resetForm: () => void
   ) => {
     try {
       const res: BranchResponseType = await updateBranch(
         resolvedParams.id,
-        formData
+        jsonData
       );
 
       if (res?.success) {
@@ -55,6 +55,8 @@ export default function EditBranchPage({
         Object.entries(res.errors).forEach(([field, messages]) => {
           if (Array.isArray(messages) && messages.length > 0) {
             setFormError(field, messages[0]);
+          } else if (typeof messages === "string") {
+            setFormError(field, messages);
           }
         });
         toast.error("Please fix the errors below.");
@@ -68,9 +70,12 @@ export default function EditBranchPage({
   };
 
   if (error) {
-    return <div>Error: {error}</div>;
+    return <div className="text-red-600">Error: {error}</div>;
   }
-console.log(branch,"edit branch");
+
+  if (!branch) {
+    return <div>Loading branch details...</div>;
+  }
 
   return (
     <BranchForm

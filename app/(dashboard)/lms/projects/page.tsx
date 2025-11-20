@@ -6,7 +6,7 @@ import { Suspense } from "react";
 import ProjectFilterData from "@/components/lms/courseProject/ProjectFilterData";
 import ProjectFilterNav from "./ProjectFilterNav";
 
-const CategoriesPage = async ({
+const ProjectsPage = async ({
   searchParams,
 }: {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
@@ -18,7 +18,7 @@ const params = await searchParams;
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-semibold tracking-tight">Course Project</h1>
         <Button asChild>
-          <Link href="/lms/categories/add">
+          <Link href="/lms/projects/add">
             <PlusCircle className="w-4 h-4 mr-2" />
             Add New Project
           </Link>
@@ -36,4 +36,4 @@ const params = await searchParams;
   )
 }
 
-export default CategoriesPage
+export default ProjectsPage
