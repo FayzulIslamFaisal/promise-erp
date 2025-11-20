@@ -47,7 +47,9 @@ export interface Pagination {
 export default async function BranchesData({
   searchParams,
 }: {
-  searchParams?: Promise<{ [key: string]: string | undefined }>
+  searchParams?:
+    | Promise<{ [key: string]: string | undefined }>
+    | { [key: string]: string | undefined }
 }) {
   const params = await searchParams; 
   const page = Number(params?.page) || 1;
