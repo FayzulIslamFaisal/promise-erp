@@ -243,7 +243,7 @@ export async function deleteDivision(id: number): Promise<{ success: boolean; me
     const token = session?.accessToken
 
     if (!token) {
-      throw new Error("Unauthorized")
+      return { success: false, message: "Unauthorized" }
     }
 
     const res = await fetch(`${API_BASE}/divisions/${id}`, {
@@ -255,7 +255,7 @@ export async function deleteDivision(id: number): Promise<{ success: boolean; me
     })
 
     if (!res.ok) {
-      const errorData = await res.json();
+      const errorData = await res.json().catch(async () => ({ message: await res.text() }));
       return { success: false, message: errorData.message || "Failed to delete division." };
     }
 

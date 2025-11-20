@@ -95,7 +95,7 @@ export async function getDistrictsCached(
     });
     
     return await res.json();
-  } catch (error) {
+  } catch (error : any) {
     console.error("Error in getDivisionsCached:", error);
     throw new Error( error.message || "Unknown error occurred while fetching districts"
     );
@@ -214,7 +214,7 @@ export async function deleteDistrict(
     const token = session?.accessToken;
 
     if (!token) {
-      throw new Error("Unauthorized");
+      return { success: false, message: "Unauthorized", code: 401 };
     }
 
     const res = await fetch(`${API_BASE}/districts/${id}`, {
@@ -225,14 +225,15 @@ export async function deleteDistrict(
       },
     });
 
-    const result = await res.json();
+    const result = await res.json().catch(async () => ({ message: await res.text() }));
+    if (!res.ok) {
+      return { success: false, message: result.message || "Failed to delete district", code: res.status };
+    }
     updateTag("districts-list");
-    return result;
+    return { success: true, message: result.message || "District deleted successfully" };
   } catch (error) {
     console.error("Error in districts:", error);
-    throw new Error(
-      error instanceof Error ? error.message : "Failed to delete districts"
-    );
+    return { success: false, message: error instanceof Error ? error.message : "Failed to delete district", code: 500 };
   }
 }
 // =======================

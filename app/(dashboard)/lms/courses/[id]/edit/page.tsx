@@ -41,19 +41,25 @@ export default function EditCoursePage({
     formData: FormData,
     setFormError: (field: string, message: string) => void
   ) => {
-    const result = await updateCourse(resolvedParams.id, formData);
+    try {
+      const result = await updateCourse(resolvedParams.id, formData);
 
-    if (result.success) {
-      toast.success("Course updated successfully!");
-      router.push("/lms/courses");
-    } else {
-      toast.error(result.message || "Failed to update course.");
-      if (result.errors) {
-        for (const key in result.errors) {
-          setFormError(key, result.errors[key][0]);
+      if (result.success) {
+        toast.success("Course updated successfully!");
+        router.push("/lms/courses");
+      } else {
+        toast.error(result.message || "Failed to update course.");
+        if (result.errors) {
+          for (const key in result.errors) {
+            setFormError(key, result.errors[key][0]);
+          }
         }
       }
+    } catch (error: PromiseRejectionEvent | any) {
+      toast.error(error.message || "An unexpected error occurred.");
+      console.error("Error updating course:", error);
     }
+    
   };
 
   if (error) {

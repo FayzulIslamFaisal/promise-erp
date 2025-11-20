@@ -20,6 +20,7 @@ export interface Batch {
   price: string;
   discount: string;
   discount_type: string | null;
+  discount_price: number | null;
   duration: string | null;
   start_date: string | null;
   end_date: string | null;

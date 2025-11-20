@@ -266,10 +266,21 @@ export async function updateBranch(
 /* ===============================
   Delete Branch
 ================================== */
+<<<<<<< HEAD
+
+export async function deleteBranch(id: number): Promise<{ success: boolean; message: string; code?: number }> {
+  const session = await getServerSession(authOptions)
+  const token = session?.accessToken
+
+  if (!token) {
+    return { success: false, message: "No valid session or access token found.", code: 401 }
+  }
+=======
 export async function deleteBranch(
   id: number
 ): Promise<{ success: boolean; message: string }> {
   const token = await getAuthToken()
+>>>>>>> e5d28cb1f9ab861261fe1cdd5571c920e0dd71f8
 
   const res = await fetch(`${API_BASE}/branches/${id}`, {
     method: "DELETE",
@@ -278,6 +289,15 @@ export async function deleteBranch(
     },
   })
 
+<<<<<<< HEAD
+  const data = await res.json().catch(async () => ({ message: await res.text() }))
+  if (!res.ok) {
+    return { success: false, message: data.message || "Failed to delete branch", code: res.status }
+  }
+
+  updateTag("branches-list")
+  return { success: true, message: data.message || "Branch deleted successfully" }
+=======
   const data = await res.json().catch(() => ({}))
 
   if (!res.ok) {
@@ -287,4 +307,5 @@ export async function deleteBranch(
   updateTag("branches-list")
 
   return data
+>>>>>>> e5d28cb1f9ab861261fe1cdd5571c920e0dd71f8
 }

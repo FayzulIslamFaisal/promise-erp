@@ -218,11 +218,13 @@ export async function updateTeacher(
 // =======================
 // 🔹 Delete Teacher
 // =======================
-export async function deleteTeacher(id: number) {
+export async function deleteTeacher(id: number): Promise<{ success: boolean; message?: string; code?: number }> {
   const session = await getServerSession(authOptions);
   const token = session?.accessToken;
 
-  if (!token) throw new Error("Unauthorized");
+  if (!token) {
+    return { success: false, message: "Unauthorized", code: 401 };
+  }
 
   const res = await fetch(`${API_BASE}/teachers/${id}`, {
     method: "DELETE",
@@ -232,11 +234,11 @@ export async function deleteTeacher(id: number) {
     },
   });
 
+  const data = await res.json().catch(async () => ({ message: await res.text() }));
   if (!res.ok) {
-    const errorText = await res.text();
-    throw new Error(`Failed to delete student: ${errorText}`);
+    return { success: false, message: data.message || "Failed to delete teacher", code: res.status };
   }
   updateTag("teachers-list");
-  return await res.json();
+  return { success: true, message: data.message || "Teacher deleted successfully" };
 }
 

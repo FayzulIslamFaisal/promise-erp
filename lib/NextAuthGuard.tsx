@@ -53,6 +53,7 @@ import { ReactNode } from "react"
 import { getServerSession } from "next-auth"
 import { redirect } from "next/navigation"
 import { authOptions } from "@/lib/auth" 
+import { unstable_noStore as noStore } from "next/cache"
 
 
 interface AuthGuardProps {
@@ -66,6 +67,8 @@ export default async function NextAuthGuard({
   allowedRoles = [],
   requiredPermissions = [],
 }: AuthGuardProps) {
+  // Opt out of component caching so getServerSession runs per-request
+  noStore();
   const session = await getServerSession(authOptions)
 
   if (!session?.user) {

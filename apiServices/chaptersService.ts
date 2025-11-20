@@ -162,7 +162,7 @@ export async function createChapter(
   try {
     const session = await getServerSession(authOptions);
     const token = session?.accessToken;
-    if (!token) throw new Error("No token found");
+    if (!token) return { success: false, message: "No token found", code: 401 } as any;
 
     const res = await fetch(`${API_BASE}/chapters`, {
       method: "POST",
@@ -173,11 +173,23 @@ export async function createChapter(
       body: JSON.stringify(chapterFormData),
     });
 
+<<<<<<< HEAD
+    const data: SingleChapterResponse = await res.json().catch(async () => ({ message: await res.text() } as any));
+    if (!res.ok) {
+      return { success: false, message: data.message || "Failed to create chapter", errors: (data as any).errors, code: res.status } as any;
+    }
+    updateTag("chapters-list");
+    return data;
+  } catch (error) {
+    console.error("Error in createChapter:", error);
+    return { success: false, message: error instanceof Error ? error.message : "Failed to create chapter", code: 500 } as any;
+=======
     const data = await res.json();
     updateTag("chapters-list");
     return data;
   } catch (error) {
     throw new Error("Failed to create chapter");
+>>>>>>> e5d28cb1f9ab861261fe1cdd5571c920e0dd71f8
   }
 }
 
@@ -201,7 +213,11 @@ export async function updateChapter(
   try {
     const session = await getServerSession(authOptions);
     const token = session?.accessToken;
+<<<<<<< HEAD
+    if (!token) return { success: false, message: "No token found", code: 401 } as any;
+=======
     if (!token) throw new Error("No token found");
+>>>>>>> e5d28cb1f9ab861261fe1cdd5571c920e0dd71f8
 
     const res = await fetch(`${API_BASE}/chapters/${id}`, {
       method: "PATCH", // <-- ✔ Correct method
@@ -212,11 +228,23 @@ export async function updateChapter(
       body: JSON.stringify(updateData),
     });
 
+<<<<<<< HEAD
+    const data: SingleChapterResponse = await res.json().catch(async () => ({ message: await res.text() } as any));
+    if (!res.ok) {
+      return { success: false, message: data.message || "Failed to update chapter", errors: (data as any).errors, code: res.status } as any;
+    }
+    updateTag("chapters-list");
+    return data;
+  } catch (error) {
+    console.error("Error in updateChapter:", error);
+    return { success: false, message: error instanceof Error ? error.message : "Failed to update chapter", code: 500 } as any;
+=======
     const data = await res.json();
     updateTag("chapters-list");
     return data;
   } catch (error) {
     throw new Error("Failed to update chapter");
+>>>>>>> e5d28cb1f9ab861261fe1cdd5571c920e0dd71f8
   }
 }
 
@@ -228,7 +256,7 @@ export async function deleteChapter(id: number): Promise<SingleChapterResponse> 
   try {
     const session = await getServerSession(authOptions);
     const token = session?.accessToken;
-    if (!token) throw new Error("No token found");
+    if (!token) return { success: false, message: "No token found", code: 401 } as any;
 
     const res = await fetch(`${API_BASE}/chapters/${id}`, {
       method: "DELETE",
@@ -238,11 +266,22 @@ export async function deleteChapter(id: number): Promise<SingleChapterResponse> 
       },
     });
 
+<<<<<<< HEAD
+    const data: SingleChapterResponse = await res.json().catch(async () => ({ message: await res.text() } as any));
+    if (!res.ok) {
+      return { success: false, message: data.message || "Failed to delete chapter", code: res.status } as any;
+    }
+=======
     const data = await res.json();
+>>>>>>> e5d28cb1f9ab861261fe1cdd5571c920e0dd71f8
     updateTag("chapters-list");
-
     return data;
   } catch (error) {
+<<<<<<< HEAD
+    console.error("Error in deleteChapter:", error);
+    return { success: false, message: error instanceof Error ? error.message : "Failed to delete chapter", code: 500 } as any;
+=======
     throw new Error("Failed to delete chapter");
+>>>>>>> e5d28cb1f9ab861261fe1cdd5571c920e0dd71f8
   }
 }

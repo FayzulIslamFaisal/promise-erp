@@ -1,6 +1,7 @@
 "use client";
 
 import { useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { Trash2, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import DeleteLessonAction from "@/actions/DeleteLessonAction"; // This will be created later
@@ -28,6 +29,7 @@ type ApiResponse = {
 
 const DeleteButton = ({ id }: DeleteButtonProps) => {
   const [isPending, startTransition] = useTransition();
+  const router = useRouter();
 
   const handleDelete = () => {
     startTransition(async () => {
@@ -35,6 +37,7 @@ const DeleteButton = ({ id }: DeleteButtonProps) => {
         const res: ApiResponse = await DeleteLessonAction(id);
         if (res.success) {
           toast.success(res.message || "Lesson deleted successfully");
+          router.refresh();
         } else {
           toast.error(res.message || "Delete failed");
         }

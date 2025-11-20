@@ -214,11 +214,20 @@ export async function updateStudent(
 // =======================
 // 🔹 Delete Student
 // =======================
-export async function deleteStudent(id: number) {
+export interface MutationResponse {
+  success: boolean;
+  message?: string;
+  errors?: Record<string, string[] | string>;
+  code?: number;
+}
+
+export async function deleteStudent(id: number): Promise<MutationResponse> {
   const session = await getServerSession(authOptions);
   const token = session?.accessToken;
 
-  if (!token) throw new Error("Unauthorized");
+  if (!token) {
+    return { success: false, message: "Unauthorized", code: 401 };
+  }
 
   const res = await fetch(`${API_BASE}/students/${id}`, {
     method: "DELETE",
@@ -228,10 +237,10 @@ export async function deleteStudent(id: number) {
     },
   });
 
+  const data = await res.json().catch(async () => ({ message: await res.text() }));
   if (!res.ok) {
-    const errorText = await res.text();
-    throw new Error(`Failed to delete student: ${errorText}`);
+    return { success: false, message: data.message || "Failed to delete student", code: res.status };
   }
   updateTag("students-list");
-  return await res.json();
+  return { success: true, message: data.message || "Student deleted successfully" };
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { Trash2, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -26,6 +27,7 @@ interface DeleteButtonProps {
 
 const DeleteButton = ({ id }: DeleteButtonProps) => {
   const [isPending, startTransition] = useTransition();
+  const router = useRouter();
 
   const handleDelete = () => {
     startTransition(async () => {
@@ -33,6 +35,7 @@ const DeleteButton = ({ id }: DeleteButtonProps) => {
         const res: SingleCategoryResponse = await DeleteCategoryAction(id);
         if (res.success) {
           toast.success(res.message || "Category deleted successfully");
+          router.refresh();
         } else {
           toast.error(res.message || "Delete failed");
         }

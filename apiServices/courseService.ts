@@ -128,21 +128,20 @@ export async function createCourse(formData: FormData): Promise<any> {
     const data = await res.json();
 
     if (!res.ok) {
-      if (res.status === 422 && data.errors) {
-        return Promise.reject(data);
-      }
-      throw new Error(data.message || `Failed to create course. Status: ${res.status}`);
+      return {
+        success: false,
+        message: data.message || "Failed to create course.",
+        errors: data.errors,
+        code: res.status,
+      };
     }
 
     updateTag("courses-list");
-    return data;
+    return { success: true, message: data.message, data };
   } catch (error: any) {
     console.error("Error in createCourse:", error);
-    if (error.errors) {
-      throw error; // Re-throw the original error to preserve the errors object
-    }
     const message = error instanceof Error ? error.message : "An unknown error occurred while creating the course.";
-    throw new Error(message);
+    return { success: false, message, code: 500 };
   }
 }
 
@@ -196,21 +195,20 @@ export async function updateCourse(id: string, formData: FormData): Promise<any>
     const data = await res.json();
 
     if (!res.ok) {
-      if (res.status === 422 && data.errors) {
-        return Promise.reject(data);
-      }
-      throw new Error(data.message || `Failed to update course. Status: ${res.status}`);
+      return {
+        success: false,
+        message: data.message || "Failed to update course.",
+        errors: data.errors,
+        code: res.status,
+      };
     }
 
     updateTag("courses-list");
-    return data;
+    return { success: true, message: data.message, data };
   } catch (error: any) {
     console.error("Error in updateCourse:", error);
-    if (error.errors) {
-      throw error; // Re-throw the original error to preserve the errors object
-    }
     const message = error instanceof Error ? error.message : "An unknown error occurred while updating the course.";
-    throw new Error(message);
+    return { success: false, message, code: 500 };
   }
 }
 
@@ -229,12 +227,16 @@ export async function DeleteCourse(id: number): Promise<any> {
     },
   });
 
+  const data = await res.json().catch(() => ({}));
   if (!res.ok) {
-    const errorData = await res.json().catch(() => ({}));
-    throw new Error(`Message: ${errorData.message || "Failed to delete course"}`);
+    return {
+      success: false,
+      message: data.message || "Failed to delete course",
+      code: res.status,
+    };
   }
 
   updateTag("courses-list");
-  return res.json();
+  return { success: true, message: data.message || "Course deleted successfully", data };
 }
 

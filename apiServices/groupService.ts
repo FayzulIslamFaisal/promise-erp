@@ -302,7 +302,7 @@ export async function deleteGroup(
     const token = session?.accessToken;
 
     if (!token) {
-      throw new Error("Unauthorized");
+      return { success: false, message: "Unauthorized", code: 401 };
     }
 
     const res = await fetch(`${API_BASE}/groups/${id}`, {
@@ -313,13 +313,14 @@ export async function deleteGroup(
       },
     });
 
-    const result = await res.json();
+    const result = await res.json().catch(async () => ({ message: await res.text() }));
+    if (!res.ok) {
+      return { success: false, message: result.message || "Failed to delete group", code: res.status };
+    }
     updateTag("groups-list");
-    return result;
+    return { success: true, message: result.message || "Group deleted successfully" };
   } catch (error) {
     console.error("Error in groups:", error);
-    throw new Error(
-      error instanceof Error ? error.message : "Failed to delete groups"
-    );
+    return { success: false, message: error instanceof Error ? error.message : "Failed to delete group", code: 500 };
   }
 }

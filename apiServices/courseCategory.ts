@@ -84,15 +84,48 @@ export async function getCourseCategoriesCached(
         Authorization: `Bearer ${token}`,
       },
     });
-    const data: CourseCategoriesResponse = await res.json();
-     return data;
+    const data: CourseCategoriesResponse = await res.json().catch(async () => ({ message: await res.text() } as any));
+    if (!res.ok) {
+      return {
+        success: false,
+        message: (data as any).message || "Failed to fetch course categories",
+        code: res.status,
+        data: {
+          total_categories: 0,
+          categories: [],
+          pagination: {
+            current_page: page,
+            last_page: 0,
+            per_page: 0,
+            total: 0,
+            from: 0,
+            to: 0,
+            has_more_pages: false,
+          },
+        },
+      };
+    }
+    return data;
   } catch (error) {
     console.error("Error in getCourseCategoriesCached:", error);
-    throw new Error(
-      error instanceof Error
-        ? error.message
-        : "Unknown error occurred while fetching Course Categories"
-    );
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : "Unknown error occurred while fetching Course Categories",
+      code: 500,
+      data: {
+        total_categories: 0,
+        categories: [],
+        pagination: {
+          current_page: page,
+          last_page: 0,
+          per_page: 0,
+          total: 0,
+          from: 0,
+          to: 0,
+          has_more_pages: false,
+        },
+      },
+    };
   }
 }
 
@@ -105,15 +138,47 @@ export async function getCourseCategories(
     const token = session?.accessToken;
 
     if (!token) {
-      throw new Error("No valid session or access token found.");
+      return {
+        success: false,
+        message: "No valid session or access token found.",
+        code: 401,
+        data: {
+          total_categories: 0,
+          categories: [],
+          pagination: {
+            current_page: page,
+            last_page: 0,
+            per_page: 0,
+            total: 0,
+            from: 0,
+            to: 0,
+            has_more_pages: false,
+          },
+        },
+      };
     }
 
     return await getCourseCategoriesCached(page, token, params);
   } catch (error) {
     console.error("Error in get Course Categories:", error);
-    throw new Error(
-      error instanceof Error ? error.message : "Failed to get Course Categories"
-    );
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : "Failed to get Course Categories",
+      code: 500,
+      data: {
+        total_categories: 0,
+        categories: [],
+        pagination: {
+          current_page: page,
+          last_page: 0,
+          per_page: 0,
+          total: 0,
+          from: 0,
+          to: 0,
+          has_more_pages: false,
+        },
+      },
+    };
   }
 }
 
@@ -126,7 +191,7 @@ export async function getCourseCategoryById(
   try {
     const session = await getServerSession(authOptions);
     const token = session?.accessToken;
-    if (!token) throw new Error("No valid session or access token found.");
+    if (!token) return { success: false, message: "No valid session or access token found.", code: 401, data: null };
 
     const res = await fetch(`${API_BASE}/course-categories/${id}`, {
       headers: {
@@ -135,16 +200,15 @@ export async function getCourseCategoryById(
       },
     });
 
-    const data: SingleCategoryResponse = await res.json();
+    const data: SingleCategoryResponse = await res.json().catch(async () => ({ message: await res.text(), data: null } as any));
+    if (!res.ok) {
+      return { success: false, message: (data as any).message || "Failed to fetch course category", code: res.status, data: null };
+    }
     return data;
 
   } catch (error) {
     console.error("Error in getCourseCategoryById:", error);
-    throw new Error(
-      error instanceof Error
-        ? error.message
-        : "Unknown error occurred while fetching CourseCategory by ID"
-    );
+    return { success: false, message: error instanceof Error ? error.message : "Unknown error occurred while fetching CourseCategory by ID", code: 500, data: null };
   }
 }
 
@@ -154,8 +218,7 @@ export async function getCourseCategoryById(
 export async function createCourseCategory(categoryData: CreateCategoryRequest): Promise<SingleCategoryResponse> {
     const session = await getServerSession(authOptions);
     const token = session?.accessToken;
-
-    if (!token) throw new Error("No valid session or access token found.");
+    if (!token) return { success: false, message: "No valid session or access token found.", code: 401, data: null };
 
     const url = `${API_BASE}/course-categories`;
     
@@ -168,12 +231,15 @@ export async function createCourseCategory(categoryData: CreateCategoryRequest):
         },
         body: JSON.stringify(categoryData)
       });
-      
-      const data: SingleCategoryResponse = await response.json();
+      const data: SingleCategoryResponse = await response.json().catch(async () => ({ message: await response.text(), data: null } as any));
+      if (!response.ok) {
+        return { success: false, message: (data as any).message || "Failed to create course category", code: response.status, data: null };
+      }
+      updateTag("course-categories-list");
       return data;
     } catch (error) {
-        console.error("Error in createCourseCategory:", error);
-        throw new Error(`Failed to create course category: ${error}`);
+      console.error("Error in createCourseCategory:", error);
+      return { success: false, message: error instanceof Error ? error.message : "Failed to create course category", code: 500, data: null };
     }
   }
 
@@ -184,8 +250,7 @@ export async function createCourseCategory(categoryData: CreateCategoryRequest):
   export async function updateCourseCategory(id: number, categoryData: UpdateCategoryRequest): Promise<SingleCategoryResponse> {
     const session = await getServerSession(authOptions);
     const token = session?.accessToken;
-
-    if (!token) throw new Error("No valid session or access token found.");
+    if (!token) return { success: false, message: "No valid session or access token found.", code: 401, data: null };
 
     const url = `${API_BASE}/course-categories/${id}`;
     try {
@@ -197,13 +262,15 @@ export async function createCourseCategory(categoryData: CreateCategoryRequest):
         },
         body: JSON.stringify(categoryData)
       });
-      
-      const data: SingleCategoryResponse = await response.json();
+      const data: SingleCategoryResponse = await response.json().catch(async () => ({ message: await response.text(), data: null } as any));
+      if (!response.ok) {
+        return { success: false, message: (data as any).message || "Failed to update course category", code: response.status, data: null };
+      }
       updateTag("course-categories-list");
       return data;
     } catch (error) {
       console.error("Error in updateCourseCategory:", error);
-      throw new Error(`Failed to update course category: ${error}`);
+      return { success: false, message: error instanceof Error ? error.message : "Failed to update course category", code: 500, data: null };
     }
   }
 
@@ -213,25 +280,26 @@ export async function createCourseCategory(categoryData: CreateCategoryRequest):
   export async function deleteCourseCategory(id: number): Promise<SingleCategoryResponse> {
     const session = await getServerSession(authOptions);
     const token = session?.accessToken;
-
-    if (!token) throw new Error("No valid session or access token found.");
+    if (!token) return { success: false, message: "No valid session or access token found.", code: 401, data: null };
 
     const url = `${API_BASE}/course-categories/${id}`;
     
     try {
       const response = await fetch(url, {
-            method: 'DELETE',
-            headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
       });
-      
-      const data: SingleCategoryResponse = await response.json();
+      const data: SingleCategoryResponse = await response.json().catch(async () => ({ message: await response.text(), data: null } as any));
+      if (!response.ok) {
+        return { success: false, message: (data as any).message || "Failed to delete course category", code: response.status, data: null };
+      }
       updateTag("course-categories-list");
       return data;
     } catch (error) {
-        console.error("Error in deleteCourseCategory:", error);
-        throw new Error(`Failed to delete course category: ${error}`);
+      console.error("Error in deleteCourseCategory:", error);
+      return { success: false, message: error instanceof Error ? error.message : "Failed to delete course category", code: 500, data: null };
     }
   }

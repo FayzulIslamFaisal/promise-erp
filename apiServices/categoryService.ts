@@ -158,8 +158,7 @@ export async function getCategoryById(
 export async function createCategory(categoryData:FormData): Promise<SingleCategoryResponse> {
     const session = await getServerSession(authOptions);
     const token = session?.accessToken;
-
-    if (!token) throw new Error("No valid session or access token found.");
+    if (!token) return { success: false, message: "No valid session or access token found.", code: 401 };
 
     const url = `${API_BASE}/course-categories`;
     
@@ -167,18 +166,19 @@ export async function createCategory(categoryData:FormData): Promise<SingleCateg
       const response = await fetch(url, {
         method: 'POST',
         headers: {
-          // 'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
         body: categoryData
       });
-      
-      const data: SingleCategoryResponse = await response.json();
+      const data: SingleCategoryResponse = await response.json().catch(async () => ({ message: await response.text() } as any));
+      if (!response.ok) {
+        return { success: false, message: data.message || "Failed to create category", errors: (data as any).errors, code: response.status };
+      }
       updateTag("categories-list");
       return data;
     } catch (error) {
-        console.error("Error in createCategory:", error);
-        throw new Error(`Failed to create category: ${error}`);
+      console.error("Error in createCategory:", error);
+      return { success: false, message: error instanceof Error ? error.message : "Failed to create category", code: 500 };
     }
   }
 
@@ -189,8 +189,7 @@ export async function createCategory(categoryData:FormData): Promise<SingleCateg
   export async function updateCategory(id: number, formData: FormData): Promise<SingleCategoryResponse> {
     const session = await getServerSession(authOptions);
     const token = session?.accessToken;
-
-    if (!token) throw new Error("No valid session or access token found.");
+    if (!token) return { success: false, message: "No valid session or access token found.", code: 401 };
 
     const url = `${API_BASE}/course-categories/${id}`;
     try {
@@ -198,18 +197,19 @@ export async function createCategory(categoryData:FormData): Promise<SingleCateg
       const response = await fetch(url, {
         method: "POST",
         headers: {
-          // 'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
         body: formData
       });
-      
-      const data: SingleCategoryResponse = await response.json();
+      const data: SingleCategoryResponse = await response.json().catch(async () => ({ message: await response.text() } as any));
+      if (!response.ok) {
+        return { success: false, message: data.message || "Failed to update category", errors: (data as any).errors, code: response.status };
+      }
       updateTag("categories-list");
       return data;
     } catch (error) {
       console.error("Error in updateCategory:", error);
-      throw new Error(`Failed to update category: ${error}`);
+      return { success: false, message: error instanceof Error ? error.message : "Failed to update category", code: 500 };
     }
   }
 
@@ -219,25 +219,26 @@ export async function createCategory(categoryData:FormData): Promise<SingleCateg
   export async function deleteCategory(id: number): Promise<SingleCategoryResponse> {
     const session = await getServerSession(authOptions);
     const token = session?.accessToken;
-
-    if (!token) throw new Error("No valid session or access token found.");
+    if (!token) return { success: false, message: "No valid session or access token found.", code: 401 };
 
     const url = `${API_BASE}/course-categories/${id}`;
     
     try {
       const response = await fetch(url, {
-            method: 'DELETE',
-            headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
       });
-      
-      const data: SingleCategoryResponse = await response.json();
+      const data: SingleCategoryResponse = await response.json().catch(async () => ({ message: await response.text() } as any));
+      if (!response.ok) {
+        return { success: false, message: data.message || "Failed to delete category", code: response.status };
+      }
       updateTag("categories-list");
       return data;
     } catch (error) {
-        console.error("Error in deleteCategory:", error);
-        throw new Error(`Failed to delete category: ${error}`);
+      console.error("Error in deleteCategory:", error);
+      return { success: false, message: error instanceof Error ? error.message : "Failed to delete category", code: 500 };
     }
   }

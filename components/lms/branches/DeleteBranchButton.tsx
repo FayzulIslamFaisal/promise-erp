@@ -1,6 +1,7 @@
 "use client";
 
 import { useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { Trash2, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import DeleteBranchAction from "@/actions/DeleteBranchAction";  
@@ -29,6 +30,7 @@ type ApiResponse = {
 
 const DeleteBranchButton = ({ id }: DeleteButtonProps) => {
   const [isPending, startTransition] = useTransition();
+  const router = useRouter();
 
   const handleDelete = () => {
     startTransition(async () => {
@@ -36,6 +38,7 @@ const DeleteBranchButton = ({ id }: DeleteButtonProps) => {
         const res: ApiResponse = await DeleteBranchAction(id);
         if (res.success) {
           toast.success(res.message || "Branch deleted successfully");
+          router.refresh();
         } else {
           toast.error(res.message || "Delete failed");
         }
