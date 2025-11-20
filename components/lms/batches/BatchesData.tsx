@@ -144,9 +144,9 @@ export default async function BatchesData({
                   </DropdownMenu>
                 </TableCell>
                 <TableCell>{batch.name}</TableCell>
-                <TableCell>{batch.course.title}</TableCell>
+                <TableCell>{batch.course?.title}</TableCell>
                 <TableCell>{batch.branch.name}</TableCell>
-                <TableCell>{batch.discount_price}</TableCell>
+                <TableCell>{batch.discount}</TableCell>
                 <TableCell>{batch.end_date}</TableCell>
                 <TableCell>{batch.total_enrolled}</TableCell>
               </TableRow>

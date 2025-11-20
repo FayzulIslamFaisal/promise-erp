@@ -37,7 +37,6 @@ interface FormValues {
   duration: string;
   start_date: string;
   end_date: string;
-  course_type: string;
   is_online: string;
   is_offline: string;
 }
@@ -57,14 +56,13 @@ export default function BatchForm({ title, onSubmit, batch }: BatchFormProps) {
   } = useForm<FormValues>({
     defaultValues: {
       name: batch?.name || "",
-      lm_course_id: batch?.lm_course_id.toString() || "",
-      branch_id: batch?.branch_id.toString() || "",
+      lm_course_id: batch?.lm_course_id?.toString() || "",
+      branch_id: batch?.branch_id?.toString() || "",
       price: batch ? parseFloat(batch.price) : 0,
       discount_price: batch ? parseFloat(batch.discount_price) : 0,
       duration: batch?.duration || "",
       start_date: batch?.start_date || "",
       end_date: batch?.end_date || "",
-      course_type: batch?.course_type?.toString() || "",
       is_online: batch?.is_online?.toString() || "0",
       is_offline: batch?.is_offline?.toString() || "0",
     },
@@ -78,14 +76,13 @@ export default function BatchForm({ title, onSubmit, batch }: BatchFormProps) {
     if (batch) {
       reset({
         name: batch.name,
-        lm_course_id: batch.lm_course_id.toString(),
-        branch_id: batch.branch_id.toString(),
+        lm_course_id: batch.lm_course_id?.toString(),
+        branch_id: batch.branch_id?.toString(),
         price: parseFloat(batch.price),
         discount_price: parseFloat(batch.discount_price),
         duration: batch.duration || "",
         start_date: batch.start_date || "",
         end_date: batch.end_date || "",
-        course_type: batch.course_type?.toString() || "",
         is_online: batch.is_online?.toString() || "0",
         is_offline: batch.is_offline?.toString() || "0",
       });
@@ -120,7 +117,6 @@ export default function BatchForm({ title, onSubmit, batch }: BatchFormProps) {
       ...values,
       lm_course_id: Number(values.lm_course_id),
       branch_id: Number(values.branch_id),
-      course_type: Number(values.course_type),
       is_online: Number(values.is_online),
       is_offline: Number(values.is_offline),
     };
@@ -279,7 +275,7 @@ export default function BatchForm({ title, onSubmit, batch }: BatchFormProps) {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="grid gap-2">
+            {/* <div className="grid gap-2">
               <Label htmlFor="course_type">Course Type</Label>
               <Controller
                 name="course_type"
@@ -303,7 +299,7 @@ export default function BatchForm({ title, onSubmit, batch }: BatchFormProps) {
               {errors.course_type && (
                 <p className="text-sm text-red-500 mt-1">{errors.course_type.message}</p>
               )}
-            </div>
+            </div> */}
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="grid gap-2">

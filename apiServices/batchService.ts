@@ -18,7 +18,8 @@ export interface Batch {
   branch_id: number;
   name: string;
   price: string;
-  discount_price: string;
+  discount: string;
+  discount_type: string | null;
   duration: string | null;
   start_date: string | null;
   end_date: string | null;
@@ -102,7 +103,7 @@ export async function addBatch(formData: any): Promise<BatchResponseType> {
   }
 
   // ❗ Next.js 16 requires 2 arguments
-  revalidateTag("batches-list", "page");
+  revalidateTag("batches-list", "max");
 
   return { success: true, message: data.message, data };
 }
@@ -214,8 +215,8 @@ export async function updateBatch(
   }
 
   // ❗ Next.js 16 requires profile argument
-  revalidateTag("batches-list", "page");
-  revalidateTag(`batch-${id}`, "page");
+  revalidateTag("batches-list", "max");
+  revalidateTag(`batch-${id}`, "max");
 
   return { success: true, message: data.message, data };
 }
@@ -243,8 +244,8 @@ export async function deleteBatch(id: number) {
     throw new Error(`Failed to delete batch: ${errorText}`);
   }
 
-  revalidateTag("batches-list", "page");
-  revalidateTag(`batch-${id}`, "page");
+  revalidateTag("batches-list", "max");
+  revalidateTag(`batch-${id}`, "max");
 
   return res.json();
 }

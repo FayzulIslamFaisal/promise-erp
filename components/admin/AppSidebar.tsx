@@ -88,7 +88,7 @@ const data = {
         },
         {
           title: "Batches",
-          url: "#",
+          url: "/lms/batches",
         },
         {
           title: "Projects",
@@ -104,7 +104,7 @@ const data = {
         },
         {
           title: "Lessons",
-          url: "#",
+          url: "/lms/lessons",
         },
       ],
     },
