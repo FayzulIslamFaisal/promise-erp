@@ -100,7 +100,7 @@ const data = {
         },
         {
           title: "Chapters",
-          url: "#",
+          url: "/lms/chapters",
         },
         {
           title: "Lessons",
