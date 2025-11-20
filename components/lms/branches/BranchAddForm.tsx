@@ -60,7 +60,7 @@ export default function BranchForm({
   } = useForm<FormValues>({
     defaultValues: {
       name: initialData?.name || "",
-      district_id: initialData?.district_id?.toString() || "",
+      district_id: initialData?.district?.id?.toString() || "",
       address: initialData?.address || "",
       phone: initialData?.phone?.map((p) => ({ value: p })) || [{ value: "" }],
       email: initialData?.email?.map((e) => ({ value: e })) || [{ value: "" }],
@@ -106,7 +106,7 @@ export default function BranchForm({
     if (initialData) {
       reset({
         name: initialData?.name || "",
-        district_id: initialData?.district_id?.toString() || "",
+        district_id: initialData?.district?.id?.toString() || "",
         address: initialData?.address || "",
         phone: initialData?.phone?.map((p) => ({ value: p })) || [{ value: "" }],
         email: initialData?.email?.map((e) => ({ value: e })) || [{ value: "" }],

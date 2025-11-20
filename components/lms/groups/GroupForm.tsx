@@ -154,7 +154,7 @@ export default function GroupForm({ title, onSubmit, group }: GroupFormProps) {
     async function loadBatches() {
       if (!courseId) return;
       try { 
-        const res = await getBatches(1, { lm_course_id : courseId });
+        const res = await getBatches({ lm_course_id: courseId, page: 1 });
         if (res.success) {
           setBatches(res.data?.batches || []);
         }
