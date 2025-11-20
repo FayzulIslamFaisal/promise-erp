@@ -1,4 +1,6 @@
+
 import * as React from "react"
+import Link, { type LinkProps } from "next/link"
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
@@ -6,7 +8,7 @@ import {
 } from "lucide-react"
 
 import { cn } from "@/lib/utils"
-import { Button, buttonVariants } from "@/components/ui/button"
+import { Button, buttonVariants, type ButtonProps } from "@/components/ui/button"
 
 function Pagination({ className, ...props }: React.ComponentProps<"nav">) {
   return (
@@ -39,8 +41,8 @@ function PaginationItem({ ...props }: React.ComponentProps<"li">) {
 
 type PaginationLinkProps = {
   isActive?: boolean
-} & Pick<React.ComponentProps<typeof Button>, "size"> &
-  React.ComponentProps<"a">
+} & Pick<ButtonProps, "size"> &
+  LinkProps
 
 function PaginationLink({
   className,
@@ -49,7 +51,7 @@ function PaginationLink({
   ...props
 }: PaginationLinkProps) {
   return (
-    <a
+    <Link
       aria-current={isActive ? "page" : undefined}
       data-slot="pagination-link"
       data-active={isActive}
@@ -125,3 +127,4 @@ export {
   PaginationNext,
   PaginationEllipsis,
 }
+

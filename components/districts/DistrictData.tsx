@@ -14,6 +14,7 @@ import { Eye, Pencil } from "lucide-react";
 import Link from "next/link";
 import { District, getDistricts } from "@/apiServices/districtService";
 import DeleteButton from "./DeleteButton";
+import Pagination from "@/components/common/Pagination";
 
 
 const DistrictData = async ({
@@ -46,6 +47,7 @@ const DistrictData = async ({
   }
 
   const districts = results?.data?.districts || [];
+  const pagination = results?.data?.pagination;
   
   if (!districts.length) {
     return <NotFoundComponent message="No districts found." />;
@@ -53,79 +55,82 @@ const DistrictData = async ({
   
 
   return (
-    <div className="rounded-md border">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Sl</TableHead>
-            <TableHead className="text-center">Action</TableHead>
-            <TableHead>Division </TableHead>
-            <TableHead>District </TableHead>
-            <TableHead >Branch</TableHead>
-          </TableRow>
-        </TableHeader>
-
-        <TableBody>
-          {districts.map((district: District , index: number) => (
-            <TableRow key={district?.id}>
-              <TableCell>{index + 1}</TableCell>
-              <TableCell className="text-center">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Badge
-                        variant="default"
-                        role="button"
-                        tabIndex={0}
-                        className="cursor-pointer select-none"
-                      >
-                        Action
-                      </Badge>
-                    </DropdownMenuTrigger>
-
-                    <DropdownMenuContent align="center">
-                      <DropdownMenuItem asChild>
-                        <Link
-                          href={`/districts/${district?.id}`}
-                          className="flex items-center cursor-pointer"
-                        >
-                          <Eye className="mr-2 h-4 w-4" />
-                          Details
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                        <Link
-                          href={`/districts/${district?.id}/edit`}
-                          className="flex items-center cursor-pointer"
-                        >
-                          <Pencil className="mr-2 h-4 w-4" />
-                          Manage
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                        <DeleteButton id={district?.id} />
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </TableCell>
-                <TableCell className="font-medium">{district?.division?.name}</TableCell>
-              <TableCell className="font-medium">{district?.name}</TableCell>
-              <TableCell className="font-medium">
-                {district?.branches?.length > 0 ? (
-                  <ul className="space-y-1">
-                    {district?.branches?.map((branch, index: number) => (
-                      <li key={branch?.id}>
-                        {index + 1}: {branch?.name}
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  "No Branch"
-                )}
-              </TableCell>
+    <div className="space-y-4">
+      <div className="rounded-md border">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Sl</TableHead>
+              <TableHead className="text-center">Action</TableHead>
+              <TableHead>Division </TableHead>
+              <TableHead>District </TableHead>
+              <TableHead >Branch</TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </TableHeader>
+
+          <TableBody>
+            {districts.map((district: District , index: number) => (
+              <TableRow key={district?.id}>
+                <TableCell>{index + 1}</TableCell>
+                <TableCell className="text-center">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Badge
+                          variant="default"
+                          role="button"
+                          tabIndex={0}
+                          className="cursor-pointer select-none"
+                        >
+                          Action
+                        </Badge>
+                      </DropdownMenuTrigger>
+
+                      <DropdownMenuContent align="center">
+                        <DropdownMenuItem asChild>
+                          <Link
+                            href={`/districts/${district?.id}`}
+                            className="flex items-center cursor-pointer"
+                          >
+                            <Eye className="mr-2 h-4 w-4" />
+                            Details
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                          <Link
+                            href={`/districts/${district?.id}/edit`}
+                            className="flex items-center cursor-pointer"
+                          >
+                            <Pencil className="mr-2 h-4 w-4" />
+                            Manage
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                          <DeleteButton id={district?.id} />
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </TableCell>
+                  <TableCell className="font-medium">{district?.division?.name}</TableCell>
+                <TableCell className="font-medium">{district?.name}</TableCell>
+                <TableCell className="font-medium">
+                  {district?.branches?.length > 0 ? (
+                    <ul className="space-y-1">
+                      {district?.branches?.map((branch, index: number) => (
+                        <li key={branch?.id}>
+                          {index + 1}: {branch?.name}
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    "No Branch"
+                  )}
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+      {pagination && <Pagination pagination={pagination} />}
     </div>
   );
 }

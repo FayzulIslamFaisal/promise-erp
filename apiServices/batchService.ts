@@ -1,105 +1,250 @@
-"use server";
+"use server"
+
 import { authOptions } from "@/lib/auth";
 import { getServerSession } from "next-auth";
-import { cacheTag } from "next/cache";
+import { revalidateTag } from "next/cache";
 
 const API_BASE =
   process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api/v1";
 
-// Batch type
+// ==========================
+// Interfaces
+// ==========================
+
 export interface Batch {
   id: number;
-  name: string;
+  uuid: string;
   lm_course_id: number;
+  branch_id: number;
+  name: string;
+  price: string;
+  discount_price: string;
+  duration: string | null;
+  start_date: string | null;
+  end_date: string | null;
+  course_type: number | null;
+  is_online: number | null;
+  is_offline: number | null;
+  total_enrolled: string;
+  branch: {
+    id: number;
+    name: string;
+  };
+  course: {
+    id: number;
+    title: string;
+  };
+  course_project: any;
 }
 
-// Pagination type
-export interface Pagination {
+export interface PaginationType {
   current_page: number;
   last_page: number;
   per_page: number;
   total: number;
-  from: number;
-  to: number;
-  has_more_pages: boolean;
 }
 
-// Main data object
-export interface BatchData {
-  total_batches: number;
-  batches: Batch[];
-  pagination: Pagination;
-}
-
-// API Response type
 export interface BatchResponse {
   success: boolean;
   message: string;
   code: number;
-  data: BatchData;
+  data: {
+    batches: Batch[];
+    pagination: PaginationType;
+  };
 }
 
-// =======================
-//  Get Batches (Paginated)
-// =======================
+export interface BatchSingleResponse {
+  success: boolean;
+  message: string;
+  data: Batch;
+}
 
-export async function getBatchesCached(
-  page = 1,
-  token: string,
-  params: Record<string, unknown> = {}
-): Promise<BatchResponse> {
-  "use cache";
-  cacheTag("batches-list");
+export interface BatchResponseType {
+  success: boolean;
+  message?: string;
+  errors?: { [key: string]: string[] | string };
+  data?: any;
+}
 
-  try {
-    const urlParams = new URLSearchParams();
-    urlParams.append("page", page.toString());
+// ==========================
+// Add Batch
+// ==========================
 
-    for (const key in params) {
-      if (
-        params[key] !== undefined &&
-        params[key] !== null &&
-        params.hasOwnProperty(key)
-      ) {
-        urlParams.append(key, params[key].toString());
-      }
-    }
+export async function addBatch(formData: any): Promise<BatchResponseType> {
+  const session = await getServerSession(authOptions);
+  const token = session?.accessToken;
 
-    const res = await fetch(`${API_BASE}/batches?${urlParams.toString()}`, {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    
-    return await res.json();
-  } catch (error) {
-    console.error("Error in getBatchesCached:", error);
-    throw new Error(
-      error instanceof Error
-        ? error.message
-        : "Unknown error occurred while fetching batches"
-    );
+  if (!token) {
+    return {
+      success: false,
+      message: "No valid session or access token found.",
+    };
   }
+
+  const res = await fetch(`${API_BASE}/batches`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(formData),
+  });
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    return {
+      success: false,
+      message: data.message || "Failed to add batch.",
+      errors: data.errors,
+    };
+  }
+
+  // ❗ Next.js 16 requires 2 arguments
+  revalidateTag("batches-list", "page");
+
+  return { success: true, message: data.message, data };
 }
+
+// ==========================
+// Get Batches
+// ==========================
 
 export async function getBatches(
-  page = 1,
-  params: Record<string, unknown> = {}
+  params: Record<string, any> = {}
 ): Promise<BatchResponse> {
-  try {
-    const session = await getServerSession(authOptions);
-    const token = session?.accessToken;
+  const session = await getServerSession(authOptions);
+  const token = session?.accessToken;
 
-    if (!token) {
-      throw new Error("No valid session or access token found.");
-    }
-
-    return await getBatchesCached(page, token, params);
-  } catch (error) {
-    console.error("Error in get batches:", error);
-    throw new Error(
-      error instanceof Error ? error.message : "Failed to get batches"
-    );
+  if (!token) {
+    throw new Error("No valid session or access token found.");
   }
+
+  const urlParams = new URLSearchParams();
+
+  for (const key in params) {
+    if (params[key] !== undefined && params[key] !== null) {
+      urlParams.append(key, params[key].toString());
+    }
+  }
+
+  const res = await fetch(`${API_BASE}/batches?${urlParams.toString()}`, {
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    next: {
+      tags: ["batches-list"], // cache tag
+    },
+  });
+
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    throw new Error(`Message: ${errorData.message || "Unknown error"}`);
+  }
+
+  return res.json();
+}
+
+// ==========================
+// Get Batch by ID
+// ==========================
+
+export async function getBatchById(
+  id: string
+): Promise<BatchSingleResponse> {
+  const session = await getServerSession(authOptions);
+  const token = session?.accessToken;
+
+  if (!token) throw new Error("No valid session or access token found.");
+
+  const res = await fetch(`${API_BASE}/batches/${id}`, {
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    next: {
+      tags: [`batch-${id}`],
+    },
+  });
+
+  if (!res.ok) {
+    throw new Error(`Failed to fetch batch: ${res.statusText}`);
+  }
+
+  return res.json();
+}
+
+// ==========================
+// Update Batch
+// ==========================
+
+export async function updateBatch(
+  id: string,
+  formData: any
+): Promise<BatchResponseType> {
+  const session = await getServerSession(authOptions);
+  const token = session?.accessToken;
+
+  if (!token) {
+    return {
+      success: false,
+      message: "No valid session or access token found.",
+    };
+  }
+
+  const res = await fetch(`${API_BASE}/batches/${id}`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(formData),
+  });
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    return {
+      success: false,
+      message: data.message || "Failed to update batch.",
+      errors: data.errors,
+    };
+  }
+
+  // ❗ Next.js 16 requires profile argument
+  revalidateTag("batches-list", "page");
+  revalidateTag(`batch-${id}`, "page");
+
+  return { success: true, message: data.message, data };
+}
+
+// ==========================
+// Delete Batch
+// ==========================
+
+export async function deleteBatch(id: number) {
+  const session = await getServerSession(authOptions);
+  const token = session?.accessToken;
+
+  if (!token) throw new Error("Unauthorized");
+
+  const res = await fetch(`${API_BASE}/batches/${id}`, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+  });
+
+  if (!res.ok) {
+    const errorText = await res.text();
+    throw new Error(`Failed to delete batch: ${errorText}`);
+  }
+
+  revalidateTag("batches-list", "page");
+  revalidateTag(`batch-${id}`, "page");
+
+  return res.json();
 }
