@@ -1,9 +1,10 @@
-import { Card } from "@/components/ui/card";
-import CourseFilterSection from "./CourseFilterSection";
-import ErrorComponent from "@/components/common/ErrorComponent";
 import { getPublicCoursesList } from "@/apiServices/courseListPublicService";
+import ErrorComponent from "@/components/common/ErrorComponent";
+import NotFoundComponent from "@/components/common/NotFoundComponent";
+import Pagination from "@/components/common/Pagination";
+import CourseListCard from "@/components/root/courseList/CourseListCard";
 
-const CourseFilterSidebar = async ({
+const CourseListWrapper = async ({
   searchParams,
 }: {
   searchParams:
@@ -20,6 +21,7 @@ const CourseFilterSidebar = async ({
     search: resolvedParams.search?.toString(),
     level: resolvedParams.level?.toString(),
     course_type: resolvedParams.course_type?.toString(),
+    is_collaboration: resolvedParams.is_collaboration?.toString(),
     delivery_mode: resolvedParams.delivery_mode?.toString(),
     batch_status: resolvedParams.batch_status?.toString(),
     min_price: resolvedParams.min_price
@@ -28,15 +30,15 @@ const CourseFilterSidebar = async ({
     max_price: resolvedParams.max_price
       ? parseFloat(resolvedParams.max_price.toString())
       : undefined,
-    course_track: resolvedParams.course_track?.toString(),
     sort_order: resolvedParams.sort_order?.toString(),
     budget_scale: resolvedParams.budget_scale?.toString(),
+    course_track: resolvedParams.course_track?.toString(),
   };
 
-  let filtersData;
+  let results;
+
   try {
-    const response = await getPublicCoursesList(page, params);
-     filtersData = response?.data?.filters;
+    results = await getPublicCoursesList(page, params);
   } catch (error) {
     if (error instanceof Error) {
       return <ErrorComponent message={error.message} />;
@@ -44,11 +46,25 @@ const CourseFilterSidebar = async ({
       return <ErrorComponent message="An unexpected error occurred." />;
     }
   }
+
+  const courses = results?.data?.courses || [];
+
+  if (!courses.length) {
+    return <NotFoundComponent message="No Course Projects Found." />;
+  }
+
   return (
-    <Card className="p-6 top-4">
-      <CourseFilterSection filters={filtersData} />
-    </Card>
+    <>
+      <CourseListCard courseList={courses} />
+      {
+        courses.length >0 && (
+          <div className="pt-6">
+            <Pagination pagination={results?.data?.pagination} />
+          </div>
+        )
+      }
+    </>
   );
 };
 
-export default CourseFilterSidebar;
+export default CourseListWrapper;

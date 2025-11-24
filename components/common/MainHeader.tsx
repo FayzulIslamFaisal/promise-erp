@@ -44,13 +44,13 @@ const MainHeader = () => {
           </div>
 
           {/* Search Bar - Hidden on mobile */}
-          <div className="hidden md:flex items-center flex-1 max-w-3xl mx-2 border-secondary-color rounded-md">
+          <div className="hidden md:flex items-center flex-1 max-w-3xl mx-2 border border-secondary rounded-md">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
                   className=" header-branch-filter-btn h-8 px-4 gap-2 cursor-pointer bg-transparent hover:bg-transparent"
                 >
-                  <span className="text-base flex items-center gap-2 secondary-color"><Funnel className="h-4 w-4" /> Branch</span>
+                  <span className="text-base flex items-center gap-2 text-secondary"><Funnel className="h-4 w-4" /> Branch</span>
                   
                 </Button>
               </DropdownMenuTrigger>
@@ -71,7 +71,7 @@ const MainHeader = () => {
               />
                 <Button
                     type="button"
-                    className="absolute cursor-pointer right-0 top-1/2 -translate-y-1/2 w-14 rounded-l-none px-8 h-full bg-secondary-color hover:bg-primary-color"
+                    className="absolute cursor-pointer right-0 top-1/2 -translate-y-1/2 w-14 rounded-l-none px-8 h-full bg-secondary hover:bg-primary"
                 >
                     <Search className="h-8 w-10" />
                 </Button>

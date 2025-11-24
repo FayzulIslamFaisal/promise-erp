@@ -21,6 +21,7 @@ import NotFoundComponent from "@/components/common/NotFoundComponent";
 import Pagination from "@/components/common/Pagination";
 import Link from "next/link";
 import DeleteButton from "./DeleteButton";
+import AssignBranchesButton from "./AssignBranchesButton";
 
 export default async function CoursesData({
   searchParams,
@@ -96,26 +97,25 @@ export default async function CoursesData({
 
                     <DropdownMenuContent align="center">
                       <DropdownMenuItem asChild>
-                        <Link
-                          href={`/lms/courses/${course?.id}`}
-                          className="flex items-center cursor-pointer"
-                        >
-                          <Eye className="mr-2 h-4 w-4" />
-                          Details
+                        <Link href={`/lms/courses/${course.id}`}>
+                          <Eye className="mr-2 h-4 w-4" /> Details
                         </Link>
                       </DropdownMenuItem>
+
                       <DropdownMenuItem asChild>
-                        <Link
-                          href={`/lms/courses/${course?.id}/edit`}
-                          className="flex items-center cursor-pointer"
-                        >
-                          <Pencil className="mr-2 h-4 w-4" />
-                          Manage
+                        <Link href={`/lms/courses/${course.id}/edit`}>
+                          <Pencil className="mr-2 h-4 w-4" /> Manage
                         </Link>
                       </DropdownMenuItem>
+
                       <DropdownMenuItem asChild>
-                        <DeleteButton id={course?.id} />
+                        <DeleteButton id={course.id} />
                       </DropdownMenuItem>
+
+                      <AssignBranchesButton
+                        courseId={String(course.id)}
+                        initialAssignedBranches={course.branches}
+                      />
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </TableCell>
@@ -125,14 +125,10 @@ export default async function CoursesData({
                   <div className="flex items-center gap-3">
                     <div className="relative w-10 h-10 overflow-hidden rounded-md border">
                       <Image
-                        src={
-                          course.featured_image
-                            ? `http://127.0.0.1:8003/${course.featured_image}`
-                            : "/placeholder.png"
-                        }
+                        src={course.featured_image || "/images/placeholder_img.jpg"}
                         alt={course.title}
                         height={80}
-                        width={80}
+                        width={100}
                         className="object-cover"
                       />
                     </div>

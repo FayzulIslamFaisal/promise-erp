@@ -60,8 +60,8 @@ const HeaderNavLink = ({ navLinks }: HeaderNavLinkProps) => {
             ))}
           </div>
           <div className="flex items-center justify-end gap-2 text-sm w-1/4">
-            <Phone className="h-4 w-4 secondary-color" />
-            <span className="font-semibold secondary-color text-base">01550-666800</span>
+            <Phone className="h-4 w-4 text-secondary" />
+            <span className="font-semibold text-secondary text-base">01550-666800</span>
           </div>
         </nav>
       </div>

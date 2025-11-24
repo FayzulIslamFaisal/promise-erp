@@ -51,10 +51,10 @@
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
+  --primary: #159e42;
   --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
+  --secondary: #292464;
+  --secondary-foreground: oklch(0.985 0 0);
   --muted: oklch(0.97 0 0);
   --muted-foreground: oklch(0.556 0 0);
   --accent: oklch(0.97 0 0);
@@ -77,9 +77,8 @@
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
 
-  --primary-color:#159e42;
+
   --primary-light-color:#B2FFD459;
-  --secondary-color:#292464;
   --black-color:#000000;
   --white-color:#ffffff;
 }
@@ -119,9 +118,7 @@
 }
 body {
   font-family: var(--font-inter);
-  /* background-color: var(--secondary-color); */
-  /* color: var(--black-color) !important; */
-  font-size: 14px !important;
+  font-size: 16px !important;
 }
 
 @layer base {
@@ -132,45 +129,47 @@ body {
     @apply bg-background text-foreground;
   }
 }
-.primary-color {
-  color: var(--primary-color);
+
+/* Start primary color css */
+.primary-outline {
+  border: 1px solid var(--primary);
+  transition: all 0.3s ease-in-out;
+  background: transparent;
+  color: var(--primary);
 }
-.bg-primary-color {
-  background-color: var(--primary-color);
+.primary-outline-hover:hover {
+  background: var(--secondary);
+  border: 1px solid var(--secondary);
+  color: var(--white-color);
 }
-.secondary-color {
-  color: var(--secondary-color);
+.primary-border-hover:hover {
+  border: 1px solid var(--primary);
 }
-.bg-secondary-color {
-  background-color: var(--secondary-color);
-}
-.hover-bg-secondary-color:hover {
-  background-color: var(--secondary-color);
-}
+/* End primary color css */
+
 .black-color {
   color: var(--black-color);
 }
 .white-color {
   color: var(--white-color);
 }
-.border-secondary-color {
-  border:1px solid var(--secondary-color);
-}
-.primary-outline {
-  border: 1px solid var(--primary-color);
-  transition: all 0.3s ease-in-out;
-  background: transparent;
-  color: var(--primary-color);
-}
-.primary-outline:hover {
-  background: var(--secondary-color);
-  border: 1px solid var(--secondary-color);
-  color: var(--white-color);
-}
+
+
 
 /* Header */
 .header-branch-filter-btn {
-  border-right: 1px solid var(--secondary-color);
+  border-right: 1px solid var(--secondary);
   border-radius: 0;
+}
+/* Checkbox */
+.green-checkbox[data-state="checked"] {
+  background-color: var(--primary);
+  border-color: var(--primary);
+  color: var(--white-color);
+}
+
+.green-checkbox[data-state="checked"]:hover {
+  background-color: var(--primary);
+  border-color: var(--primary);
 }
 

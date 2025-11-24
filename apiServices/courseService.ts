@@ -212,6 +212,48 @@ export async function updateCourse(id: string, formData: FormData): Promise<any>
   }
 }
 
+
+export async function assignBranchesToCourse(
+  courseId: string,
+  branchIds: number[]
+): Promise<any> {
+  try {
+    const session = await getServerSession(authOptions);
+    const token = session?.accessToken;
+    if (!token) throw new Error("No valid session or access token found.");
+
+    const res = await fetch(`${API_BASE}/courses/${courseId}/branches`, {
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ branch_ids: branchIds }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      return {
+        success: false,
+        message: data.message || "Failed to assign branches.",
+        errors: data.errors,
+        code: res.status,
+      };
+    }
+
+    updateTag("courses-list");
+    return { success: true, message: data.message, data };
+  } catch (error: any) {
+    console.error("Error in assignBranchesToCourse:", error);
+    const message =
+      error instanceof Error
+        ? error.message
+        : "An unknown error occurred while assigning branches.";
+    return { success: false, message, code: 500 };
+  }
+}
+
 // =======================
 // 🔹 Delete Course
 // =======================

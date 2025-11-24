@@ -1,3 +1,4 @@
+import MainFooter from "@/components/common/MainFooter"
 import MainHeader from "@/components/common/MainHeader"
 
 export default function RootLayout({
@@ -11,6 +12,7 @@ export default function RootLayout({
     <main className="">
       {children}
     </main>
+    <MainFooter />
     </>
   )
 }
