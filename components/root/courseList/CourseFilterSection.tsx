@@ -334,7 +334,7 @@ const CourseFilterSection = ({ filters }: CourseFilterSectionProps) => {
 
       {/* Clear Button */}
       {hasActiveFilters && (
-        <Button className="w-full" variant="primary" onClick={handleReset}>
+        <Button className="w-full" onClick={handleReset}>
           <FilterX className="h-4 w-4 mr-2" />
           Clear Query Filters
         </Button>

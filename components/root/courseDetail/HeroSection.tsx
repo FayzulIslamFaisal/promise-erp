@@ -102,11 +102,7 @@ export const HeroSection = () => {
           </div>
         </div>
 
-<<<<<<< HEAD
         <Button variant="default" className="w-full">
-=======
-        <Button className="w-full">
->>>>>>> faisal-frontend-01
           Enroll Now
         </Button>
       </div>
