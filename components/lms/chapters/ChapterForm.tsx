@@ -21,45 +21,31 @@ import {
   SingleChapterResponse,
 } from "@/apiServices/chaptersService";
 
-export interface Batch {
-  id: number;
-  name: string;
-}
-
-export interface Course {
-  id: number;
-  title: string;
-}
-
-export interface Branch {
-  id: number;
-  name: string;
-}
-
-interface ChapterFormProps {
-  title: string;
-  batches: Batch[];
-  courses: Course[];
-  branches: Branch[];
-  chapter?: Chapter | undefined;
-}
-
-interface FormValues {
+/**  
+ * No interfaces here — clean and safe  
+ */
+type FormValues = {
   title: string;
   description: string;
   lm_batch_id: string;
   lm_course_id: string;
   branch_id: string;
   status: string;
-}
+};
 
 export default function ChapterForm({
   title,
+  chapter,
+  branches = [],
   batches = [],
   courses = [],
-  branches = [],
-  chapter = undefined,
-}: ChapterFormProps) {
+}: {
+  title: string;
+  chapter?: Chapter;
+  branches: { id: number; name: string }[];
+  batches: { id: number; name: string }[];
+  courses: { id: number; title: string }[];
+}) {
   const router = useRouter();
 
   const {
@@ -80,27 +66,25 @@ export default function ChapterForm({
     },
   });
 
-  const setFormError = (field: string, message: string) => {
-    setError(field as keyof FormValues, { type: "server", message });
-  };
-
-  // Reset form on edit (final fixed version)
+  // Reset on edit
   useEffect(() => {
     if (!chapter) return;
 
     reset({
       title: chapter.title,
-      description: chapter.description,
-      lm_batch_id: chapter.lm_batch_id.toString(),
-      lm_course_id: chapter.lm_course_id.toString(),
-      branch_id: chapter.branch_id.toString(),
-      status: chapter.status.toString(),
+      description: chapter.description || "",
+      lm_batch_id: chapter.lm_batch_id?.toString() || "",
+      lm_course_id: chapter.lm_course_id?.toString() || "",
+      branch_id: chapter.branch_id?.toString() || "",
+      status: chapter.status?.toString() || "1",
     });
   }, [chapter, reset]);
 
-  const submitHandler = async (values: FormValues) => {
-    let res: SingleChapterResponse;
+  const setFormError = (field: string, message: string) => {
+    setError(field as keyof FormValues, { type: "server", message });
+  };
 
+  const submitHandler = async (values: FormValues) => {
     const payload = {
       title: values.title,
       description: values.description,
@@ -110,6 +94,8 @@ export default function ChapterForm({
       status: Number(values.status),
     };
 
+    let res: SingleChapterResponse;
+
     try {
       if (chapter) {
         res = await updateChapter(chapter.id, payload);
@@ -117,23 +103,19 @@ export default function ChapterForm({
         res = await createChapter(payload);
       }
 
-      if (res.success && res.data) {
-        toast.success(
-          res.message || (chapter ? "Chapter updated!" : "Chapter added!")
-        );
+      if (res.success) {
+        toast.success(res.message);
         router.push("/lms/chapters");
       } else if (res.errors) {
         Object.entries(res.errors).forEach(([field, messages]) => {
-          if (Array.isArray(messages) && messages.length > 0) {
+          if (messages.length > 0) {
             setFormError(field, messages[0]);
           }
         });
-        toast.error("Please fix highlighted errors.");
       } else {
-        toast.error(res.message || "Operation failed.");
+        toast.error(res.message);
       }
-    } catch (error) {
-      console.error(error);
+    } catch {
       toast.error("Something went wrong.");
     }
   };
@@ -143,7 +125,6 @@ export default function ChapterForm({
       <h2 className="text-xl font-semibold mb-6 text-center">{title}</h2>
 
       <form onSubmit={handleSubmit(submitHandler)} className="space-y-5">
-
         {/* Title */}
         <div>
           <label className="block text-sm font-medium mb-1">Chapter Title</label>
@@ -151,9 +132,7 @@ export default function ChapterForm({
             placeholder="Enter chapter title"
             {...register("title", { required: "Title is required" })}
           />
-          {errors.title && (
-            <p className="text-sm text-red-500 mt-1">{errors.title.message}</p>
-          )}
+          {errors.title && <p className="text-red-500">{errors.title.message}</p>}
         </div>
 
         {/* Description */}
@@ -164,9 +143,7 @@ export default function ChapterForm({
             {...register("description", { required: "Description is required" })}
           />
           {errors.description && (
-            <p className="text-sm text-red-500 mt-1">
-              {errors.description.message}
-            </p>
+            <p className="text-red-500">{errors.description.message}</p>
           )}
         </div>
 
@@ -183,17 +160,15 @@ export default function ChapterForm({
                   <SelectValue placeholder="Select batch" />
                 </SelectTrigger>
                 <SelectContent>
-                  {batches.map((batch) => (
-                    <SelectItem key={batch.id} value={batch.id.toString()}>
-                      {batch.name}
+                  {batches.map((b) => (
+                    <SelectItem key={b.id} value={b.id.toString()}>
+                      {b.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
               {errors.lm_batch_id && (
-                <p className="text-sm text-red-500 mt-1">
-                  {errors.lm_batch_id.message}
-                </p>
+                <p className="text-red-500">{errors.lm_batch_id.message}</p>
               )}
             </div>
           )}
@@ -212,17 +187,15 @@ export default function ChapterForm({
                   <SelectValue placeholder="Select course" />
                 </SelectTrigger>
                 <SelectContent>
-                  {courses.map((course) => (
-                    <SelectItem key={course.id} value={course.id.toString()}>
-                      {course.title}
+                  {courses.map((c) => (
+                    <SelectItem key={c.id} value={c.id.toString()}>
+                      {c.title}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
               {errors.lm_course_id && (
-                <p className="text-sm text-red-500 mt-1">
-                  {errors.lm_course_id.message}
-                </p>
+                <p className="text-red-500">{errors.lm_course_id.message}</p>
               )}
             </div>
           )}
@@ -241,17 +214,15 @@ export default function ChapterForm({
                   <SelectValue placeholder="Select branch" />
                 </SelectTrigger>
                 <SelectContent>
-                  {branches.map((branch) => (
-                    <SelectItem key={branch.id} value={branch.id.toString()}>
-                      {branch.name}
+                  {branches.map((br) => (
+                    <SelectItem key={br.id} value={br.id.toString()}>
+                      {br.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
               {errors.branch_id && (
-                <p className="text-sm text-red-500 mt-1">
-                  {errors.branch_id.message}
-                </p>
+                <p className="text-red-500">{errors.branch_id.message}</p>
               )}
             </div>
           )}
@@ -275,19 +246,13 @@ export default function ChapterForm({
                 </SelectContent>
               </Select>
               {errors.status && (
-                <p className="text-sm text-red-500 mt-1">
-                  {errors.status.message}
-                </p>
+                <p className="text-red-500">{errors.status.message}</p>
               )}
             </div>
           )}
         />
 
-        <Button
-          type="submit"
-          disabled={isSubmitting}
-          className="w-full cursor-pointer"
-        >
+        <Button disabled={isSubmitting} className="w-full" type="submit">
           {isSubmitting ? "Submitting..." : chapter ? "Update Chapter" : "Add Chapter"}
         </Button>
       </form>

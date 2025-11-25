@@ -1,31 +1,27 @@
-import Link from 'next/link'
+
+import HighlightsSection from '@/components/root/home/HighlightsSection'
+import HomeServiceList from '@/components/root/home/HomeServiceList'
+import CourseCategoriesSection from '@/components/root/home/CourseCategoriesSection'
+import HeroWithLogos from '@/components/root/home/HeroWithLogos'
+import SectionTitle from '@/components/common/SectionTitle'
 
  const HomePage =()=> {
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold text-gray-900 mb-4">
-          Welcome to LMS & ERP System
-        </h1>
-        <p className="text-gray-600 mb-8">
-          Integrated Learning Management and Enterprise Resource Planning Solution
-        </p>
-        <div className="space-x-4">
-          <Link 
-            href="/login" 
-            className="border text-black px-6 py-3 rounded-lg hover:bg-primary-50 shadow-lg"
-          >
-            Login
-          </Link>
-          <Link 
-            href="/register" 
-            className="border text-black px-6 py-3 rounded-lg hover:bg-primary-50 shadow-lg"
-          >
-            Register
-          </Link>
-        </div>
+    <>
+    <HighlightsSection />
+    <section className="py-8 md:py-14 px-4 bg-secondary relative">
+      <div className="container mx-auto relative z-10">
+        <SectionTitle 
+           title="আপনার আগ্রহের কোর্স বিভাগ খেঁজে নিন" 
+           subtitle="দক্ষতা উন্নয়নের জন্য পছন্দের বিষয় থেকে কোর্স খুঁজে নিন"
+           iswhite={true}
+          />
+        <CourseCategoriesSection />
       </div>
-    </div>
+    </section>
+    <HomeServiceList />
+    <HeroWithLogos />
+    </>
   )
 }
 

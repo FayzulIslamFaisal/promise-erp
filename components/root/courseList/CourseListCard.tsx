@@ -74,7 +74,7 @@ const CourseListCard = ({ courseList }: { courseList: Course[] }) => {
 
           <CardFooter className="p-4 pt-0 justify-center">
             <Link href={`/courses/${course?.slug}`}>
-              <Button variant="primary">View Details</Button>
+              <Button>View Details</Button>
             </Link>
           </CardFooter>
         </Card>

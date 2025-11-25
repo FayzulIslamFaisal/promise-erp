@@ -1,26 +1,29 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Star, PlayCircle, Clock, Users, HeadphonesIcon } from "lucide-react";
+import { Star, PlayCircle, Clock, Users, HeadphonesIcon, Inbox, GraduationCap } from "lucide-react";
 
 export const HeroSection = () => {
   return (
-    <div className="grid md:grid-cols-2 gap-8">
+    <div className="grid md:grid-cols-2 gap-12">
       {/* Left Column - Course Info */}
       <div>
         <Badge className="bg-primary text-primary-foreground mb-4">
-          Course by Wscube Tech
+          <GraduationCap className="w-5 h-5 mr-1" /> 2134 Learners Certified
         </Badge>
         <h1 className="text-4xl font-bold text-foreground mb-4">
           Professional Graphics Design
         </h1>
         <div className="flex items-center gap-2 mb-4">
+          <Inbox className="w-4 h-4 mr-1" /> 
+          <span className="text-sm text-primary">1000 Reviews</span>
+          <span>|</span>
           <div className="flex">
             {[...Array(5)].map((_, i) => (
               <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
             ))}
           </div>
-          <span className="text-sm text-muted-foreground">(451,444 Rating)</span>
+          <span className="text-sm text-primary">(451,444 Rating)</span>
         </div>
 
         <div className="flex gap-3 mb-6 flex-wrap">
@@ -38,13 +41,12 @@ export const HeroSection = () => {
           </Badge>
         </div>
 
-        <div className="grid grid-cols-2 gap-4 mb-6">
+        <div className="grid grid-cols-3 gap-4 mb-6">
           <Card className="p-0">
             <CardContent className="p-4 flex items-start gap-3">
               <PlayCircle className="w-5 h-5 text-primary mt-1" />
               <div>
-                <div className="font-semibold">54 Live Classes</div>
-                <div className="text-sm text-muted-foreground">Lifetime Access</div>
+                <div className="font-semibold text-secondary">54 Live Classes</div>
               </div>
             </CardContent>
           </Card>
@@ -52,8 +54,7 @@ export const HeroSection = () => {
             <CardContent className="p-4 flex items-start gap-3">
               <Clock className="w-5 h-5 text-primary mt-1" />
               <div>
-                <div className="font-semibold">3 Months of</div>
-                <div className="text-sm text-muted-foreground">Support</div>
+                <div className="font-semibold text-secondary">3 Months of support</div>
               </div>
             </CardContent>
           </Card>
@@ -61,8 +62,7 @@ export const HeroSection = () => {
             <CardContent className="p-4 flex items-start gap-3">
               <Users className="w-5 h-5 text-primary mt-1" />
               <div>
-                <div className="font-semibold">24 Hours</div>
-                <div className="text-sm text-muted-foreground">Access</div>
+                <div className="font-semibold text-secondary">24 Hours assistance</div>
               </div>
             </CardContent>
           </Card>
@@ -70,8 +70,23 @@ export const HeroSection = () => {
             <CardContent className="p-4 flex items-start gap-3">
               <HeadphonesIcon className="w-5 h-5 text-primary mt-1" />
               <div>
-                <div className="font-semibold">24 Hours</div>
-                <div className="text-sm text-muted-foreground">Support</div>
+                <div className="font-semibold text-secondary">24 Hours Support</div>
+              </div>
+            </CardContent>
+          </Card>
+          <Card className="p-0">
+            <CardContent className="p-4 flex items-start gap-3">
+              <Users className="w-5 h-5 text-primary mt-1" />
+              <div>
+                <div className="font-semibold text-secondary">24 Hours assistance</div>
+              </div>
+            </CardContent>
+          </Card>
+          <Card className="p-0">
+            <CardContent className="p-4 flex items-start gap-3">
+              <HeadphonesIcon className="w-5 h-5 text-primary mt-1" />
+              <div>
+                <div className="font-semibold text-secondary">24 Hours Support</div>
               </div>
             </CardContent>
           </Card>
@@ -81,13 +96,17 @@ export const HeroSection = () => {
           <Badge className="mb-3">
             25 % OFF
           </Badge>
-          <div className="flex items-center gap-4 mb-4">
-            <span className="text-3xl font-bold text-foreground">$98.00</span>
-            <span className="text-xl text-muted-foreground line-through">$3000</span>
+          <div className="flex items-center gap-5 mb-4">
+            <span className="text-3xl font-bold text-primary">2000 ৳</span>
+            <span className="text-xl text-muted-foreground line-through">3000 ৳</span>
           </div>
         </div>
 
-        <Button variant="primary" className="w-full">
+<<<<<<< HEAD
+        <Button variant="default" className="w-full">
+=======
+        <Button className="w-full">
+>>>>>>> faisal-frontend-01
           Enroll Now
         </Button>
       </div>

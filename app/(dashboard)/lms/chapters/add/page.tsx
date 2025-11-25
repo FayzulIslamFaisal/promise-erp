@@ -1,14 +1,10 @@
 // frontend/app/(dashboard)/lms/chapters/add/page.tsx
 
-import ChapterForm, {
-  Batch,
-  Course,
-  Branch,
-} from "@/components/lms/chapters/ChapterForm";
-
-import { getBatches } from "@/apiServices/batchService";
-import { getCourses } from "@/apiServices/courseService";
+import { Batch, getBatches } from "@/apiServices/batchService";
+import { Course, getCourses } from "@/apiServices/courseService";
 import { getBranches } from "@/apiServices/branchService";
+import { Branch } from "@/apiServices/districtService";
+import ChapterForm from "@/components/lms/chapters/ChapterForm";
 
 export default async function ChapterAddPage() {
   const [batchRes, courseRes, branchRes] = await Promise.all([

@@ -18,7 +18,7 @@ export const WhatYouLearnSection = () => {
         <div className="grid md:grid-cols-2 gap-6">
           {learningPoints.map((point, index) => (
             <div key={index} className="flex items-start gap-3">
-              <CheckCircle2 className="w-5 h-5 text-primary mt-1" />
+              <CheckCircle2 className="w-5 h-5 text-primary mt-1 shrink-0" />
               <div>
                 <p className="font-medium">{point}</p>
               </div>

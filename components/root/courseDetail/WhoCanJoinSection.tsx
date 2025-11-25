@@ -20,7 +20,7 @@ export const WhoCanJoinSection = () => {
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {participants.map((participant, index) => (
             <div key={index} className="flex items-center gap-3">
-              <CheckCircle2 className="w-5 h-5 text-primary" />
+              <CheckCircle2 className="w-5 h-5 text-primary shrink-0" />
               <span>{participant}</span>
             </div>
           ))}

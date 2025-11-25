@@ -1,8 +1,9 @@
-import ChapterForm, { Batch, Course, Branch } from "@/components/lms/chapters/ChapterForm";
-import { getBatches } from "@/apiServices/batchService";
-import { getCourses } from "@/apiServices/courseService";
-import { getBranches } from "@/apiServices/branchService";
+
+import { Batch, getBatches } from "@/apiServices/batchService";
+import { Course, getCourses } from "@/apiServices/courseService";
+import { Branch, getBranches } from "@/apiServices/branchService";
 import { getChapterById, Chapter } from "@/apiServices/chaptersService";
+import ChapterForm from "@/components/lms/chapters/ChapterForm";
 
 
 export default async function EditChapterPage({ params }: { params: { id: string } }) {

@@ -1,27 +1,68 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Facebook, Linkedin, Youtube } from "lucide-react";
+import Image from "next/image";
+import { ArrowRight } from "lucide-react";
+import Link from "next/link";
 
-export const SocialMediaSection = () => {
+export default function SocialMediaSection() {
+  const items = [
+    {
+      icon: "/social-media/facebook.svg", // replace with your icon
+      title: "Join Our",
+      bold: "Community on Facebook",
+      btn: "Click Here to Join",
+      link: "#",
+    },
+    {
+      icon: "/social-media/linkedin.svg",
+      title: "Join Our",
+      bold: "Community on LinkedIn",
+      btn: "Click Here to Join",
+      link: "#",
+    },
+    {
+      icon: "/social-media/youtube.svg",
+      title: "Visit Our",
+      bold: "Youtube Channel",
+      btn: "Click Here to Visit",
+      link: "#",
+    },
+  ];
+
   return (
-    <Card className="bg-muted/30">
-      <CardContent className="p-8">
-        <h2 className="text-3xl font-bold text-center mb-4">Connect With Us</h2>
-        <p className="text-center text-muted-foreground mb-6">
-          Follow us on social media for updates, tips, and design inspiration
-        </p>
-        <div className="flex justify-center gap-4">
-          <Button variant="outline" size="icon" className="rounded-full">
-            <Facebook className="w-5 h-5" />
-          </Button>
-          <Button variant="outline" size="icon" className="rounded-full">
-            <Linkedin className="w-5 h-5" />
-          </Button>
-          <Button variant="outline" size="icon" className="rounded-full">
-            <Youtube className="w-5 h-5" />
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      {items.map((item, i) => (
+        <Card
+          key={i}
+          className="px-5 py-8 shadow-md rounded-xl hover:shadow-lg transition duration-200"
+        >
+          <CardContent className="flex flex-col items-center text-center gap-4 p-0">
+            {/* Icon */}
+            <div className="w-16 h-16 relative">
+              <Image
+                src={item.icon}
+                alt="icon"
+                fill
+                className="object-contain"
+              />
+            </div>
+
+            {/* Title */}
+            <h3 className="text-lg font-semibold leading-tight">
+              {item.title} <br />
+              <span className="font-bold">{item.bold}</span>
+            </h3>
+
+            {/* Button */}
+            <Link
+              href={item.link}
+              target="_blank"
+              className="border border-primary text-primary rounded-full px-6 py-2 text-sm font-medium hover:bg-primary hover:text-primary-foreground transition flex items-center gap-2"
+            >
+              {item.btn} <ArrowRight size={16} />
+            </Link>
+          </CardContent>
+        </Card>
+      ))}
+    </div>
   );
-};
+}

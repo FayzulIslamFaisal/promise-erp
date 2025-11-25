@@ -81,11 +81,11 @@ const MainHeader = () => {
 
           {/* Auth Buttons - Hidden on mobile */}
           <div className="hidden md:flex items-center gap-3">
-            <Button variant="primary" >
-              Login
+            <Button>
+              <Link href="/login">Login</Link>
             </Button>
-            <Button variant="primaryOutline" >
-              Register
+            <Button>
+              <Link href="/register">Register</Link>
             </Button>
           </div>
 

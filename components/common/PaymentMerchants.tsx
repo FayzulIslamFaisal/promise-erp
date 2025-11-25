@@ -20,9 +20,9 @@ const PaymentMerchants = () => {
   ];
 
   return (
-    <section className="md:pb-8 pb-6 pt-0 px-4 bg-secondary">
+    <section className="md:pb-8 pb-6 pt-0 px-4 bg-secondary text-white">
       <div className="container mx-auto">
-        <h2 className="text-2xl sm:text-4xl font-bold text-center white-color md:mb-10 mb-4">
+        <h2 className="text-2xl sm:text-4xl font-bold text-center text-white md:mb-10 mb-4">
           Our Payment Merchants
         </h2>
         <div className="max-w-full md:max-w-4xl mx-auto grid grid-cols-2 md:grid-cols-3 md:gap-4 gap-2">

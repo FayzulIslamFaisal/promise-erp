@@ -106,6 +106,10 @@ const data = {
           title: "Lessons",
           url: "/lms/lessons",
         },
+        {
+          title: "FAQs",
+          url: "/lms/faqs",
+        },
       ],
     },
 
