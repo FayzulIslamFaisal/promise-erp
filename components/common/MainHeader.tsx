@@ -25,7 +25,7 @@ const MainHeader = () => {
 
   const navLinks: NavLink[] = [
     { name: "Home", href: "/" },
-    { name: "Courses", href: "/courses", hasDropdown: true },
+    { name: "Courses", href: "/course", hasDropdown: true },
     { name: "Instructors", href: "/instructors" },
     { name: "Branch", href: "/branch" },
     { name: "Blog", href: "/blog" },
@@ -113,13 +113,13 @@ const MainHeader = () => {
                 {/* Mobile Navigation */}
                 <nav className="flex flex-col gap-2">
                   {navLinks.map((link) => (
-                    <a
+                    <Link
                       key={link.name}
                       href={link.href}
                       className="px-4 py-2 text-sm font-medium hover:bg-muted rounded-md transition-colors"
                     >
                       {link.name}
-                    </a>
+                    </Link>
                   ))}
                 </nav>
 

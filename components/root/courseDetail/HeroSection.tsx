@@ -5,9 +5,9 @@ import { Star, PlayCircle, Clock, Users, HeadphonesIcon, Inbox, GraduationCap } 
 
 export const HeroSection = () => {
   return (
-    <div className="grid md:grid-cols-2 gap-12">
+    <div className="grid lg:grid-cols-2 gap-12 items-center">
       {/* Left Column - Course Info */}
-      <div>
+      <div className="animate-in fade-in slide-in-from-left duration-500">
         <Badge className="bg-primary text-primary-foreground mb-4">
           <GraduationCap className="w-5 h-5 mr-1" /> 2134 Learners Certified
         </Badge>
@@ -15,7 +15,7 @@ export const HeroSection = () => {
           Professional Graphics Design
         </h1>
         <div className="flex items-center gap-2 mb-4">
-          <Inbox className="w-4 h-4 mr-1" /> 
+          <Inbox className="w-4 h-4 mr-1" />
           <span className="text-sm text-primary">1000 Reviews</span>
           <span>|</span>
           <div className="flex">
@@ -41,7 +41,7 @@ export const HeroSection = () => {
           </Badge>
         </div>
 
-        <div className="grid grid-cols-3 gap-4 mb-6">
+        <div className="grid grid-cols-2 md:grid-cols-2 gap-4 mb-6">
           <Card className="p-0">
             <CardContent className="p-4 flex items-start gap-3">
               <PlayCircle className="w-5 h-5 text-primary mt-1" />
@@ -108,7 +108,7 @@ export const HeroSection = () => {
       </div>
 
       {/* Right Column - About Course */}
-      <div>
+      <div className="animate-in fade-in slide-in-from-right duration-500">
         <Card>
           <CardContent className="p-6">
             <h2 className="text-2xl font-bold mb-4">About this Course</h2>

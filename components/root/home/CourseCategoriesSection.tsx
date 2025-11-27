@@ -1,7 +1,7 @@
 "use client";
 
-import { Code, Palette, TrendingUp, Network, ArrowRight } from "lucide-react";
-import { Card } from "@/components/ui/card";
+import { ChevronRight } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
   Carousel,
@@ -10,79 +10,103 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
+import Image from "next/image";
+import Link from "next/link";
+import SectionTitle from "@/components/common/SectionTitle";
 
 const categories = [
   {
-    icon: Code,
+    icon: "/images/home/course1.png",
     id: 1,
     title: "Web & Software Development",
-    courses: "৬ কোর্স",
+    courses: "৬ Courses",
   },
   {
-    icon: Palette,
+    icon: "/images/home/course2.png",
     id: 2,
     title: "Graphics & Multimedia",
-    courses: "৫ কোর্স",
+    courses: "৫ Courses",
   },
   {
-    icon: TrendingUp,
+    icon: "/images/home/course3.png",
     id: 3,
     title: "Digital Marketing",
-    courses: "৪ কোর্স",
+    courses: "৪ Courses",
   },
   {
-    icon: Network,
+    icon: "/images/home/course4.png",
     id: 4,
     title: "Networking",
-    courses: "২ কোর্স",
+    courses: "২ Courses",
   },
   {
-    icon: Network,
+    icon: "/images/home/course1.png",
     id: 5,
     title: "Ai & ML",
-    courses: "5 কোর্স",
+    courses: "5 Courses",
   },
 ];
 
 const CourseCategoriesSection = () => {
   return (
-    <div className="relative w-full">
+    <section className="bg-secondary py-8 md:py-14">
+      <div className="container mx-auto px-4">
+        <SectionTitle 
+           title="আপনার আগ্রহের কোর্স বিভাগ খেঁজে নিন" 
+           subtitle="দক্ষতা উন্নয়নের জন্য পছন্দের বিষয় থেকে কোর্স খুঁজে নিন"
+           iswhite={true}
+          />
       <Carousel
         opts={{
           align: "start",
           loop: true,
         }}
-        className="relative w-full "
+        className="w-full max-w-full relative"
       >
         <CarouselContent className="py-4">
-          {categories.map((category) => (
+          {categories.map((course) => (
             <CarouselItem
-              key={category.id}
-              className="basis-full sm:basis-1/2 lg:basis-1/3 xl:basis-1/4"
+              key={course.id}
+              className="basis-full sm:basis-1/2 lg:basis-1/3 xl:basis-1/4 px-1 sm:px-2"
             >
-              <Card className="group bg-secondary-foreground backdrop-blur-sm border-secondary-foreground/10 hover:border-primary transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 overflow-hidden p-8 text-center">
-                <div className="mb-6 inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-secondary-foreground/10 group-hover:bg-primary/20 transition-colors duration-300 mx-auto">
-                  <category.icon className="w-10 h-10 text-secondary-foreground group-hover:text-primary transition-colors duration-300" />
+              <Card className="group h-full bg-[var(--secondary-light)] transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 border-0 text-center">
+              <CardContent className="flex flex-col items-center justify-between gap-6 p-8">
+                <div className="bg-white p-4 mt-4 mx-auto rounded-full shadow-md w-[100] h-[100] flex items-center justify-center">
+                  <Image
+                    src={course.icon}
+                    alt={course.title}
+                    width={56}
+                    height={56}
+                    className="object-contain"
+                  />
                 </div>
 
-                <h3 className="text-xl font-semibold text-primary mb-2">
-                  {category.title}
+                <h3 className="text-base md:text-2xl font-semibold capitalize text-white">
+                  {course.title}
                 </h3>
 
-                <Button variant="ghost" className="text-primary hover:text-primary-light group/btn">
-                  <span className="font-semibold">{category.courses}</span>
-                  <ArrowRight className="ml-2 w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
-                </Button>
-              </Card>
+                <div className="flex justify-center ">
+                  <Button variant="outline" asChild className="text-white py-5 flex items-center gap-2 ">
+                    <Link href="/courses">
+                      <span className="font-semibold">{course.courses}</span>
+                      <div className="bg-primary text-white p-2 rounded-full inline-flex items-center justify-center">
+                        <ChevronRight width={20} height={20} />
+                      </div>
+                    </Link>
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
             </CarouselItem>
           ))}
         </CarouselContent>
 
         {/* Arrows inside container */}
-        <CarouselPrevious className="absolute cursor-pointer left-0 md:-left-2 top-1/2 -translate-y-1/2 bg-primary hover:bg-primary/80 text-white hover:text-white rounded-full border-none " />
-        <CarouselNext className="absolute cursor-pointer right-0 md:-right-2 top-1/2 -translate-y-1/2 bg-primary hover:bg-primary/80 text-white hover:text-white rounded-full border-none" />
+        <CarouselPrevious className=" absolute cursor-pointer left-0 md:-left-2 top-1/2 -translate-y-1/2 bg-primary hover:bg-primary/80 text-white hover:text-white rounded-full border-none " />
+        <CarouselNext className="absolute cursor-pointer right-0 md:right-0 top-1/2 -translate-y-1/2 bg-primary hover:bg-primary/80 text-white hover:text-white rounded-full border-none" />
       </Carousel>
     </div>
+    </section>
   );
 };
 

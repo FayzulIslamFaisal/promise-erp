@@ -16,10 +16,14 @@ export const WhoCanJoinSection = () => {
   return (
     <Card className="bg-muted/30">
       <CardContent className="p-8">
-        <h2 className="text-3xl font-bold text-center mb-8">Who Can Join</h2>
+        <h2 className="text-3xl font-bold text-center mb-8 animate-in fade-in duration-500">Who Can Join</h2>
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {participants.map((participant, index) => (
-            <div key={index} className="flex items-center gap-3">
+            <div
+              key={index}
+              className="flex items-center gap-3 animate-in fade-in"
+              style={{ animationDelay: `${index * 300}ms` }}
+            >
               <CheckCircle2 className="w-5 h-5 text-primary shrink-0" />
               <span>{participant}</span>
             </div>

@@ -33,7 +33,8 @@ export default function SocialMediaSection() {
       {items.map((item, i) => (
         <Card
           key={i}
-          className="px-5 py-8 shadow-md rounded-xl hover:shadow-lg transition duration-200"
+          className="px-5 py-8 shadow-md rounded-xl h-full animate-in fade-in hover:scale-105 transition-transform"
+          style={{ animationDelay: `${i * 300}ms` }}
         >
           <CardContent className="flex flex-col items-center text-center gap-4 p-0">
             {/* Icon */}

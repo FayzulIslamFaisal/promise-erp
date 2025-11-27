@@ -28,10 +28,15 @@ export const FAQSection = () => {
   return (
     <Card className="bg-muted/30">
       <CardContent className="p-8">
-        <h2 className="text-3xl font-bold text-center mb-8">Frequently Asked Questions</h2>
+        <h2 className="text-3xl font-bold text-center mb-8 animate-in fade-in duration-500">Frequently Asked Questions</h2>
         <Accordion type="single" collapsible>
           {faqs.map((faq, index) => (
-            <AccordionItem key={index} value={`faq-${index}`} className="">
+            <AccordionItem
+              key={index}
+              value={`faq-${index}`}
+              className="border-b animate-in fade-in duration-500"
+              style={{ animationDelay: `${index * 300}ms` }}
+            >
               <AccordionTrigger className="px-4 hover:no-underline">
                 <span className="font-semibold text-left">{faq.question}</span>
               </AccordionTrigger>

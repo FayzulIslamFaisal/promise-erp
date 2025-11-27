@@ -27,10 +27,10 @@ export const ReviewsSection = () => {
   return (
     <Card className="bg-muted/30">
       <CardContent className="p-8">
-        <h2 className="text-3xl font-bold text-center mb-8">Student Reviews</h2>
-        <div className="grid md:grid-cols-3 gap-6">
+        <h2 className="text-3xl font-bold text-center mb-8 animate-in fade-in duration-500">Student Reviews</h2>
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {reviews.map((review, index) => (
-            <Card key={index}>
+            <Card key={index} className="animate-in fade-in hover:scale-105 transition-transform duration-500 h-full">
               <CardContent className="p-6">
                 <p className="text-sm text-muted-foreground mb-4">{review.comment}</p>
                 <div className="flex justify-between items-start pt-4 border-t">

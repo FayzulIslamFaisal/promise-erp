@@ -33,18 +33,18 @@ const HeaderNavLink = ({ navLinks }: HeaderNavLinkProps) => {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent>
                       <DropdownMenuItem asChild>
-                        <Link href="/courses/web-development">
+                        <Link href="/course/web-development">
                           Web Development
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>
-                        <Link href="/courses/data-science">Data Science</Link>
+                        <Link href="/course/data-science">Data Science</Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>
-                        <Link href="/courses/business">Business</Link>
+                        <Link href="/course/business">Business</Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>
-                        <Link href="/courses/design">Design</Link>
+                        <Link href="/course/design">Design</Link>
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>

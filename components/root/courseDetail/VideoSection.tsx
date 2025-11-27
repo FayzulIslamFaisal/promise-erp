@@ -4,7 +4,7 @@ export const VideoSection = () => {
   return (
     <Card className="bg-muted/30 p-0">
       <CardContent className="p-0">
-        <div className="aspect-video w-full rounded-lg overflow-hidden">
+        <div className="aspect-video w-full rounded-lg overflow-hidden animate-in fade-in duration-500">
           <iframe
             width="100%"
             height="100%"

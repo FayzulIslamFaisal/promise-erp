@@ -101,10 +101,15 @@ export const CurriculumSection = () => {
   return (
     <Card className="bg-muted/30">
       <CardContent className="p-8">
-        <h2 className="text-3xl font-bold text-center mb-8">Course Curriculum</h2>
-        <Accordion type="single" collapsible className="space-y-3">
+        <h2 className="text-3xl font-bold text-center mb-8 animate-in fade-in duration-500">Course Curriculum</h2>
+        <Accordion type="single" collapsible className="space-y-3 border-b-2 border-black/20 rounded-lg">
           {modules.map((module, index) => (
-            <AccordionItem key={index} value={`item-${index}`} className="border border-black/50 rounded-lg bg-primary/10 ">
+            <AccordionItem
+              key={index}
+              value={`item-${index}`}
+              className="border-2 border-black/20 rounded-lg bg-primary/10 animate-in fade-in duration-500"
+              style={{ animationDelay: `${index * 300}ms` }}
+            >
               <AccordionTrigger className="px-4 hover:no-underline">
                 <div className="flex items-center gap-3">
                   <span className="text-sm font-medium text-muted-foreground">{module.number}</span>
@@ -112,7 +117,7 @@ export const CurriculumSection = () => {
                   <span className="font-bold fs-3">{module.title}</span>
                 </div>
               </AccordionTrigger>
-              <AccordionContent className="px-4 pb-4 pt-2 border-t border-black/20">
+              <AccordionContent className="px-4 pb-4 pt-2 border-t border-black/10">
                 {/* 2 col lesson list here */}
                 <div className="grid md:grid-cols-2 gap-4 py-3">
                   {module.lesson.map((lesson, lessonIndex) => (
