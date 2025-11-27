@@ -69,7 +69,7 @@ const servicesItem = {
 
 const HomeServiceList = () => {
   return (
-    <section className="py-8 md:py-14 ">
+    <section className="py-8 md:py-14 bg-secondary/5">
       <div className="container mx-auto px-4">
         <SectionTitle
           subtitle={"Comprehensive support from idea to execution."}

@@ -1,6 +1,6 @@
 "use client";
 
-import { BookOpen, Clock } from "lucide-react";
+import { BookOpen, Clock, MoveRight } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -117,14 +117,17 @@ const HomeCourses = () => {
             {courses.map((course) => (
               <CarouselItem
                 key={course.id}
-                className="basis-full sm:basis-1/2 lg:basis-1/3 xl:basis-1/4 px-1 sm:px-2"
+                className="basis-full sm:basis-1/2 lg:basis-1/3 xl:basis-1/4 "
               >
                 <Card
                   key={course?.id}
                   className="group overflow-hidden h-full transition-all hover:shadow-lg py-0 gap-0"
                 >
                   <CardHeader className="p-0 relative mb-0 overflow-hidden">
-                    <AspectRatio ratio={2 / 1} className="bg-muted rounded-lg overflow-hidden">
+                    <AspectRatio
+                      ratio={2 / 1}
+                      className="bg-muted rounded-lg overflow-hidden"
+                    >
                       <Image
                         src={
                           course?.image || "/images/hero-banner/courselist.png"
@@ -191,10 +194,13 @@ const HomeCourses = () => {
           <CarouselPrevious className=" absolute cursor-pointer left-0 md:-left-2 top-1/2 -translate-y-1/2 bg-primary hover:bg-primary/80 text-white hover:text-white rounded-full border-none " />
           <CarouselNext className="absolute cursor-pointer right-0 md:right-0 top-1/2 -translate-y-1/2 bg-primary hover:bg-primary/80 text-white hover:text-white rounded-full border-none" />
         </Carousel>
-        <div className="pt-6 text-center">
-            <Link href="/courses" >
-                <Button className="cursor-pointer">সব কোর্স দেখুন</Button>
+        <div className="pt-6 flex items-center justify-center">
+          <Button asChild className="cursor-pointer flex items-center gap-2">
+            <Link href="#">
+              সব কোর্স দেখুন
+              <MoveRight className="w-5 h-5 animate-bounce" />
             </Link>
+          </Button>
         </div>
       </div>
     </section>

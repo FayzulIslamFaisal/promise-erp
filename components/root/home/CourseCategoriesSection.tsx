@@ -67,7 +67,7 @@ const CourseCategoriesSection = () => {
           {categories.map((course) => (
             <CarouselItem
               key={course.id}
-              className="basis-full sm:basis-1/2 lg:basis-1/3 xl:basis-1/4 px-1 sm:px-2"
+              className="basis-full sm:basis-1/2 lg:basis-1/3 xl:basis-1/4"
             >
               <Card className="group h-full bg-[var(--secondary-light)] transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 border-0 text-center">
               <CardContent className="flex flex-col items-center justify-between gap-6 p-8">
