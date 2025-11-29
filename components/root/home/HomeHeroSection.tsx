@@ -7,9 +7,7 @@ import Link from "next/link";
 import Image from "next/image";
 import dynamic from "next/dynamic";
 
-const ReactPlayer = dynamic(() => import("react-player"), {
-  ssr: false,
-});
+const ReactPlayer = dynamic(() => import("react-player"), { ssr: false });
 
 type HeroVideoData = {
   videoUrl: string;
@@ -24,8 +22,8 @@ const HomeHeroSection = () => {
     featureImage: "/images/home/hero-banner.png",
   };
 
-  const videoUrl = heroData.videoUrl || "";
-  const featureImage = heroData.featureImage || "/images/default.jpg";
+  const videoUrl = heroData.videoUrl;
+  const featureImage = heroData.featureImage;
 
   return (
     <section
@@ -68,7 +66,7 @@ const HomeHeroSection = () => {
               {/* VIDEO */}
               <div className="absolute inset-0">
                 <ReactPlayer
-                  url={videoUrl}             
+                  src={videoUrl}
                   playing={isPlaying}
                   controls={isPlaying}
                   width="100%"
@@ -97,7 +95,7 @@ const HomeHeroSection = () => {
                   {/* DARK OVERLAY */}
                   <div className="absolute inset-0 bg-secondary/20 group-hover:bg-secondary/30 transition-all"></div>
 
-                  {/* PLAY BUTTON (1 LINE CLASSNAME) */}
+                  {/* PLAY BUTTON */}
                   <button
                     className="relative z-30 w-16 h-16 md:w-20 md:h-20 rounded-full bg-primary text-white flex items-center justify-center shadow-lg group-hover:bg-secondary group-hover:scale-110 transition-all duration-300 animate-pulse"
                     aria-label="Play video"
