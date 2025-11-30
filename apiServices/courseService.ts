@@ -46,6 +46,9 @@ export interface Course {
   language: string;
   price: number;
   discount: number;
+  ratings: number;
+  total_live_class: number | null
+  
 }
 
 export interface CourseResponse {

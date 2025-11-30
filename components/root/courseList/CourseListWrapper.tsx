@@ -2,14 +2,14 @@ import { getPublicCoursesList } from "@/apiServices/courseListPublicService";
 import ErrorComponent from "@/components/common/ErrorComponent";
 import NotFoundComponent from "@/components/common/NotFoundComponent";
 import Pagination from "@/components/common/Pagination";
-import CourseListCard from "@/components/root/courseList/CourseListCard";
+import CourseCard from "@/components/root/courseList/CourseCard";
 
 const CourseListWrapper = async ({
   searchParams,
 }: {
   searchParams:
-    | Promise<{ [key: string]: string | string[] | undefined }>
-    | { [key: string]: string | string[] | undefined };
+  | Promise<{ [key: string]: string | string[] | undefined }>
+  | { [key: string]: string | string[] | undefined };
 }) => {
   const resolvedParams = await searchParams;
   const page =
@@ -55,9 +55,13 @@ const CourseListWrapper = async ({
 
   return (
     <>
-      <CourseListCard courseList={courses} />
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+        {courses.map((course) => (
+          <CourseCard key={course.id} course={course} />
+        ))}
+      </div>
       {
-        courses.length >0 && (
+        courses.length > 0 && (
           <div className="pt-6">
             <Pagination pagination={results?.data?.pagination} />
           </div>

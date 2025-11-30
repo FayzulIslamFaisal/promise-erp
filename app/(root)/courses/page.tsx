@@ -20,7 +20,6 @@ const CoursesPage = async ({
             All Courses
           </h2>
         </Card>
-        
 
         <div className="flex flex-col lg:flex-row gap-8">
           <aside className="lg:w-80">

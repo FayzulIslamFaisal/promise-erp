@@ -1,15 +1,15 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { CheckCircle2 } from "lucide-react";
+import { CourseDetail } from "@/apiServices/courseDetailPublicService";
 
-export const WhatYouLearnSection = () => {
-  const learningPoints = [
-    "Graphic design fundamentals (color, typography, layout, composition)",
-    "Finishing a documentary creative",
-    "Inside working post-treatment design",
-    "Create typography and poster-learning templates",
-    "Designs + time-saving client specs",
-    "Building a economically design portfolio"
-  ];
+interface WhatYouLearnSectionProps {
+  course: CourseDetail;
+}
+
+export const WhatYouLearnSection = ({ course }: WhatYouLearnSectionProps) => {
+  const learningPoints = course.course_learnings || [];
+
+  if (learningPoints.length === 0) return null;
 
   return (
     <Card className="bg-muted/30">
@@ -18,13 +18,13 @@ export const WhatYouLearnSection = () => {
         <div className="grid md:grid-cols-2 gap-6">
           {learningPoints.map((point, index) => (
             <div
-              key={index}
+              key={point.id || index}
               className="flex items-start gap-3 animate-in fade-in"
               style={{ animationDelay: `${index * 300}ms` }}
             >
               <CheckCircle2 className="w-5 h-5 text-primary mt-1 shrink-0" />
               <div>
-                <p className="font-medium">{point}</p>
+                <p className="font-medium">{point.title}</p>
               </div>
             </div>
           ))}

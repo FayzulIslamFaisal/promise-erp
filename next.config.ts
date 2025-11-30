@@ -13,18 +13,22 @@ const nextConfig: NextConfig = {
         hostname: "localhost",
       },
       {
-      protocol: "http",
-      hostname: "erp.e-laeltd.com", 
-    },
-    {
-      protocol: "https",
-      hostname: "erp.e-laeltd.com", 
-    },
+        protocol: "http",
+        hostname: "erp.e-laeltd.com",
+      },
+      {
+        protocol: "https",
+        hostname: "erp.e-laeltd.com",
+      },
+      {
+        protocol: "https",
+        hostname: "placehold.co",
+      },
     ],
   },
   cacheComponents: true,
   logging: {
-    fetches:{
+    fetches: {
       fullUrl: true,
     }
   },

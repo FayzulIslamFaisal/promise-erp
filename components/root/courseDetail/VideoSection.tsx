@@ -1,6 +1,13 @@
 import { Card, CardContent } from "@/components/ui/card";
+import { CourseDetail } from "@/apiServices/courseDetailPublicService";
 
-export const VideoSection = () => {
+interface VideoSectionProps {
+  course: CourseDetail;
+}
+
+export const VideoSection = ({ course }: VideoSectionProps) => {
+  if (!course.video_link) return null;
+
   return (
     <Card className="bg-muted/30 p-0">
       <CardContent className="p-0">
@@ -8,8 +15,8 @@ export const VideoSection = () => {
           <iframe
             width="100%"
             height="100%"
-            src="https://www.youtube.com/embed/dQw4w9WgXcQ"
-            title="Course Preview Video"
+            src={course.video_link}
+            title={`${course.title} - Course Preview Video`}
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowFullScreen
             className="w-full h-full"
