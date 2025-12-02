@@ -7,7 +7,7 @@ const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api/v
 
 export interface Lesson {
   id: number;
-  lm_chapter_id: string;
+  chapter_id: string;
   course_id?: number;
   course_name?: string;
   title: string;

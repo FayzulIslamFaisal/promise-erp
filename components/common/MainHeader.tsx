@@ -48,7 +48,7 @@ const MainHeader = () => {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
-                  className=" header-branch-filter-btn h-8 px-4 gap-2 cursor-pointer bg-transparent hover:bg-transparent"
+                  className=" header-branch-filter-btn h-8 px-4 gap-2 bg-transparent hover:bg-transparent border-0"
                 >
                   <span className="text-base flex items-center gap-2 text-secondary"><Funnel className="h-4 w-4" /> Branch</span>
                   
@@ -71,7 +71,7 @@ const MainHeader = () => {
               />
                 <Button
                     type="button"
-                    className="absolute cursor-pointer right-0 top-1/2 -translate-y-1/2 w-14 rounded-l-none px-8 h-full bg-secondary hover:bg-primary"
+                    className="absolute right-0 top-1/2 -translate-y-1/2 w-14 border-0 rounded-l-none px-8 h-full bg-secondary hover:bg-primary"
                 >
                     <Search className="h-8 w-10" />
                 </Button>

@@ -1,5 +1,6 @@
 "use server";
 import { cacheTag } from "next/cache";
+import { toast } from "sonner";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api/v1";
 
@@ -60,6 +61,9 @@ export interface CourseInstructor {
     name: string;
     email: string;
     profile_image: string | null;
+    designation: string;
+    experience: string;
+    instructors_tools: CourseTool[];
 }
 
 export interface FAQ {
@@ -80,10 +84,14 @@ export interface Review {
     feedback: string;
     user: ReviewUser;
 }
+export interface CourseJoin {
+    id: number;
+    title: string;
+}
 
 export interface CourseDetail {
     id: number;
-    lm_category_id: number;
+    category_id: number;
     title: string;
     slug: string;
     total_certified: number;
@@ -109,7 +117,8 @@ export interface CourseDetail {
     chapters: Chapter[];
     course_instructors: CourseInstructor[];
     reviews: Review[];
-    last_certificate_file: string | null;
+    course_joins: CourseJoin[];
+    certificate_image: string | null;
 }
 
 export interface ApiResponse {
@@ -141,10 +150,12 @@ export async function getCourseDetailBySlug(slug: string): Promise<ApiResponse> 
         return data;
     } catch (error) {
         console.error("Error in getCourseDetailBySlug:", error);
-        throw new Error(
-            error instanceof Error
-                ? error.message
-                : "Unknown error occurred while fetching course detail"
-        );
+        toast.error("Error in getCourseDetailBySlug:");
+        return {
+            success: false,
+            message: "Failed to fetch course details",
+            code: 500,
+            data: null as any,
+        };
     }
 }

@@ -27,14 +27,13 @@ const HomeHeroSection = () => {
 
   return (
     <section
-      className="py-8 md:py-14 bg-secondary/5 bg-cover bg-no-repeat bg-center"
+      className="bg-secondary/5 bg-cover bg-no-repeat bg-center"
       style={{ backgroundImage: "url('/images/home/hero-slider.png')" }}
     >
       <div className="container mx-auto px-4">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
           {/* LEFT CONTENT */}
-          <div className="flex flex-col justify-center gap-4">
+          <div className="flex flex-col justify-center pe-0 lg:pe-4 py-8 lg:py-0">
             <h1 className="text-secondary capitalize font-bold text-2xl md:text-4xl xl:text-6xl leading-normal">
               বাংলাদেশের সেরা অনলাইন ও অফলাইন কোর্সগুলো এক জায়গায়
             </h1>
@@ -50,7 +49,11 @@ const HomeHeroSection = () => {
                 </Link>
               </Button>
 
-              <Button asChild className="flex items-center gap-2">
+              <Button
+                asChild
+                variant="outline"
+                className="flex items-center gap-2"
+              >
                 <Link href="#">
                   ফ্রি সেমিনার
                   <MoveRight className="w-5 h-5 animate-bounce" />
@@ -60,53 +63,53 @@ const HomeHeroSection = () => {
           </div>
 
           {/* RIGHT VIDEO */}
-          <div className="relative w-full bg-secondary rounded-3xl shadow-2xl overflow-hidden group">
-            <div className="relative w-full pt-[56.25%] bg-secondary">
+          <div
+            className="group py-14 md:py-18 "
+            style={{
+              backgroundImage: 'url("/images/home/hero-video-bg-image.png")',
+              backgroundSize: "contain",
+              backgroundPosition: "center",
+              backgroundRepeat: "no-repeat",
+            }}
+          >
+            <div className="rounded-2xl overflow-hidden border-6 border-white relative">
+              <ReactPlayer
+                className="aspect-video"
+                src={videoUrl}
+                playing={isPlaying}
+                controls={isPlaying}
+                width="100%"
+                height="100%"
+                onPlay={() => setIsPlaying(true)}
+                onPause={() => setIsPlaying(false)}
+              />
 
-              {/* VIDEO */}
-              <div className="absolute inset-0">
-                <ReactPlayer
-                  src={videoUrl}
-                  playing={isPlaying}
-                  controls={isPlaying}
-                  width="100%"
-                  height="100%"
-                  onPlay={() => setIsPlaying(true)}
-                  onPause={() => setIsPlaying(false)}
-                />
-              </div>
-
-              {/* OVERLAY */}
               {!isPlaying && (
                 <div
-                  className="absolute inset-0 z-20 flex items-center justify-center cursor-pointer"
+                  className="flex items-center justify-center cursor-pointer absolute inset-0"
                   onClick={() => setIsPlaying(true)}
                 >
-                  {/* IMAGE */}
-                  <div className="absolute inset-0">
+                  <div className="relative w-full h-full">
                     <Image
                       src={featureImage}
                       alt="Feature"
                       fill
                       className="object-cover"
                     />
+                    <div className="flex items-center justify-center h-full">
+                      <button
+                        className="video-play-btn animate-pulse"
+                        aria-label="Play video"
+                      >
+                        <Play className="w-8 h-8 md:w-10 md:h-10" />
+                      </button>
+                    </div>
+                    <div className=" absolute inset-0  group-hover:bg-secondary/20 transition-all"></div>
                   </div>
-
-                  {/* DARK OVERLAY */}
-                  <div className="absolute inset-0 bg-secondary/20 group-hover:bg-secondary/30 transition-all"></div>
-
-                  {/* PLAY BUTTON */}
-                  <button
-                    className="relative z-30 w-16 h-16 md:w-20 md:h-20 rounded-full bg-primary text-white flex items-center justify-center shadow-lg group-hover:bg-secondary group-hover:scale-110 transition-all duration-300 animate-pulse"
-                    aria-label="Play video"
-                  >
-                    <Play className="w-8 h-8 md:w-10 md:h-10" />
-                  </button>
                 </div>
               )}
             </div>
           </div>
-
         </div>
       </div>
     </section>

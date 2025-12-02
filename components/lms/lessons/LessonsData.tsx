@@ -149,7 +149,7 @@ export default async function LessonsData({
                     </div>
                   </div>
                 </TableCell>
-                <TableCell>{lesson?.lm_chapter_name ?? "-"}</TableCell>
+                <TableCell>{lesson?.chapter_name ?? "-"}</TableCell>
                 <TableCell>{lesson?.course_name ?? "-"}</TableCell>
                 <TableCell>{lesson?.type_text}</TableCell>
                 <TableCell>{lesson?.duration}</TableCell>

@@ -69,15 +69,6 @@ const StudentSuccessStories = () => {
     <section className="py-8 md:py-14  bg-cover bg-no-repeat bg-center min-h-[600px] relative"
       style={{ backgroundImage: "url('/images/home/success-story-bg.png')" }}
     >
-      {/* <div className="absolute inset-0 z-0">
-        <Image
-          src="/images/home/success-story-bg.png"
-          alt="success-story-bg"
-          fill
-          className="object-cover"
-          priority
-        />
-      </div> */}
       <div className="container mx-auto px-4">
         <SectionTitle
           title="আমাদের শিক্ষার্থীদের সাফল্যের গল্প শুনুন"
@@ -113,7 +104,7 @@ const StudentSuccessStories = () => {
                   </div>
 
                   {/* Card */}
-                  <Card className="text-center w-full rounded-2xl shadow-md transition-all duration-500 -mt-20 pt-28 group-hover:-translate-y-2 group-hover:shadow-2xl">
+                  <Card className="text-center w-full rounded-2xl shadow-md transition-all duration-500 -mt-20 pt-28 group-hover:-translate-y-2 group-hover:shadow-xl">
                     <CardContent>
                       <h3 className="text-base md:text-xl capitalize font-bold text-secondary mb-1">
                         {instructor.name}

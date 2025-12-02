@@ -8,32 +8,32 @@ export interface Branch { id: number; name: string; }
 export interface Batch {
   price: number;
   discount: number;
-  discount_type: "percentage" | "fixed" | null;
-  after_discount: number;
-  is_online: boolean;
-  is_offline: boolean;
-  start_date: string;
-  end_date: string;
-  duration: string;
+  discount_type?: "percentage" | "fixed" | null;
+  after_discount?: number;
+  is_online?: boolean | null;
+  is_offline?: boolean | null;
+  start_date?: string | null;
+  end_date?: string | null;
+  duration?: string | null;
 }
 export interface Course {
   id: number;
-  lm_category_id: number;
+  category_id: number;
   title: string;
   slug: string;
   featured_image: string;
-  status: string;
+  status?: string;
   is_default: boolean;
-  total_enrolled: number;
+  total_enrolled?: number;
   ratings: number;
-  total_seats: number | null;
-  total_live_class: number | null;
-  course_type: "free" | "govt" | "paid" | null;
-  is_collaboration: boolean;
-  category: Category;
-  branch_count: number;
-  branches: Branch[];
-  batch: Batch;
+  total_seats?: number | null;
+  total_live_class?: number | null;
+  course_type?: "free" | "govt" | "paid" | null;
+  is_collaboration?: boolean;
+  category?: Category;
+  branch_count?: number;
+  branches?: Branch[];
+  batch?: Batch;
 }
 export interface CourseTypeFilter { id: number; name: string; }
 export interface LevelFilter { id: string; name: string; }

@@ -55,14 +55,14 @@ const CourseCard = ({ course }: { course: Course }) => {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              {course.batch?.after_discount > 0 ? (
+              {course?.batch?.after_discount && course?.batch?.after_discount > 0 ? (
                 <span className="text-sm text-muted-foreground line-through">
-                  ৳ {course?.batch?.price}
+                  ৳ {course.batch.price}
                 </span>
               ) : null}
-
-              <span className="text-lg font-bold primary">
-                ৳ {course.batch?.after_discount > 0 ? course?.batch?.after_discount : course?.batch?.price}
+              
+              <span className="text-lg font-bold text-primary">
+                ৳ {course?.batch?.after_discount || course?.batch?.price || 0}
               </span>
             </div>
           </CardContent>

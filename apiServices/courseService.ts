@@ -24,7 +24,7 @@ export interface Pagination {
 }
 export interface Course {
   id: number;
-  lm_category_id: number;
+  category_id: number;
   title: string;
   sub_title?: string;
   slug?: string;

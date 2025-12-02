@@ -2,6 +2,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Quote, Star } from "lucide-react";
 import Image from "next/image";
 import { CourseDetail } from "@/apiServices/courseDetailPublicService";
+import RatingStars from "@/components/common/RatingStars";
 
 const AVATAR_PLACEHOLDER = "https://placehold.co/40x40/4f46e5/ffffff/png?text=U";
 
@@ -34,14 +35,7 @@ export const ReviewsSection = ({ course }: ReviewsSectionProps) => {
                     />
                     <div>
                       <p className="font-semibold">{review.user.name}</p>
-                      <div className="flex gap-1 mt-1">
-                        {[...Array(5)].map((_, i) => (
-                          <Star
-                            key={i}
-                            className={`w-3 h-3 ${i < review.rating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'}`}
-                          />
-                        ))}
-                      </div>
+                      <RatingStars rating={review.rating} />
                     </div>
                   </div>
                   <div>

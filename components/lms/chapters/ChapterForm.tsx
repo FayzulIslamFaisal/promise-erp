@@ -27,8 +27,8 @@ import {
 type FormValues = {
   title: string;
   description: string;
-  lm_batch_id: string;
-  lm_course_id: string;
+  batch_id: string;
+  course_id: string;
   branch_id: string;
   status: string;
 };
@@ -59,8 +59,8 @@ export default function ChapterForm({
     defaultValues: {
       title: chapter?.title || "",
       description: chapter?.description || "",
-      lm_batch_id: chapter?.lm_batch_id?.toString() || "",
-      lm_course_id: chapter?.lm_course_id?.toString() || "",
+      batch_id: chapter?.batch_id?.toString() || "",
+      course_id: chapter?.course_id?.toString() || "",
       branch_id: chapter?.branch_id?.toString() || "",
       status: chapter?.status?.toString() || "1",
     },
@@ -73,8 +73,8 @@ export default function ChapterForm({
     reset({
       title: chapter.title,
       description: chapter.description || "",
-      lm_batch_id: chapter.lm_batch_id?.toString() || "",
-      lm_course_id: chapter.lm_course_id?.toString() || "",
+      batch_id: chapter.batch_id?.toString() || "",
+      course_id: chapter.course_id?.toString() || "",
       branch_id: chapter.branch_id?.toString() || "",
       status: chapter.status?.toString() || "1",
     });
@@ -88,8 +88,8 @@ export default function ChapterForm({
     const payload = {
       title: values.title,
       description: values.description,
-      lm_batch_id: Number(values.lm_batch_id),
-      lm_course_id: Number(values.lm_course_id),
+      batch_id: Number(values.batch_id),
+      course_id: Number(values.course_id),
       branch_id: Number(values.branch_id),
       status: Number(values.status),
     };
@@ -149,7 +149,7 @@ export default function ChapterForm({
 
         {/* Batch */}
         <Controller
-          name="lm_batch_id"
+          name="batch_id"
           control={control}
           rules={{ required: "Batch is required" }}
           render={({ field }) => (
@@ -167,8 +167,8 @@ export default function ChapterForm({
                   ))}
                 </SelectContent>
               </Select>
-              {errors.lm_batch_id && (
-                <p className="text-red-500">{errors.lm_batch_id.message}</p>
+              {errors.batch_id && (
+                <p className="text-red-500">{errors.batch_id.message}</p>
               )}
             </div>
           )}
@@ -176,7 +176,7 @@ export default function ChapterForm({
 
         {/* Course */}
         <Controller
-          name="lm_course_id"
+          name="course_id"
           control={control}
           rules={{ required: "Course is required" }}
           render={({ field }) => (
@@ -194,8 +194,8 @@ export default function ChapterForm({
                   ))}
                 </SelectContent>
               </Select>
-              {errors.lm_course_id && (
-                <p className="text-red-500">{errors.lm_course_id.message}</p>
+              {errors.course_id && (
+                <p className="text-red-500">{errors.course_id.message}</p>
               )}
             </div>
           )}

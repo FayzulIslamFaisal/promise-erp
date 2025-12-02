@@ -35,9 +35,9 @@ export const CurriculumSection = ({ course }: CurriculumSectionProps) => {
                 </div>
               </AccordionTrigger>
               <AccordionContent className="px-4 pb-4 pt-2 border-t border-black/10">
-                {chapter.description && (
+                {/* {chapter.description && (
                   <p className="text-muted-foreground mb-3">{chapter.description}</p>
-                )}
+                )} */}
                 {chapter.lessons && chapter.lessons.length > 0 && (
                   <div className="grid md:grid-cols-2 gap-4 py-3">
                     {chapter.lessons.map((lesson) => (

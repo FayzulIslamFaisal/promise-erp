@@ -52,7 +52,7 @@ export const HeroSection = ({ course }: HeroSectionProps) => {
               Starts: {new Date(course.batch.start_date).toLocaleDateString()}
             </Badge>
           )}
-          {course.total_seats !== null && course.total_seats !== undefined && (
+          {course.total_seats && (
             <Badge variant="secondary" className="py-2 px-6">
               <HeadphonesIcon className="w-4 h-4 mr-1" />
               {course.total_seats} total seats
@@ -61,26 +61,16 @@ export const HeroSection = ({ course }: HeroSectionProps) => {
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-2 gap-4 mb-6">
-          {course.total_live_class && (
-            <Card className="p-0">
+          {course?.course_facilities?.map((facility) => (
+            <Card key={facility.id} className="p-0" >
               <CardContent className="p-4 flex items-start gap-3">
                 <PlayCircle className="w-5 h-5 text-primary mt-1" />
                 <div>
-                  <div className="font-semibold text-secondary">{course.total_live_class} Live Classes</div>
+                  <div className="font-semibold text-secondary">{facility.title}</div>
                 </div>
               </CardContent>
             </Card>
-          )}
-          {course.batch?.duration && (
-            <Card className="p-0">
-              <CardContent className="p-4 flex items-start gap-3">
-                <Clock className="w-5 h-5 text-primary mt-1" />
-                <div>
-                  <div className="font-semibold text-secondary">{course.batch.duration}</div>
-                </div>
-              </CardContent>
-            </Card>
-          )}
+          ))}
         </div>
 
         <div>
@@ -109,21 +99,12 @@ export const HeroSection = ({ course }: HeroSectionProps) => {
         <Card>
           <CardContent className="p-6">
             <h2 className="text-2xl font-bold mb-4">About this Course</h2>
-            <div className="mb-6 rounded-lg overflow-hidden aspect-video">
-              <Image
-                src={displayImage}
-                alt={course.title}
-                width={600}
-                height={400}
-                className="w-full h-full object-cover"
-              />
-            </div>
             <p className="text-muted-foreground leading-relaxed">
-              {course.description}
+              <div dangerouslySetInnerHTML={{ __html: course.description }} />
             </p>
           </CardContent>
         </Card>
       </div>
-    </div>
+    </div >
   );
 };

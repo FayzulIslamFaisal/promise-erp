@@ -1,5 +1,8 @@
 import SectionTitle from "@/components/common/SectionTitle";
-import VideoStoriesCard from "./VideoStoriesCard";
+import dynamic from "next/dynamic";
+const VideoStoriesCard = dynamic(
+  () => import("./VideoStoriesCard")
+);
 
 const VideoStories = () => {
   return (

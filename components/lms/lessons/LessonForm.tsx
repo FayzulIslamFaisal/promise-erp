@@ -75,7 +75,7 @@ export default function LessonForm({
         order: lesson.order,
         is_preview: lesson.is_preview ? 1 : 0,
         status: lesson.status,
-        chapter_id: String(lesson.lm_chapter_id),
+        chapter_id: String(lesson.chapter_id),
         course_id: lesson.course_id ?? undefined,
       });
     }
@@ -98,9 +98,9 @@ export default function LessonForm({
     formData.append('order', String(data.order ?? 0));
     formData.append('is_preview', String(data.is_preview));
     formData.append('status', String(data.status));
-    // API sample shows `lm_chapter_id`, keep compatibility by sending both keys
+    // API sample shows `chapter_id`, keep compatibility by sending both keys
     formData.append('chapter_id', String(data.chapter_id));
-    formData.append('lm_chapter_id', String(data.chapter_id));
+    formData.append('chapter_id', String(data.chapter_id));
     // Include course_id per API payload
     if (data.course_id !== undefined && data.course_id !== null) {
       formData.append('course_id', String(data.course_id));
@@ -121,7 +121,7 @@ export default function LessonForm({
         Object.entries(res.errors).forEach(([field, messages]) => {
           if (Array.isArray(messages) && messages.length > 0) {
             const message = messages[0];
-            const mappedField = field === 'lm_chapter_id' ? 'chapter_id' : (field as keyof LessonFormValues);
+            const mappedField = field === 'chapter_id' ? 'chapter_id' : (field as keyof LessonFormValues);
             setError(mappedField as keyof LessonFormValues, { type: 'manual', message});
           }
         });

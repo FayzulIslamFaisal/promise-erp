@@ -25,19 +25,38 @@ export const InstructorsSection = ({ course }: InstructorsSectionProps) => {
               <CarouselItem key={index} className="md:basis-1/1 lg:basis-1/2">
                 <Card className="shadow-md animate-in fade-in duration-500 hover:scale-95 transition-transform">
                   <CardContent className="p-6 space-y-4 sm:flex gap-6">
-                    <div className="w-20 h-20 bg-muted rounded-lg overflow-hidden shrink-0">
+                    <div className="bg-muted rounded-lg overflow-hidden shrink-0">
                       <Image
                         src={instructor.profile_image || INSTRUCTOR_PLACEHOLDER}
                         alt={instructor.name}
-                        width={80}
-                        height={80}
-                        className="w-full h-full object-cover"
+                        width={200}
+                        height={200}
+                        className="object-cover"
                       />
                     </div>
 
                     <div>
                       <h3 className="font-bold text-lg mb-1">{instructor.name}</h3>
-                      <p className="text-sm text-muted-foreground">{instructor.email}</p>
+                      {/* <p className="text-sm text-muted-foreground">{instructor.email}</p> */}
+                      <p className="text-muted-foreground mb-1">{instructor.designation}</p>
+                      <p className="text-sm text-primary mb-1">Certified Trainer</p>
+                      <p className="text-sm text-muted-foreground mb-3">{instructor.experience} of Experience</p>
+
+                      <p className="text-secondary font-medium">Expert in</p>
+                      <div className="flex gap-2 mt-2">
+                        {instructor?.instructors_tools?.map((tool, idx) => (
+                          <Image
+                            src={tool.image || INSTRUCTOR_PLACEHOLDER}
+                            alt={tool.title}
+                            width={36}
+                            height={36}
+                            key={idx}
+                            className="rounded"
+                          >
+
+                          </Image>
+                        ))}
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
@@ -49,6 +68,6 @@ export const InstructorsSection = ({ course }: InstructorsSectionProps) => {
           <CarouselNext className="bg-primary text-white" />
         </Carousel>
       </CardContent>
-    </Card>
+    </Card >
   );
 };

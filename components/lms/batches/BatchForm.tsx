@@ -29,7 +29,7 @@ interface BatchFormProps {
 }
 
 interface FormValues {
-  lm_course_id: string;
+  course_id: string;
   branch_id: string;
   name: string;
   price: number;
@@ -56,7 +56,7 @@ export default function BatchForm({ title, onSubmit, batch }: BatchFormProps) {
   } = useForm<FormValues>({
     defaultValues: {
       name: batch?.name || "",
-      lm_course_id: batch?.lm_course_id?.toString() || "",
+      course_id: batch?.course_id?.toString() || "",
       branch_id: batch?.branch_id?.toString() || "",
       price: batch ? parseFloat(batch.price) : 0,
       discount_price: batch ? parseFloat(batch.discount) : 0,
@@ -76,7 +76,7 @@ export default function BatchForm({ title, onSubmit, batch }: BatchFormProps) {
     if (batch) {
       reset({
         name: batch.name,
-        lm_course_id: batch.lm_course_id?.toString(),
+        course_id: batch.course_id?.toString(),
         branch_id: batch.branch_id?.toString(),
         price: parseFloat(batch.price),
         discount_price: parseFloat(batch.discount),
@@ -115,7 +115,7 @@ export default function BatchForm({ title, onSubmit, batch }: BatchFormProps) {
   const submitHandler = (values: FormValues) => {
     const formData = {
       ...values,
-      lm_course_id: Number(values.lm_course_id),
+      course_id: Number(values.course_id),
       branch_id: Number(values.branch_id),
       is_online: Number(values.is_online),
       is_offline: Number(values.is_offline),
@@ -134,9 +134,9 @@ export default function BatchForm({ title, onSubmit, batch }: BatchFormProps) {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="grid gap-2">
-              <Label htmlFor="lm_course_id">Course</Label>
+              <Label htmlFor="course_id">Course</Label>
               <Controller
-                name="lm_course_id"
+                name="course_id"
                 control={control}
                 rules={{ required: "Course is required" }}
                 render={({ field }) => (
@@ -158,8 +158,8 @@ export default function BatchForm({ title, onSubmit, batch }: BatchFormProps) {
                   </Select>
                 )}
               />
-              {errors.lm_course_id && (
-                <p className="text-sm text-red-500 mt-1">{errors.lm_course_id.message}</p>
+              {errors.course_id && (
+                <p className="text-sm text-red-500 mt-1">{errors.course_id.message}</p>
               )}
             </div>
 

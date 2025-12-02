@@ -15,6 +15,7 @@ import { WhoCanJoinSection } from "@/components/root/courseDetail/WhoCanJoinSect
 
 
 import { notFound } from "next/navigation";
+import ErrorComponent from "@/components/common/ErrorComponent";
 
 interface CourseDetailPageProps {
   params: { slug: string };
@@ -61,15 +62,17 @@ const CourseDetail = async ({ params }: CourseDetailPageProps) => {
 
   try {
     const response = await getCourseDetailBySlug(slug);
-
-    if (!response.success || !response.data) {
-      notFound();
+    course = response?.data;
+    
+    if (!course) {
+      return notFound();
     }
-
-    course = response.data;
+    if (!response.success) {
+      return <ErrorComponent message="Failed to load course details." />;
+    }
   } catch (error) {
     console.error("Error loading course:", error);
-    notFound();
+    return <ErrorComponent message="Failed to load course details." />;
   }
 
   return (

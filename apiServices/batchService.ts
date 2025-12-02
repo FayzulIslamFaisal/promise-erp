@@ -14,7 +14,7 @@ const API_BASE =
 export interface Batch {
   id: number;
   uuid: string;
-  lm_course_id: number;
+  course_id: number;
   branch_id: number;
   name: string;
   price: string;

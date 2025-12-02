@@ -20,7 +20,7 @@ import { CourseProject, createCourseProject, SingleCourseProjectResponse, update
 export interface Batch {
   id: number;
   name: string;
-  lm_course_id: number;
+  course_id: number;
 }
 
 export interface Course {

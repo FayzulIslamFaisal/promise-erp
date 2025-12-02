@@ -25,7 +25,7 @@ interface CourseFormProps {
 }
 
 interface FormValues {
-  lm_category_id: string;
+  category_id: string;
   title: string;
   sub_title?: string;
   slug?: string;
@@ -61,7 +61,7 @@ export default function CourseAddForm({
     formState: { errors, isSubmitting },
   } = useForm<FormValues>({
     defaultValues: {
-      lm_category_id: initialData?.category?.id.toString() || "",
+      category_id: initialData?.category?.id.toString() || "",
       title: initialData?.title || "",
       sub_title: initialData?.sub_title || "",
       short_description: initialData?.short_description || "",
@@ -79,7 +79,7 @@ export default function CourseAddForm({
   useEffect(() => {
     if (initialData) {
       reset({
-        lm_category_id: initialData.category?.id.toString() || "",
+        category_id: initialData.category?.id.toString() || "",
         title: initialData.title || "",
         sub_title: initialData.sub_title || "",
         short_description: initialData.short_description || "",
@@ -140,7 +140,7 @@ export default function CourseAddForm({
   const submitForm = async (data: FormValues) => {
     const formData = new FormData();
 
-    formData.append("lm_category_id", data.lm_category_id);
+    formData.append("category_id", data.category_id);
     formData.append("title", data.title);
     if (data.sub_title) formData.append("sub_title", data.sub_title);
     if (data.short_description) formData.append("short_description", data.short_description);
@@ -170,12 +170,12 @@ export default function CourseAddForm({
           {/* Category and Title */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="grid gap-2">
-              <Label htmlFor="lm_category_id">
+              <Label htmlFor="category_id">
                 Category<span className="text-red-500">*</span>
               </Label>
               <select
-                id="lm_category_id"
-                {...register("lm_category_id", { required: "Category is required" })}
+                id="category_id"
+                {...register("category_id", { required: "Category is required" })}
                 className="border border-gray-300 rounded px-2 py-1"
               >
                 <option value="">-- Select a category --</option>
@@ -185,8 +185,8 @@ export default function CourseAddForm({
                   </option>
                 ))}
               </select>
-              {errors.lm_category_id && (
-                <span className="text-sm text-red-600">{errors.lm_category_id.message}</span>
+              {errors.category_id && (
+                <span className="text-sm text-red-600">{errors.category_id.message}</span>
               )}
             </div>
 

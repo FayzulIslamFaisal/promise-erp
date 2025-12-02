@@ -25,8 +25,8 @@ interface FilterFormValues {
   division_id?: string
   district_id?: string
   branch_id?: string
-  lm_course_id?: string
-  lm_batch_id?: string
+  course_id?: string
+  batch_id?: string
   is_active?: string
 }
 
@@ -55,8 +55,8 @@ export default function GroupFilter({
       division_id: searchParams.get("division_id") || "",
       district_id: searchParams.get("district_id") || "",
       branch_id: searchParams.get("branch_id") || "",
-      lm_course_id: searchParams.get("lm_course_id") || "",
-      lm_batch_id: searchParams.get("lm_batch_id") || "",
+      course_id: searchParams.get("course_id") || "",
+      batch_id: searchParams.get("batch_id") || "",
       is_active: searchParams.get("is_active") || "",
     },
   })
@@ -87,8 +87,8 @@ export default function GroupFilter({
       division_id: "",
       district_id: "",
       branch_id: "",
-      lm_course_id: "",
-      lm_batch_id: "",
+      course_id: "",
+      batch_id: "",
       is_active: "",
     })
     router.replace(pathname)
@@ -200,7 +200,7 @@ export default function GroupFilter({
         />
 
         <Controller
-          name="lm_course_id"
+          name="course_id"
           control={control}
           render={({ field }) => (
             <Select onValueChange={field.onChange} value={field.value}>
@@ -219,7 +219,7 @@ export default function GroupFilter({
         />
 
         <Controller
-          name="lm_batch_id"
+          name="batch_id"
           control={control}
           render={({ field }) => (
             <Select onValueChange={field.onChange} value={field.value}>

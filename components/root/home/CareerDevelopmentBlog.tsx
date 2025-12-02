@@ -51,7 +51,7 @@ const CareerDevelopmentBlog = () => {
           {blogPosts.map((post) => (
             <Card
               key={post.id}
-              className="group overflow-hidden h-full py-0 gap-0 transition-transform duration-500 hover:-translate-y-2 hover:shadow-2xl shadow-md"
+              className="group overflow-hidden h-full py-0 gap-0 transition-transform duration-500 hover:-translate-y-2 hover:shadow-xl shadow-md"
             >
               {/* Image Wrapper */}
               <AspectRatio ratio={11 / 6} className="w-full overflow-hidden">

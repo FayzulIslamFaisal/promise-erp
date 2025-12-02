@@ -69,7 +69,7 @@ const CourseCategoriesSection = () => {
               key={course.id}
               className="basis-full sm:basis-1/2 lg:basis-1/3 xl:basis-1/4"
             >
-              <Card className="group h-full bg-[var(--secondary-light)] transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 border-0 text-center">
+              <Card className="group h-full bg-secondary-light transition-all duration-300 hover:shadow-xl hover:-translate-y-2 border-0 text-center">
               <CardContent className="flex flex-col items-center justify-between gap-6 p-8">
                 <div className="bg-white p-4 mt-4 mx-auto rounded-full shadow-md w-[100] h-[100] flex items-center justify-center">
                   <Image
@@ -103,7 +103,7 @@ const CourseCategoriesSection = () => {
 
         {/* Arrows inside container */}
         <CarouselPrevious className=" absolute cursor-pointer left-0 md:-left-2 top-1/2 -translate-y-1/2 bg-primary hover:bg-primary/80 text-white hover:text-white rounded-full border-none " />
-        <CarouselNext className="absolute cursor-pointer right-0 md:right-0 top-1/2 -translate-y-1/2 bg-primary hover:bg-primary/80 text-white hover:text-white rounded-full border-none" />
+        <CarouselNext className="absolute cursor-pointer right-0 md:-right-2 top-1/2 -translate-y-1/2 bg-primary hover:bg-primary/80 text-white hover:text-white rounded-full border-none" />
       </Carousel>
     </div>
     </section>

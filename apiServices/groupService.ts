@@ -10,7 +10,7 @@ const API_BASE =
 export interface Group {
   id: number;
   group_name: string;
-  lm_batch_id: string;
+  batch_id: string;
   is_active: boolean;
   total_students: string;
   division_id: number;
@@ -136,8 +136,8 @@ export interface GroupFormData {
   division_id?: number;
   district_id?: number;
   branch_id?: number;
-  lm_course_id?: number;
-  lm_batch_id?: number;
+  course_id?: number;
+  batch_id?: number;
   is_active?: boolean;
 }
 

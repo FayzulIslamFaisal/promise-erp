@@ -34,8 +34,8 @@ interface FormValues {
   division_id: string;
   district_id: string;
   branch_id: string;
-  lm_course_id: string;
-  lm_batch_id: string;
+  course_id: string;
+  batch_id: string;
   is_active: boolean;
 }
 
@@ -61,8 +61,8 @@ export default function GroupForm({ title, onSubmit, group }: GroupFormProps) {
       division_id: group?.division_id?.toString() || "",
       district_id: group?.district_id?.toString() || "",
       branch_id: group?.branch?.id.toString() || "",
-      lm_course_id: group?.course?.id.toString() || "",
-      lm_batch_id: group?.batch?.id.toString() || "",
+      course_id: group?.course?.id.toString() || "",
+      batch_id: group?.batch?.id.toString() || "",
       is_active: group?.is_active || true,
     },
   });
@@ -73,7 +73,7 @@ export default function GroupForm({ title, onSubmit, group }: GroupFormProps) {
 
   const divisionId = watch("division_id");
   const districtId = watch("district_id");
-  const courseId = watch("lm_course_id");
+  const courseId = watch("course_id");
 
   useEffect(() => {
     if (group) {
@@ -82,8 +82,8 @@ export default function GroupForm({ title, onSubmit, group }: GroupFormProps) {
         division_id: group.division_id?.toString(),
         district_id: group.district_id?.toString(),
         branch_id: group.branch.id.toString(),
-        lm_course_id: group.course.id.toString(),
-        lm_batch_id: group.batch.id.toString(),
+        course_id: group.course.id.toString(),
+        batch_id: group.batch.id.toString(),
         is_active: group.is_active,
       });
     }
@@ -154,7 +154,7 @@ export default function GroupForm({ title, onSubmit, group }: GroupFormProps) {
     async function loadBatches() {
       if (!courseId) return;
       try { 
-        const res = await getBatches({ lm_course_id: courseId, page: 1 });
+        const res = await getBatches({ course_id: courseId, page: 1 });
         if (res.success) {
           setBatches(res.data?.batches || []);
         }
@@ -171,8 +171,8 @@ export default function GroupForm({ title, onSubmit, group }: GroupFormProps) {
       division_id: Number(values.division_id),
       district_id: Number(values.district_id),
       branch_id: Number(values.branch_id),
-      lm_course_id: Number(values.lm_course_id),
-      lm_batch_id: Number(values.lm_batch_id),
+      course_id: Number(values.course_id),
+      batch_id: Number(values.batch_id),
       is_active: values.is_active,
     };
     onSubmit(formData, setFormError, () => reset());
@@ -254,7 +254,7 @@ export default function GroupForm({ title, onSubmit, group }: GroupFormProps) {
           />
 
         <Controller
-            name="lm_course_id"
+            name="course_id"
             control={control}
             render={({ field }) => (
               <Select 
@@ -276,7 +276,7 @@ export default function GroupForm({ title, onSubmit, group }: GroupFormProps) {
           />
 
         <Controller
-            name="lm_batch_id"
+            name="batch_id"
             control={control}
             render={({ field }) => (
               <Select 

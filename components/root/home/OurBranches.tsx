@@ -92,7 +92,7 @@ const OurBranches = () => {
                 key={branche.id}
                 className="basis-full sm:basis-1/2 lg:basis-1/3 xl:basis-1/4"
               >
-                <Card className="group h-full shadow-lg border border-secondary/30 rounded-2xl hover:-translate-y-2 hover:shadow-2xl transition-all duration-300">
+                <Card className="group h-full shadow-lg border border-secondary/30 rounded-2xl hover:-translate-y-2 hover:shadow-xl transition-all duration-300">
                   <CardContent className="flex flex-col items-center gap-4 p-6 text-center">
                     <div className="bg-secondary/10 border border-secondary/40 p-4 mt-4 mx-auto rounded-full shadow-md w-[100px] h-[100px] flex items-center justify-center">
                       <Image

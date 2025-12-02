@@ -202,7 +202,7 @@ const TeacherListSection = () => {
                   </div>
 
                   {/* Card */}
-                  <Card className="text-center w-full rounded-2xl shadow-md transition-all duration-500 -mt-20 pt-28 group-hover:-translate-y-2 group-hover:shadow-2xl">
+                  <Card className="text-center w-full rounded-2xl shadow-md transition-all duration-500 -mt-20 pt-28 group-hover:-translate-y-2 group-hover:shadow-xl">
                     <CardContent>
                       <h3 className="text-base md:text-xl capitalize font-bold text-secondary mb-1">
                         {instructor.name}

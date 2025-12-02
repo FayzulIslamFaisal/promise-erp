@@ -62,7 +62,7 @@ const FooterWidget = () => {
                   placeholder="Your Email"
                   className=" border-primary-foreground/20 h-10 text-primary-foreground placeholder:text-primary-foreground/50"
                 />
-                <Button size="lg">
+                <Button size="lg" className=" hover:border-primary">
                   Subscribe
                 </Button>
               </div>
@@ -96,7 +96,7 @@ const FooterWidget = () => {
                 <li key={link.name}>
                   <a
                     href={link.href}
-                    className="text-sm text-primary-foreground/80  text-white"
+                    className="text-sm text-white"
                   >
                     {link.name}
                   </a>
@@ -115,7 +115,7 @@ const FooterWidget = () => {
                 <li key={course}>
                   <a
                     href="#"
-                    className="text-sm text-primary-foreground/80  text-white"
+                    className="text-sm text-white"
                   >
                     {course}
                   </a>

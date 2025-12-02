@@ -27,8 +27,8 @@ export interface ChapterBranch {
 // Chapter main interface
 export interface Chapter {
   id: number;
-  lm_batch_id: number;
-  lm_course_id: number;
+  batch_id: number;
+  course_id: number;
   branch_id: number;
   title: string;
   description: string;
@@ -148,8 +148,8 @@ export async function getChapterById(id: number): Promise<SingleChapterResponse>
 // =======================
 
 export interface ChapterFormData {
-  lm_batch_id: number;
-  lm_course_id: number;
+  batch_id: number;
+  course_id: number;
   branch_id: number;
   title: string;
   description: string;
@@ -190,8 +190,8 @@ export async function createChapter(
 // =======================
 
 export interface ChapterUpdateFormData {
-  lm_batch_id: number;
-  lm_course_id: number;
+  batch_id: number;
+  course_id: number;
   branch_id: number;
   title: string;
   description: string;

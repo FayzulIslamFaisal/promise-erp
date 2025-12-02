@@ -41,6 +41,8 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+/* custom color */
+  --color-secondary-light:#514C89;
 }
 
 :root {
@@ -171,5 +173,9 @@ body {
 .green-checkbox[data-state="checked"]:hover {
   background-color: var(--primary);
   border-color: var(--primary);
+}
+
+.video-play-btn {
+  @apply cursor-pointer flex items-center justify-center z-30 w-16 h-16 md:w-20 md:h-20 rounded-full bg-primary text-white shadow-lg transition-all duration-300 group-hover:bg-secondary group-hover:scale-110 border-2 border-white;
 }
 
