@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Star, PlayCircle, Clock, Users, HeadphonesIcon, Inbox, GraduationCap } from "lucide-react";
 import { CourseDetail } from "@/apiServices/courseDetailPublicService";
 import Image from "next/image";
+import RatingStars from "@/components/common/RatingStars";
 
 const PLACEHOLDER_IMAGE = "https://placehold.co/600x400/4f46e5/ffffff/png?text=Course+Image";
 
@@ -34,14 +35,7 @@ export const HeroSection = ({ course }: HeroSectionProps) => {
           <Inbox className="w-4 h-4 mr-1" />
           <span className="text-sm text-primary">{totalReviews} Reviews</span>
           <span>|</span>
-          <div className="flex">
-            {[...Array(5)].map((_, i) => (
-              <Star
-                key={i}
-                className={`w-4 h-4 ${i < Math.floor(rating) ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'}`}
-              />
-            ))}
-          </div>
+          <RatingStars rating={rating} />
           <span className="text-sm text-primary">({rating.toFixed(1)} Rating)</span>
         </div>
 
@@ -58,13 +52,28 @@ export const HeroSection = ({ course }: HeroSectionProps) => {
               {course.total_seats} total seats
             </Badge>
           )}
+          {course.total_enrolled && (
+            <Badge variant="secondary" className="py-2 px-6">
+              <Users className="w-4 h-4 mr-1" />
+              {course.total_enrolled} total enrolled
+            </Badge>
+          )}
+          {course.total_live_class && (
+            <Badge variant="secondary" className="py-2 px-6">
+              <Clock className="w-4 h-4 mr-1" />
+              {course.total_live_class} total live classes
+            </Badge>
+          )}
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-2 gap-4 mb-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
           {course?.course_facilities?.map((facility) => (
             <Card key={facility.id} className="p-0" >
               <CardContent className="p-4 flex items-start gap-3">
-                <PlayCircle className="w-5 h-5 text-primary mt-1" />
+                {facility.image ?
+                  <Image src={facility.image} alt={facility.title} width={40} height={40} /> :
+                  <PlayCircle className="w-5 h-5 text-primary mt-1 shrink-0" />
+                }
                 <div>
                   <div className="font-semibold text-secondary">{facility.title}</div>
                 </div>
