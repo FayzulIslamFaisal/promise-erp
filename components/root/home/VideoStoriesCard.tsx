@@ -5,44 +5,22 @@ import { useState } from "react";
 import Image from "next/image";
 import { Play } from "lucide-react";
 import dynamic from "next/dynamic";
+import { SuccessStoryItem } from "@/apiServices/homePageService";
 
 const ReactPlayer = dynamic(() => import("react-player"), { ssr: false });
 
-interface Video {
-  id: number;
-  thumbnail: string;
-  videoUrl: string;
+interface VideostoriesProps {
+stories:SuccessStoryItem[]
 }
 
-const VideoStoriesCard = () => {
+const VideoStoriesCard = ({ stories }:  VideostoriesProps) => {
   const [selectedVideo, setSelectedVideo] = useState<number | null>(null);
 
-  const videos: Video[] = [
-    {
-      id: 1,
-      thumbnail: "/images/home/video-image1.png",
-      videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-    },
-    {
-      id: 2,
-      thumbnail: "/images/home/video-image2.png",
-      videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-    },
-    {
-      id: 3,
-      thumbnail: "/images/home/video-image3.png",
-      videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-    },
-    {
-      id: 4,
-      thumbnail: "/images/home/video-image4.png",
-      videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-    },
-  ];
+
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-      {videos.map((video) => {
+      {stories.map((video) => {
         const isPlaying = selectedVideo === video.id;
 
         return (
@@ -53,7 +31,7 @@ const VideoStoriesCard = () => {
             {isPlaying ? (
               <ReactPlayer
                 className="aspect-video"
-                src={video.videoUrl}
+                src={video.youtube_link}
                 width="100%"
                 height="100%"
                 playing={true}
@@ -67,7 +45,7 @@ const VideoStoriesCard = () => {
               >
                 {/* THUMBNAIL */}
                 <Image
-                  src={video.thumbnail}
+                  src={video.thumbnail_image}
                   alt="Video Thumbnail"
                   fill
                   className="object-cover"

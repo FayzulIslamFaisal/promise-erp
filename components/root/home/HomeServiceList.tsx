@@ -1,74 +1,21 @@
-
-import {
-  Code,
-  Laptop,
-  Shield,
-  ShoppingCart,
-  Sparkles,
-  LineChart,
-  Server,
-  Palette,
-} from "lucide-react";
 import { Card } from "@/components/ui/card";
 import SectionTitle from "@/components/common/SectionTitle";
 import Image from "next/image";
+import { fetchPublicCompanyServices } from "@/apiServices/homePageService";
+interface HomeCoursesWrapperProps {
+  searchParams: { [key: string]: string | string[] | undefined };
+}
 
-const servicesItem = {
-  services1: {
-    icon: Code,
-    title: "Web Development",
-    description:
-      "Modern, responsive websites built to enhance user experience and drive digital growth.",
-    color: "primary",
-  },
-  services2: {
-    icon: Shield,
-    title: "Cyber Security Solutions",
-    description: "Multi-layered protection to secure your systems and data.",
-    color: "secondary",
-  },
-  services3: {
-    icon: Sparkles,
-    title: "Digital Transformation",
-    description:
-      "Smart, seamless upgrades that enhance workflows and boost operational speed.",
-    color: "primary",
-  },
-  services4: {
-    icon: Server,
-    title: "IT Infrastructure Solutions",
-    description:
-      "Scalable, reliable infrastructure ensuring smooth and secure operations.",
-    color: "secondary",
-  },
-  services5: {
-    icon: Laptop,
-    title: "Software Development",
-    description: "Integrated, tailored software service solutions.",
-    color: "primary",
-  },
-  services6: {
-    icon: ShoppingCart,
-    title: "E-Commerce Solution",
-    description: "Seamless, high-performing e-commerce solutions.",
-    color: "secondary",
-  },
-  services7: {
-    icon: LineChart,
-    title: "Digital Marketing",
-    description: "Data-backed, performance-focused marketing services.",
-    color: "primary",
-  },
-  services8: {
-    icon: Palette,
-    title: "Graphics design and Branding Services",
-    description: "Creative, brand-focused design services.",
-    color: "secondary",
-  },
-};
-
-const HomeServiceList = () => {
-  return (
+const HomeServiceList = async({searchParams}: HomeCoursesWrapperProps) => {
+  const queryParams = await searchParams;
+  const page = queryParams.page ? Number(queryParams.page) : 1;
+  const params = {
+    per_page: queryParams.per_page ? queryParams.per_page : "8",
+    page: page,
+  };
+  const servicesData = await fetchPublicCompanyServices({ params });
+  const services = servicesData?.data?.services || [];
+return (
     <section className="py-8 md:py-14 bg-secondary/5">
       <div className="container mx-auto px-4">
         <SectionTitle
@@ -76,228 +23,204 @@ const HomeServiceList = () => {
           title={"Services We Provide"}
           iswhite={false}
         />
-        {/* first row */}
+
+        {/* ---------- FIRST ROW (services[0], services[1]) ---------- */}
         <div className="md:mb-6 mb-4 grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-20  mx-auto items-center">
-          <Card
-            className={` bg-primary hover:bg-primary/80 group p-6 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 border-0 animate-scale-in `}
-          >
-            <div className="flex items-start gap-4">
-              <div className={`shrink-0 p-2 rounded-lg `}>
-                <Image
-                  src="/images/home/service1.png"
-                  alt="Services Illustration"
-                  width={53}
-                  height={53}
-                  className="object-contain"
-                />
-              </div>
-              <div className="flex-1">
-                <h3 className={`text-lg font-semibold mb-1 text-white `}>
-                  Hello World !!
-                </h3>
-                <p className={`text-sm text-white `}>
-                  lorte ipsum dolor sit amet consectetur adipisicing elit.
-                  Quisquam, quod.
-                </p>
-              </div>
-            </div>
-          </Card>
-          <Card
-            className={`group bg-primary hover:bg-primary/80 p-6 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 border-0 animate-scale-in `}
-          >
-            <div className="flex items-start gap-4">
-              <div className={`shrink-0 p-2 rounded-lg `}>
-                <Image
-                  src="/images/home/service2.png"
-                  alt="Services Illustration"
-                  width={53}
-                  height={53}
-                  className="object-contain"
-                />
-              </div>
-              <div className="flex-1">
-                <h3 className={`text-lg font-semibold mb-1 text-white `}>
-                  Hello World !!
-                </h3>
-                <p className={`text-sm text-white `}>
-                  lorte ipsum dolor sit amet consectetur adipisicing elit.
-                  Quisquam, quod.
-                </p>
-              </div>
-            </div>
-          </Card>
-        </div>
-        {/* second row */}
-        <div className="md:mb-6 mb-4 grid grid-cols-1 md:grid-cols-3 gap-4 mx-auto items-center">
-          <div className="flex w-full flex-col gap-4 md:gap-6 items-center">
-            <Card
-              className={`group w-full bg-secondary hover:bg-secondary/80 p-6 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 border-0 animate-scale-in `}
-            >
-              <div className="flex lg:flex-row md:flex-col items-start gap-2 lg:gap-4">
-                <div className={`shrink-0 p-2 rounded-lg `}>
-                  <Image
-                    src="/images/home/service3.png"
-                    alt="Services Illustration"
-                    width={53}
-                    height={53}
-                    className="object-contain"
-                  />
-                </div>
-                <div className="flex-1">
-                  <h3 className={`text-lg font-semibold mb-1 text-white `}>
-                    Hello World !!
-                  </h3>
-                  <p className={`text-sm text-white `}>
-                    lorte ipsum dolor sit amet consectetur adipisicing elit.
-                    Quisquam, quod.
-                  </p>
-                </div>
-              </div>
-            </Card>
-            <Card
-              className={`group w-full bg-primary hover:bg-primary/80 p-6 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 border-0 animate-scale-in `}
-            >
-              <div className="flex lg:flex-row md:flex-col items-start gap-2 lg:gap-4">
-                <div className={`shrink-0 p-2 rounded-lg `}>
-                  <Image
-                    src="/images/home/service4.png"
-                    alt="Services Illustration"
-                    width={53}
-                    height={53}
-                    className="object-contain"
-                  />
-                </div>
-                <div className="flex-1">
-                  <h3 className={`text-lg font-semibold mb-1 text-white `}>
-                    Hello World !!
-                  </h3>
-                  <p className={`text-sm text-white `}>
-                    lorte ipsum dolor sit amet consectetur adipisicing elit.
-                    Quisquam, quod.
-                  </p>
-                </div>
-              </div>
-            </Card>
-          </div>
-          <div className="hidden md:flex flex-col gap-6 items-center">
-            <Card
-              className={`group p-0 transition-all bg-transparent shadow-none hover:shadow-none duration-300 hover:-translate-y-1 border-0 animate-scale-in `}
-            >
+
+          {services[0] && (
+            <Card className="bg-primary p-6 group hover:bg-primary/80 transition-all hover:-translate-y-1 border-0">
               <div className="flex items-start gap-4">
-                <div className={`shrink-0 p-0 rounded-lg `}>
+                <div className="shrink-0 p-2 rounded-lg">
                   <Image
-                    src="/images/home/service6.png"
-                    alt="Services Illustration"
-                    width={228}
-                    height={228}
-                    className="object-contain rounded-full"
-                  />
-                </div>
-              </div>
-            </Card>
-          </div>
-          <div className=" flex flex-col gap-4 md:gap-6 items-center">
-            <Card
-              className={`group w-full bg-secondary  hover:bg-secondary/80 p-6 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 border-0 animate-scale-in `}
-            >
-              <div className="flex lg:flex-row md:flex-col items-start gap-4">
-                <div className={`shrink-0 p-2 rounded-lg `}>
-                  <Image
-                    src="/images/home/service5.png"
-                    alt="Services Illustration"
+                    src={services[0].logo_image || "/images/placeholder_img.jpg"}
+                    alt={services[0].title}
                     width={53}
                     height={53}
                     className="object-contain"
                   />
                 </div>
                 <div className="flex-1">
-                  <h3 className={`text-lg font-semibold mb-1 text-white `}>
-                    Hello World !!
+                  <h3 className="text-lg font-semibold mb-1 text-white">
+                    {services[0].title}
                   </h3>
-                  <p className={`text-sm text-white `}>
-                    lorte ipsum dolor sit amet consectetur adipisicing elit.
-                    Quisquam, quod.
-                  </p>
+                  <p className="text-sm text-white">{services[0].sub_title}</p>
                 </div>
               </div>
             </Card>
-            <Card
-              className={`group w-full bg-primary hover:bg-primary/80 p-6 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 border-0 animate-scale-in `}
-            >
-              <div className="flex lg:flex-row md:flex-col items-start gap-4">
-                <div className={`shrink-0 p-2 rounded-lg `}>
+          )}
+
+          {services[1] && (
+            <Card className="bg-primary p-6 group hover:bg-primary/80 transition-all hover:-translate-y-1 border-0">
+              <div className="flex items-start gap-4">
+                <div className="shrink-0 p-2 rounded-lg">
                   <Image
-                    src="/images/home/service7.png"
-                    alt="Services Illustration"
+                    src={services[1].logo_image || "/images/placeholder_img.jpg"}
+                    alt={services[1].title}
                     width={53}
                     height={53}
                     className="object-contain"
                   />
                 </div>
                 <div className="flex-1">
-                  <h3 className={`text-lg font-semibold mb-1 text-white `}>
-                    Hello World !!
+                  <h3 className="text-lg font-semibold mb-1 text-white">
+                    {services[1].title}
                   </h3>
-                  <p className={`text-sm text-white `}>
-                    lorte ipsum dolor sit amet consectetur adipisicing elit.
-                    Quisquam, quod.
-                  </p>
+                  <p className="text-sm text-white">{services[1].sub_title}</p>
                 </div>
               </div>
             </Card>
+          )}
+
+        </div>
+
+        {/* ---------- SECOND ROW (services[2], services[3], services[4]) ---------- */}
+        <div className="md:mb-6 mb-4 grid grid-cols-1 md:grid-cols-3 gap-4 mx-auto items-center">
+
+          {/* LEFT COLUMN */}
+          <div className="flex flex-col gap-4 md:gap-6">
+
+            {services[2] && (
+              <Card className="bg-secondary p-6 group hover:bg-secondary/80 transition-all border-0 h-full">
+                <div className="flex items-start gap-4">
+                  <Image
+                    src={services[2].logo_image || "/images/placeholder_img.jpg"}
+                    alt={services[2].title}
+                    width={53}
+                    height={53}
+                    className="object-contain"
+                  />
+                  <div>
+                    <h3 className="text-lg font-semibold text-white">
+                      {services[2].title}
+                    </h3>
+                    <p className="text-sm text-white">{services[2].sub_title}</p>
+                  </div>
+                </div>
+              </Card>
+            )}
+
+            {services[3] && (
+              <Card className="bg-primary p-6 group hover:bg-primary/80 transition-all border-0">
+                <div className="flex items-start gap-4">
+                  <Image
+                    src={services[3].logo_image || "/images/placeholder_img.jpg"}
+                    alt={services[3].title}
+                    width={53}
+                    height={53}
+                    className="object-contain"
+                  />
+                  <div>
+                    <h3 className="text-lg font-semibold text-white">
+                      {services[3].title}
+                    </h3>
+                    <p className="text-sm text-white">{services[3].sub_title}</p>
+                  </div>
+                </div>
+              </Card>
+            )}
           </div>
+
+          {/* MIDDLE BIG IMAGE */}
+          <div className="hidden md:flex justify-center">
+            <Image
+              src="/images/home/service6.png"
+              width={228}
+              height={228}
+              alt="Service Illustration"
+              className="rounded-full"
+            />
+          </div>
+
+          {/* RIGHT COLUMN */}
+          <div className="flex flex-col gap-4 md:gap-6">
+            {services[4] && (
+              <Card className="bg-secondary p-6 group hover:bg-secondary/80 transition-all border-0 h-full">
+                <div className="flex items-start gap-4">
+                  <Image
+                    src={services[4].logo_image || "/images/placeholder_img.jpg"}
+                    alt={services[4].title}
+                    width={53}
+                    height={53}
+                    className="object-contain"
+                  />
+                  <div>
+                    <h3 className="text-lg font-semibold text-white">
+                      {services[4].title}
+                    </h3>
+                    <p className="text-sm text-white">{services[4].sub_title}</p>
+                  </div>
+                </div>
+              </Card>
+            )}
+
+            {services[5] && (
+              <Card className="bg-primary p-6 group hover:bg-primary/80 transition-all border-0">
+                <div className="flex items-start gap-4">
+                  <Image
+                    src={services[5].logo_image || "/images/placeholder_img.jpg"}
+                    alt={services[5].title}
+                    width={53}
+                    height={53}
+                    className="object-contain"
+                  />
+                  <div>
+                    <h3 className="text-lg font-semibold text-white">
+                      {services[5].title}
+                    </h3>
+                    <p className="text-sm text-white">{services[5].sub_title}</p>
+                  </div>
+                </div>
+              </Card>
+            )}
+          </div>
+
         </div>
-        {/* third row */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-20  mx-auto items-center">
-          <Card
-            className={`group bg-secondary hover:bg-secondary/80 p-6 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 border-0 animate-scale-in `}
-          >
-            <div className="flex items-start gap-4">
-              <div className={`shrink-0 p-2 rounded-lg `}>
+
+        {/* ---------- THIRD ROW (services[6], services[7]) ---------- */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-20 items-center">
+
+          {services[6] && (
+            <Card className="bg-secondary p-6 group hover:bg-secondary/80 transition-all border-0 h-full">
+              <div className="flex items-start gap-4">
                 <Image
-                  src="/images/home/service8.png"
-                  alt="Services Illustration"
+                  src={services[6].logo_image || "/images/placeholder_img.jpg"}
+                  alt={services[6].title}
                   width={53}
                   height={53}
                   className="object-contain"
                 />
+                <div>
+                  <h3 className="text-lg font-semibold text-white">
+                    {services[6].title}
+                  </h3>
+                  <p className="text-sm text-white">{services[6].sub_title}</p>
+                </div>
               </div>
-              <div className="flex-1">
-                <h3 className={`text-lg font-semibold mb-1 text-white `}>
-                  Hello World !!
-                </h3>
-                <p className={`text-sm text-white `}>
-                  lorte ipsum dolor sit amet consectetur adipisicing elit.
-                  Quisquam, quod.
-                </p>
-              </div>
-            </div>
-          </Card>
-          <Card
-            className={`group p-6 bg-secondary hover:bg-secondary/80 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 border-0 animate-scale-in `}
-          >
-            <div className="flex items-start gap-4">
-              <div className={`shrink-0 p-2 rounded-lg `}>
+            </Card>
+          )}
+
+          {services[7] && (
+            <Card className="bg-secondary p-6 group hover:bg-secondary/80 transition-all border-0 h-full">
+              <div className="flex items-start gap-4">
                 <Image
-                  src="/images/home/service9.png"
-                  alt="Services Illustration"
+                  src={services[7].logo_image || "/images/placeholder_img.jpg"}
+                  alt={services[7].title}
                   width={53}
                   height={53}
                   className="object-contain"
                 />
+                <div>
+                  <h3 className="text-lg font-semibold text-white">
+                    {services[7].title}
+                  </h3>
+                  <p className="text-sm text-white">{services[7].sub_title}</p>
+                </div>
               </div>
-              <div className="flex-1">
-                <h3 className={`text-lg font-semibold mb-1 text-white `}>
-                  Hello World !!
-                </h3>
-                <p className={`text-sm text-white `}>
-                  lorte ipsum dolor sit amet consectetur adipisicing elit.
-                  Quisquam, quod.
-                </p>
-              </div>
-            </div>
-          </Card>
+            </Card>
+          )}
+
         </div>
+
       </div>
     </section>
   );

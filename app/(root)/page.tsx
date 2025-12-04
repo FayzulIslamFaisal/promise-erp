@@ -34,7 +34,9 @@ const HomePage = ({ searchParams }: HomesearchParamsProps) => {
       <Suspense fallback={<HighlightsSkeleton />}>
         <CourseCategoriesWrapper searchParams={searchParams} />
       </Suspense>
-      <HomeServiceList />
+      <Suspense fallback={<div>Loading...</div>}>
+        <HomeServiceList searchParams={searchParams}/>
+      </Suspense>
       <Suspense fallback={<CourseCardSkeleton columns={4} rows={1} />}>
         <HomeCoursesWrapper searchParams={searchParams} />
       </Suspense>
@@ -43,14 +45,18 @@ const HomePage = ({ searchParams }: HomesearchParamsProps) => {
       <Suspense fallback={<div>Loading...</div>}>
         <TeacherListWrapper searchParams={searchParams} />
       </Suspense>
-      <VideoStories />
+      <Suspense fallback={<div>Loading...</div>}>
+        <VideoStories searchParams={searchParams} />
+      </Suspense>
       <CareerDevelopmentBlog />
       <Suspense fallback={<div>Loading...</div>}>
         <StudentSuccessWrapper searchParams={searchParams} />
       </Suspense>
       <NewsfeedsArchive />
       <NewsletterSection />
-      <AffiliatesAndClients />
+      <Suspense fallback={<div>Loading...</div>}>
+        <AffiliatesAndClients />
+      </Suspense>
       <Suspense fallback={<BranchesSkeleton />}>
         <OurBranchesWrapper searchParams={searchParams} />
       </Suspense>

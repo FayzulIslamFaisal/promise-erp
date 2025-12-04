@@ -11,15 +11,13 @@ export const VideoSection = ({ course }: VideoSectionProps) => {
   return (
     <Card className="bg-muted/30 p-0">
       <CardContent className="p-0">
-        <div className="aspect-video w-full rounded-lg overflow-hidden animate-in fade-in duration-500">
+        <div className="rounded-lg animate-in fade-in duration-500 overflow-hidden">
           <iframe
-            width="100%"
-            height="100%"
+            className="aspect-video"
             src={course.video_link}
             title={`${course.title} - Course Preview Video`}
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowFullScreen
-            className="w-full h-full"
           ></iframe>
         </div>
       </CardContent>

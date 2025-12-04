@@ -19,8 +19,7 @@ export const WhatYouLearnSection = ({ course }: WhatYouLearnSectionProps) => {
           {learningPoints.map((point, index) => (
             <div
               key={point.id || index}
-              className="flex items-start gap-3 animate-in fade-in"
-              style={{ animationDelay: `${index * 300}ms` }}
+              className="flex items-start gap-3"
             >
               <CheckCircle2 className="w-5 h-5 text-primary mt-1 shrink-0" />
               <div>

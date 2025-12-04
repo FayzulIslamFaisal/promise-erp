@@ -22,8 +22,7 @@ export const CurriculumSection = ({ course }: CurriculumSectionProps) => {
             <AccordionItem
               key={chapter.id}
               value={`item-${chapter.id}`}
-              className="border-2 border-black/20 rounded-lg bg-primary/10 animate-in fade-in duration-500"
-              style={{ animationDelay: `${index * 300}ms` }}
+              className="border-2 border-black/20 rounded-lg bg-primary/10"
             >
               <AccordionTrigger className="px-4 hover:no-underline">
                 <div className="flex items-center gap-3">
@@ -35,9 +34,6 @@ export const CurriculumSection = ({ course }: CurriculumSectionProps) => {
                 </div>
               </AccordionTrigger>
               <AccordionContent className="px-4 pb-4 pt-2 border-t border-black/10">
-                {/* {chapter.description && (
-                  <p className="text-muted-foreground mb-3">{chapter.description}</p>
-                )} */}
                 {chapter.lessons && chapter.lessons.length > 0 && (
                   <div className="grid md:grid-cols-2 gap-4 py-3">
                     {chapter.lessons.map((lesson) => (

@@ -73,6 +73,7 @@ export interface BranchApiResponse {
   message: string;
   code: number;
   data: BranchList;
+  errors?: Record<string, string[]>;
 }
 //End Interfaces home page branch section ---
 
@@ -98,6 +99,7 @@ export interface TeacherApiResponse {
   message: string;
   code: number;
   data: TeacherList;
+  errors?: Record<string, string[]>;
 }
 // End Interfaces home page Teachers section ---
 
@@ -122,12 +124,94 @@ export interface ReviewApiResponse {
   message: string;
   code: number;
   data: ReviewList;
+  errors?: Record<string, string[]>;
 }
 // End Interfaces home page Reviews section ---
 
+//Start Home Newsletter Subscription --
+export interface NewsletterData {
+  id: number;
+  email: string;
+  subscribed_at: string;
+}
+export interface NewsletterApiResponse {
+  success: boolean;
+  message: string;
+  code: number;
+  data?: NewsletterData;
+  errors?: Record<string, string[]>;
+}
+//End Home Newsletter Subscription --
 
+//Start Home page affiliate Partner section get API --
+export interface PartnerItem {
+  id: number;
+  title: string;
+  image: string;
+  status: number;
+  partner_type: number;
+}
 
+export interface PartnersResponseData {
+  affiliate: PartnerItem[];
+  concern: PartnerItem[];
+  client: PartnerItem[];
+}
 
+export interface PartnersApiResponse {
+  success: boolean;
+  message: string;
+  code: number;
+  data?: PartnersResponseData;
+  errors?: Record<string, string[]>;
+}
+
+//End Home page affiliate Partner section get API --
+
+//End Home page CompanyServiceItem section get API --
+export interface ServiceItem {
+  id: number;
+  title: string;
+  sub_title: string;
+  logo_image: string;
+}
+export interface ServicesResponseData {
+  total_services: number;
+  services: ServiceItem[];
+  pagination: Pagination;
+}
+
+export interface ServicesApiResponse {
+  success: boolean;
+  message: string;
+  code: number;
+  data?: ServicesResponseData;
+  errors?: Record<string, string[]>;
+}
+//End Home page CompanyServiceItem section get API --
+
+//End Home page CompanyServiceItem section get API --
+export interface SuccessStoryItem {
+  id: number;
+  youtube_link: string;
+  thumbnail_image: string;
+  type: number;
+  status: number;
+}
+export interface SuccessStoryData {
+  total_video_galleries: number;
+  video_galleries: SuccessStoryItem[];
+  pagination: Pagination;
+}
+
+export interface SuccessStoryApiResponse {
+  success: boolean;
+  message: string;
+  code: number;
+  data: SuccessStoryData;
+  errors?: Record<string, string[]>;
+}
+//End Home page CompanyServiceItem section get API --
 
 // Home Hero section get API
 export async function getLatestHeroSection(): Promise<HeroSectionResponse> {
@@ -173,7 +257,6 @@ export async function fetchAllBranches({
   page?: number;
   params?: Record<string, unknown>;
 }): Promise<BranchApiResponse | null> {
-
   try {
     const urlParams = new URLSearchParams({
       page: page.toString(),
@@ -187,7 +270,6 @@ export async function fetchAllBranches({
 
     const queryString = urlParams.toString();
     const res = await fetch(`${API_BASE}/public/our-branches?${queryString}`);
-
 
     if (!res.ok) {
       console.error(
@@ -214,7 +296,6 @@ export async function fetchAllPublicTeachers({
   page?: number;
   params?: Record<string, unknown>;
 }): Promise<TeacherApiResponse | null> {
-
   try {
     const urlParams = new URLSearchParams({
       page: page.toString(),
@@ -254,7 +335,6 @@ export async function fetchPublicFeaturedReviews({
   page?: number;
   params?: Record<string, unknown>;
 }): Promise<ReviewApiResponse | null> {
-
   try {
     const urlParams = new URLSearchParams({
       page: page.toString(),
@@ -267,8 +347,10 @@ export async function fetchPublicFeaturedReviews({
     });
 
     const queryString = urlParams.toString();
-    const res = await fetch(`${API_BASE}/public/reviews-featured?${queryString}`);
-    
+    const res = await fetch(
+      `${API_BASE}/public/reviews-featured?${queryString}`
+    );
+
     if (!res.ok) {
       console.error(
         `fetchPublicFeaturedReviews API error: ${res.status} ${res.statusText}`
@@ -285,3 +367,131 @@ export async function fetchPublicFeaturedReviews({
     return null;
   }
 }
+
+// Home Newsletter Subscription
+export async function SubscribeToNewsletter(
+  email: string
+): Promise<NewsletterApiResponse> {
+  try {
+    const res = await fetch(`${API_BASE}/public/newsletter-subscriptions`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body:  JSON.stringify({ email }),
+    });
+
+    const data: NewsletterApiResponse = await res.json();
+
+    if (!res.ok) {
+      return {
+        success: false,
+        message: data.errors?.email?.[0] || data.message || "Subscription failed",
+        code: data.code || res.status,
+      };
+    }
+
+    return data;
+  } catch (error) {
+    console.error("Newsletter error:", error);
+    return {
+      success: false,
+      message: "Something went wrong. Try again.",
+      code: 500,
+    };
+  }
+}
+
+// Home page affiliate Partner section get API --
+export async function fetchHomeAffiliatePartners(): Promise<PartnersApiResponse> {
+  try {
+    const res = await fetch(`${API_BASE}/public/partners`);
+
+    if (!res.ok) {
+      throw new Error(`Partners API error: ${res.status} ${res.statusText}`);
+    }
+
+    const data:PartnersApiResponse = (await res.json());
+    return data;
+
+  } catch (error) {
+    console.error("Partners Fetch Error:", error);
+    throw new Error("Error fetching partners data");
+  }
+}
+
+// Home page Services section get API
+export async function fetchPublicCompanyServices({
+  params = {},
+}: {
+  params?: Record<string, unknown>;
+}): Promise<ServicesApiResponse | null> {
+  try {
+    const urlParams = new URLSearchParams();
+
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        urlParams.append(key, String(value));
+      }
+    });
+
+    const queryString = urlParams.toString();
+
+    const res = await fetch(
+      `${API_BASE}/public/company-services?${queryString}`
+    );
+
+    if (!res.ok) {
+      console.error(
+        `fetchPublicCompanyServices API error: ${res.status} ${res.statusText}`
+      );
+      toast.error("Error fetching company services");
+      return null;
+    }
+
+    const data: ServicesApiResponse = await res.json();
+    return data;
+
+  } catch (error) {
+    console.error("Error fetching company services:", error);
+    toast.error("Error fetching company services");
+    return null;
+  }
+}
+
+
+export async function fetchPublicVideoGalleries({
+  params = {},
+}: {
+  params?: Record<string, unknown>;
+}): Promise<SuccessStoryApiResponse | null> {
+  try {
+    const urlParams = new URLSearchParams();
+
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        urlParams.append(key, String(value));
+      }
+    });
+    const queryString = urlParams.toString();
+
+    const res = await fetch(
+      `${API_BASE}/public/video-galleries?${queryString}`
+    );
+
+    if (!res.ok) {
+      console.error(
+        `fetchPublicVideoGalleries API error: ${res.status} ${res.statusText}`
+      );
+      toast.error("Error fetching video galleries");
+      return null;
+    }
+
+    const data: SuccessStoryApiResponse = await res.json();
+    return data;
+
+  } catch (error) {
+    console.error("Error fetching video galleries:", error);
+    toast.error("Error fetching video galleries");
+    return null;
+  }
+}
+

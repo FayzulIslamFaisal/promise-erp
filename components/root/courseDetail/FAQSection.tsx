@@ -20,13 +20,12 @@ export const FAQSection = ({ course }: FAQSectionProps) => {
             <AccordionItem
               key={faq.id}
               value={`faq-${faq.id}`}
-              className="border-b animate-in fade-in duration-500"
-              style={{ animationDelay: `${index * 300}ms` }}
+              className="border-b"
             >
-              <AccordionTrigger className="px-4 hover:no-underline">
-                <span className="font-semibold text-left">{faq.question}</span>
+              <AccordionTrigger className="hover:no-underline">
+                <span className="font-bold text-left">{faq.question}</span>
               </AccordionTrigger>
-              <AccordionContent className="px-4 pb-4">
+              <AccordionContent className="pb-4">
                 {faq.answer}
               </AccordionContent>
             </AccordionItem>
