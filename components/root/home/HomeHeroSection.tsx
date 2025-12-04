@@ -6,24 +6,23 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import Image from "next/image";
 import dynamic from "next/dynamic";
+import { HeroSectionResponse } from "@/apiServices/homePageService";
 
 const ReactPlayer = dynamic(() => import("react-player"), { ssr: false });
 
-type HeroVideoData = {
-  videoUrl: string;
-  featureImage: string;
-};
+interface HeroVideoData {
+  heroBannerData: HeroSectionResponse;
+}
 
-const HomeHeroSection = () => {
+const HomeHeroSection = ({ heroBannerData }: HeroVideoData) => {
   const [isPlaying, setIsPlaying] = useState(false);
 
-  const heroData: HeroVideoData = {
-    videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-    featureImage: "/images/home/hero-banner.png",
-  };
+  const sliderData = heroBannerData?.data;
+  const videoUrl =
+    sliderData?.video_url || "https://youtu.be/DeRVmBh0oG8?si=_tjmWhyhs7nBQC64";
 
-  const videoUrl = heroData.videoUrl;
-  const featureImage = heroData.featureImage;
+  const featureImage =
+    sliderData?.background_image || "/images/home/hero-banner.png";
 
   return (
     <section
@@ -33,18 +32,18 @@ const HomeHeroSection = () => {
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
           {/* LEFT CONTENT */}
-          <div className="flex flex-col justify-center pe-0 lg:pe-4 py-8 lg:py-0">
+          <div className="flex flex-col justify-center pe-0 lg:pe-4 py-14 md:py-18">
             <h1 className="text-secondary capitalize font-bold text-2xl md:text-4xl xl:text-6xl leading-normal">
-              বাংলাদেশের সেরা অনলাইন ও অফলাইন কোর্সগুলো এক জায়গায়
+              {sliderData?.title}
             </h1>
             <p className="md:text-2xl text-xl font-medium text-black/75">
-              শেখো নিজের গতিতে, অনলাইন ও অফলাইন ক্লাসে।
+              {sliderData?.subtitle}
             </p>
 
             <div className="flex items-center gap-4 mt-6">
               <Button asChild className="flex items-center gap-2">
-                <Link href="#">
-                  কোর্স ব্রাউজ করুন
+                <Link href={sliderData?.button_link_one || "#"}>
+                  {sliderData?.button_text_one}
                   <MoveRight className="w-5 h-5 animate-bounce" />
                 </Link>
               </Button>
@@ -54,8 +53,8 @@ const HomeHeroSection = () => {
                 variant="outline"
                 className="flex items-center gap-2"
               >
-                <Link href="#">
-                  ফ্রি সেমিনার
+                <Link href={sliderData?.button_link_two || "#"}>
+                  {sliderData?.button_text_two}
                   <MoveRight className="w-5 h-5 animate-bounce" />
                 </Link>
               </Button>
@@ -72,7 +71,7 @@ const HomeHeroSection = () => {
               backgroundRepeat: "no-repeat",
             }}
           >
-            <div className="rounded-2xl overflow-hidden border-6 border-white relative">
+            <div className="rounded-2xl overflow-hidden border-6 min-h-[425px] border-white relative">
               <ReactPlayer
                 className="aspect-video"
                 src={videoUrl}

@@ -1,50 +1,44 @@
 
-import { GraduationCap, BookOpen, Users, TrendingUp } from "lucide-react";
 import { Card } from "@/components/ui/card";
+import { getLatestCountDown} from "@/apiServices/homePageService";
+import Image from "next/image";
+import ErrorComponent from "@/components/common/ErrorComponent";
 
-const stats = [
-  {
-    icon: GraduationCap,
-    value: "১,০০,০০০+",
-    label: "শিক্ষার্থী",
-  },
-  {
-    icon: BookOpen,
-    value: "৬০০+",
-    label: "কোর্স",
-  },
-  {
-    icon: Users,
-    value: "২০০+",
-    label: "দক্ষ প্রশিক্ষক",
-  },
-  {
-    icon: TrendingUp,
-    value: "৯৮%",
-    label: "সফলতার হার",
-  },
-];
+const HighlightsSection = async () => {
+  let stats = [];
+  try {
+  const countDownData = await getLatestCountDown();
+  stats = countDownData?.data?.stats || [];
+  } catch (error) {
+    console.error("Error in getLatestCountDown:", error);
+    return <ErrorComponent message="An unexpected error occurred." />;
+  }
 
- const HighlightsSection = () => {
   return (
     <section className="py-8 md:py-14 ">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {stats.map((stat, index) => (
+          {stats.map((stat) => (
             <Card
-              key={index}
+              key={stat?.id}
               className="relative overflow-hidden bg-primary hover:bg-primary-light transition-all duration-300 border-0 shadow-lg hover:shadow-xl hover:-translate-y-2 group animate-scale-in"
-              style={{ animationDelay: `${index * 0.1}s` }}
+              style={{ animationDelay: `${stat?.id * 0.1}s` }}
             >
-              <div className="p-8 text-center relative z-10">
-                <div className="mb-4 inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary-foreground/20">
-                  <stat.icon className="w-8 h-8 text-primary-foreground" />
+              <div className="px-4 py-6 text-center relative z-10">
+                <div className="mb-4 inline-flex items-center justify-center w-22 h-22 rounded-full bg-white">
+                  <Image
+                    src={stat?.image || "/images/placeholder_img.jpg"}
+                    alt={stat?.title}
+                    width={70}
+                    height={70}
+                    className=" rounded-full object-cover"
+                  />
                 </div>
-                <div className="text-4xl md:text-5xl font-bold text-primary-foreground mb-2">
-                  {stat.value}
+                <div className="text-3xl md:text-4xl font-bold text-primary-foreground mb-2">
+                  <span className="flex items-center justify-center">{stat?.count} {""} +</span>
                 </div>
                 <div className="text-lg text-primary-foreground/90 font-medium">
-                  {stat.label}
+                  {stat?.title}
                 </div>
               </div>
               <div className="absolute inset-0 bg-gradient-to-br from-primary-foreground/0 to-primary-foreground/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
@@ -56,4 +50,3 @@ const stats = [
   );
 };
 export default HighlightsSection;
-

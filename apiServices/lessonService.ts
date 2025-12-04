@@ -2,6 +2,7 @@
 import { authOptions } from "@/lib/auth"
 import { getServerSession } from "next-auth"
 import { revalidateTag } from "next/cache"
+import { handleApiError, processApiResponse } from "@/lib/apiErrorHandler"
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api/v1"
 
@@ -56,51 +57,56 @@ export interface LessonResponseType {
   errors?: {
     [key: string]: string[] | string;
   };
-  data?: any;
+  data?: Lesson;
+  code?: number;
 }
 
 // add lesson
 export async function addLesson(
   formData: FormData
 ): Promise<LessonResponseType> {
-  const session = await getServerSession(authOptions);
-  const token = session?.accessToken;
+  try {
+    const session = await getServerSession(authOptions);
+    const token = session?.accessToken;
 
-  if (!token) {
+    if (!token) {
+      return {
+        success: false,
+        message: "No valid session or access token found.",
+        code: 401,
+      };
+    }
+
+    const res = await fetch(`${API_BASE}/lessons`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData,
+    });
+
+    const result = await processApiResponse(res, "Failed to add lesson.");
+
+    if (!result.success) {
+      return result;
+    }
+
+    revalidateTag("lessons-list", "max");
     return {
-      success: false,
-      message: "No valid session or access token found.",
+      success: true,
+      message: result.message || "Lesson added successfully.",
+      data: result.data,
+      code: result.code,
     };
+  } catch (error) {
+    return await handleApiError(error, "Failed to add lesson.");
   }
-
-  const res = await fetch(`${API_BASE}/lessons`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    body: formData,
-  });
-
-  const data = await res.json();
-
-  if (!res.ok) {
-    return {
-      success: false,
-      message: data.message || "Failed to add lesson.",
-      errors: data.errors,
-    };
-  }
-
-  // revalidateTag("lessons-list");
-  // Next.js 16 requires 2nd argument (profile)
-  revalidateTag("lessons-list", "max");
-  return { success: true, message: data.message, data };
 }
 
 // Get lessons
 export async function getLessons(
   page = 1,
-  params: Record<string, any> = {}
+  params: Record<string, unknown> = {}
 ): Promise<LessonResponse> {
   const session = await getServerSession(authOptions)
   const token = session?.accessToken
@@ -148,40 +154,45 @@ export async function updateLesson(
   id: string,
   formData: FormData
 ): Promise<LessonResponseType> {
-  const session = await getServerSession(authOptions);
-  const token = session?.accessToken;
+  try {
+    const session = await getServerSession(authOptions);
+    const token = session?.accessToken;
 
-  if (!token) {
+    if (!token) {
+      return {
+        success: false,
+        message: "No valid session or access token found.",
+        code: 401,
+      };
+    }
+
+    formData.append("_method", "PATCH");
+
+    const res = await fetch(`${API_BASE}/lessons/${id}`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData,
+    });
+
+    const result = await processApiResponse(res, "Failed to update lesson.");
+
+    if (!result.success) {
+      return result;
+    }
+
+    revalidateTag("lessons-list", "max");
+    revalidateTag(`lesson-${id}`, "max");
     return {
-      success: false,
-      message: "No valid session or access token found.",
+      success: true,
+      message: result.message || "Lesson updated successfully.",
+      data: result.data,
+      code: result.code,
     };
+  } catch (error) {
+    return await handleApiError(error, "Failed to update lesson.");
   }
-
-  formData.append("_method", "PATCH");
-
-  const res = await fetch(`${API_BASE}/lessons/${id}`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    body: formData,
-  });
-
-  const data = await res.json();
-
-  if (!res.ok) {
-    return {
-      success: false,
-      message: data.message || "Failed to update lesson.",
-      errors: data.errors,
-    };
-  }
-
-  // Next.js 16 requires 2nd argument (profile)
-  revalidateTag("lessons-list", "max");
-  revalidateTag(`lesson-${id}`, "max");
-  return { success: true, message: data.message, data };
 }
 
 // =======================
@@ -210,25 +221,33 @@ export async function getLessonById(id: string): Promise<LessonSingleResponse> {
 // =======================
 // 🔹 Delete Lesson
 // =======================
-export async function deleteLesson(id: number) {
-  const session = await getServerSession(authOptions);
-  const token = session?.accessToken;
+export async function deleteLesson(id: number): Promise<{ success: boolean; message: string; code?: number }> {
+  try {
+    const session = await getServerSession(authOptions);
+    const token = session?.accessToken;
 
-  if (!token) throw new Error("Unauthorized");
+    if (!token) {
+      return { success: false, message: "Unauthorized", code: 401 };
+    }
 
-  const res = await fetch(`${API_BASE}/lessons/${id}`, {
-    method: "DELETE",
-    headers: {
-      "Authorization": `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
-  });
+    const res = await fetch(`${API_BASE}/lessons/${id}`, {
+      method: "DELETE",
+      headers: {
+        "Authorization": `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
 
-  if (!res.ok) {
-    const errorText = await res.text();
-    throw new Error(`Failed to delete lesson: ${errorText}`);
+    const result = await processApiResponse(res, "Failed to delete lesson.");
+    
+    if (!result.success) {
+      return { success: false, message: result.message, code: result.code };
+    }
+
+    revalidateTag("lessons-list", "max");
+    return { success: true, message: result.message || "Lesson deleted successfully", code: result.code };
+  } catch (error) {
+    const errorResult = await handleApiError(error, "Failed to delete lesson.");
+    return { success: false, message: errorResult.message, code: errorResult.code };
   }
-  // Next.js 16 requires 2nd argument (profile)
-  revalidateTag("lessons-list", "max");
-  return await res.json();
 }

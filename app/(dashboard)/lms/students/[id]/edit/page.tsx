@@ -1,10 +1,12 @@
 'use client'
 
-import { getStudentById, updateStudent, Student, StudentResponseType } from '@/apiServices/studentService'
+import { getStudentById, updateStudent, Student } from '@/apiServices/studentService'
 import UserForm from '@/components/common/UserForm'
 import { useRouter } from 'next/navigation'
-import { toast } from 'sonner'
 import { useEffect, useState, use } from 'react'
+import { handleFormErrors, handleFormSuccess } from '@/lib/formErrorHandler'
+import { UseFormSetError } from 'react-hook-form'
+import { ApiErrorResponse } from '@/lib/apiErrorHandler'
 
 export default function EditStudentPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter()
@@ -33,25 +35,13 @@ export default function EditStudentPage({ params }: { params: Promise<{ id: stri
     formData: FormData,
     setFormError: (field: string, message: string) => void
   ) => {
-    try {
-      const res: StudentResponseType = await updateStudent(resolvedParams.id, formData)
+    const res = await updateStudent(resolvedParams.id, formData)
 
-      if (res?.success) {
-        toast.success(res.message || 'Student updated successfully!')
-        router.push('/lms/students')
-      } else if (res?.errors) {
-        Object.entries(res.errors).forEach(([field, messages]) => {
-          if (Array.isArray(messages) && messages.length > 0) {
-            setFormError(field, messages[0])
-          }
-        })
-        toast.error('Please fix the errors below.')
-      } else {
-        toast.error(res?.message || 'Failed to update student.')
-      }
-    } catch(error: unknown) {
-      console.error("Something went wrong. Try again later.", error);
-      toast.error("Something went wrong. Try again later.");
+    if (res.success) {
+      handleFormSuccess(res.message || 'Student updated successfully!')
+      router.push('/lms/students')
+    } else {
+      handleFormErrors(res as ApiErrorResponse, setFormError as UseFormSetError<any>)
     }
   }
 

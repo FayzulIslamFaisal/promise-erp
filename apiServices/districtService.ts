@@ -2,6 +2,7 @@
 import { authOptions } from "@/lib/auth";
 import { getServerSession } from "next-auth";
 import { cacheTag, updateTag } from "next/cache";
+import { handleApiError, processApiResponse } from "@/lib/apiErrorHandler";
 
 const API_BASE =
   process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api/v1";
@@ -95,9 +96,12 @@ export async function getDistrictsCached(
     });
     
     return await res.json();
-  } catch (error : any) {
+  } catch (error) {
     console.error("Error in getDivisionsCached:", error);
-    throw new Error( error.message || "Unknown error occurred while fetching districts"
+    throw new Error(
+      error instanceof Error
+        ? error.message
+        : "Unknown error occurred while fetching districts"
     );
   }
 }
@@ -132,7 +136,7 @@ export interface AddDistrictApiResponse {
   message: string;
   code: number;
   data?: District;
-  errors?: Record<string, string[]>;
+  errors?: Record<string, string[] | string>;
 }
 export interface DistrictFormData {
   name: string;
@@ -163,35 +167,22 @@ export async function addDistrict(
       body: JSON.stringify(districtData),
     });
 
-    const data = await response.json();
+    const result = await processApiResponse(response, "Failed to add district.");
 
-    if (!response.ok) {
-      return {
-        success: false,
-        message: data.message || "Failed to add district.",
-        errors: data.errors,
-        code: response.status,
-      };
+    if (!result.success) {
+      return result;
     }
 
     updateTag("districts-list");
 
-    return data;
-  } catch (error: unknown) {
-    console.error("Error adding district:", error);
-    if (error instanceof Error) {
-      return {
-        success: false,
-        message: error.message || "An unexpected error occurred.",
-        code: 500,
-      };
-    }
-
     return {
-      success: false,
-      message: "An unexpected error occurred.",
-      code: 500,
+      success: true,
+      message: result.message || "District added successfully.",
+      data: result.data,
+      code: result.code || 200,
     };
+  } catch (error) {
+    return await handleApiError(error, "Failed to add district.");
   }
 }
 
@@ -225,15 +216,17 @@ export async function deleteDistrict(
       },
     });
 
-    const result = await res.json().catch(async () => ({ message: await res.text() }));
-    if (!res.ok) {
-      return { success: false, message: result.message || "Failed to delete district", code: res.status };
+    const result = await processApiResponse(res, "Failed to delete district");
+    
+    if (!result.success) {
+      return { success: false, message: result.message, code: result.code };
     }
+    
     updateTag("districts-list");
-    return { success: true, message: result.message || "District deleted successfully" };
+    return { success: true, message: result.message || "District deleted successfully", code: result.code };
   } catch (error) {
-    console.error("Error in districts:", error);
-    return { success: false, message: error instanceof Error ? error.message : "Failed to delete district", code: 500 };
+    const errorResult = await handleApiError(error, "Failed to delete district");
+    return { success: false, message: errorResult.message, code: errorResult.code };
   }
 }
 // =======================
@@ -298,33 +291,20 @@ export async function updateDistrict(
       body: JSON.stringify(districtData),
     });
 
-    const data = await res.json();
+    const result = await processApiResponse(res, "Failed to update district.");
 
-    if (!res.ok) {
-      return {
-        success: false,
-        message: data.message || "Failed to update district.",
-        errors: data.errors,
-        code: res.status,
-      };
+    if (!result.success) {
+      return result;
     }
 
     updateTag("districts-list");
-    return data;
-  } catch (error: unknown) {
-    console.error("Error updating district:", error);
-    if (error instanceof Error) {
-      return {
-        success: false,
-        message: error.message || "An unexpected error occurred.",
-        code: 500,
-      };
-    }
-
     return {
-      success: false,
-      message: "An unexpected error occurred.",
-      code: 500,
+      success: true,
+      message: result.message || "District updated successfully.",
+      data: result.data,
+      code: result.code || 200,
     };
+  } catch (error) {
+    return await handleApiError(error, "Failed to update district.");
   }
 }

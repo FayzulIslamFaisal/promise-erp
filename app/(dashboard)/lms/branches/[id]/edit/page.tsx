@@ -4,12 +4,13 @@ import {
   getBranchById,
   updateBranch,
   Branch,
-  BranchResponseType,
 } from "@/apiServices/branchService";
 import BranchForm from "@/components/lms/branches/BranchAddForm";
 import { useRouter } from "next/navigation";
-import { toast } from "sonner";
 import { useEffect, useState, use } from "react";
+import { handleFormErrors, handleFormSuccess } from "@/lib/formErrorHandler";
+import { UseFormSetError } from "react-hook-form";
+import { ApiErrorResponse } from "@/lib/apiErrorHandler";
 
 export default function EditBranchPage({params}: {params: Promise<{ id: string }>}) {
   //  unwrap the async params
@@ -38,34 +39,17 @@ export default function EditBranchPage({params}: {params: Promise<{ id: string }
 
   // Handle JSON form submit
   const handleSubmit = async (
-    jsonData: any,
+    formData: { [key: string]: string | string[] | undefined },
     setFormError: (field: string, message: string) => void,
     resetForm: () => void
   ) => {
-    try {
-      const res: BranchResponseType = await updateBranch(
-        resolvedParams.id,
-        jsonData
-      );
+    const res = await updateBranch(resolvedParams.id, formData);
 
-      if (res?.success) {
-        toast.success(res.message || "Branch updated successfully!");
-        router.push("/lms/branches");
-      } else if (res?.errors) {
-        Object.entries(res.errors).forEach(([field, messages]) => {
-          if (Array.isArray(messages) && messages.length > 0) {
-            setFormError(field, messages[0]);
-          } else if (typeof messages === "string") {
-            setFormError(field, messages);
-          }
-        });
-        toast.error("Please fix the errors below.");
-      } else {
-        toast.error(res?.message || "Failed to update branch.");
-      }
-    } catch(error: unknown) {
-      console.error("Something went wrong. Try again later.", error);
-      toast.error("Something went wrong. Try again later.");
+    if (res.success) {
+      handleFormSuccess(res.message || "Branch updated successfully!");
+      router.push("/lms/branches");
+    } else {
+      handleFormErrors(res as ApiErrorResponse, setFormError as UseFormSetError<Branch>);
     }
   };
 

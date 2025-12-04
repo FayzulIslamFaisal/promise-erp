@@ -160,7 +160,7 @@ export async function getCourseProjectById(
 export async function createCourseProject(categoryData:FormData): Promise<SingleCourseProjectResponse> {
     const session = await getServerSession(authOptions);
     const token = session?.accessToken;
-    if (!token) return { success: false, message: "No valid session or access token found.", code: 401 } as any;
+    if (!token) return { success: false, message: "No valid session or access token found.", code: 401 };
 
     const url = `${API_BASE}/course-projects`;
     
@@ -172,15 +172,15 @@ export async function createCourseProject(categoryData:FormData): Promise<Single
         },
         body: categoryData
       });
-      const data: SingleCourseProjectResponse = await response.json().catch(async () => ({ message: await response.text() } as any));
+      const data: SingleCourseProjectResponse = await response.json().catch(async () => ({ message: await response.text() }));
       if (!response.ok) {
-        return { success: false, message: data.message || "Failed to create course project", errors: (data as any).errors, code: response.status } as any;
+        return { success: false, message: data.message || "Failed to create course project", errors: data.errors, code: response.status };
       }
       updateTag("course-projects-list");
       return data;
     } catch (error) {
       console.error("Error in course projects:", error);
-      return { success: false, message: error instanceof Error ? error.message : "Failed to create course project", code: 500 } as any;
+      return { success: false, message: error instanceof Error ? error.message : "Failed to create course project", code: 500 };
     }
   }
 
@@ -191,7 +191,7 @@ export async function createCourseProject(categoryData:FormData): Promise<Single
   export async function updateCourseProject(id: number, formData: FormData): Promise<SingleCourseProjectResponse> {
     const session = await getServerSession(authOptions);
     const token = session?.accessToken;
-    if (!token) return { success: false, message: "No valid session or access token found.", code: 401 } as any;
+    if (!token) return { success: false, message: "No valid session or access token found.", code: 401 };
 
     const url = `${API_BASE}/course-projects/${id}`;
     try {
@@ -203,15 +203,15 @@ export async function createCourseProject(categoryData:FormData): Promise<Single
         },
         body: formData
       });
-      const data: SingleCourseProjectResponse = await response.json().catch(async () => ({ message: await response.text() } as any));
+      const data: SingleCourseProjectResponse = await response.json().catch(async () => ({ message: await response.text() }));
       if (!response.ok) {
-        return { success: false, message: data.message || "Failed to update course project", errors: (data as any).errors, code: response.status } as any;
+        return { success: false, message: data.message || "Failed to update course project", errors: data.errors, code: response.status };
       }
       updateTag("course-projects-list");
       return data;
     } catch (error) {
       console.error("Error in updateCourseProject:", error);
-      return { success: false, message: error instanceof Error ? error.message : "Failed to update course project", code: 500 } as any;
+      return { success: false, message: error instanceof Error ? error.message : "Failed to update course project", code: 500 };
     }
   }
 
@@ -221,7 +221,7 @@ export async function createCourseProject(categoryData:FormData): Promise<Single
   export async function deleteCourseProject(id: number): Promise<SingleCourseProjectResponse> {
     const session = await getServerSession(authOptions);
     const token = session?.accessToken;
-    if (!token) return { success: false, message: "No valid session or access token found.", code: 401 } as any;
+    if (!token) return { success: false, message: "No valid session or access token found.", code: 401 };
 
     const url = `${API_BASE}/course-projects/${id}`;
     
@@ -233,15 +233,15 @@ export async function createCourseProject(categoryData:FormData): Promise<Single
           "Content-Type": "application/json",
         },
       });
-      const data: SingleCourseProjectResponse = await response.json().catch(async () => ({ message: await response.text() } as any));
+      const data: SingleCourseProjectResponse = await response.json().catch(async () => ({ message: await response.text() }));
       if (!response.ok) {
-        return { success: false, message: data.message || "Failed to delete course project", code: response.status } as any;
+        return { success: false, message: data.message || "Failed to delete course project", code: response.status };
       }
       updateTag("course-projects-list");
       return data;
     } catch (error) {
       console.error("Error in deleteCourseProject:", error);
-      return { success: false, message: error instanceof Error ? error.message : "Failed to delete course project", code: 500 } as any;
+      return { success: false, message: error instanceof Error ? error.message : "Failed to delete course project", code: 500 };
     }
   }
 

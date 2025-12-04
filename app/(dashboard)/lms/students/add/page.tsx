@@ -1,9 +1,11 @@
 "use client";
 
-import { addStudent, StudentResponseType } from "@/apiServices/studentService";
+import { addStudent } from "@/apiServices/studentService";
 import { useRouter } from "next/navigation";
-import { toast } from "sonner";
 import UserForm from "@/components/common/UserForm";
+import { handleFormErrors, handleFormSuccess } from "@/lib/formErrorHandler";
+import { UseFormSetError } from "react-hook-form";
+import { ApiErrorResponse } from "@/lib/apiErrorHandler";
 
 export default function AddStudentPage() {
   const router = useRouter();
@@ -13,26 +15,14 @@ export default function AddStudentPage() {
     setFormError: (field: string, message: string) => void,
     resetForm: () => void
   ) => {
-    try {
-      const res: StudentResponseType = await addStudent(formData);
+    const res = await addStudent(formData);
 
-      if (res?.success) {
-        toast.success(res.message || "Student added successfully!");
-        resetForm();
-        router.push("/lms/students");
-      } else if (res?.errors) {
-        Object.entries(res.errors).forEach(([field, messages]) => {
-          if (Array.isArray(messages) && messages.length > 0) {
-            setFormError(field, messages[0]);
-          }
-        });
-        toast.error("Please fix the errors below.");
-      } else {
-        toast.error(res?.message || "Failed to add student.");
-      }
-    } catch(error: unknown) {
-      console.error("Something went wrong. Try again later.", error);
-      toast.error("Something went wrong. Try again later.");
+    if (res.success) {
+      handleFormSuccess(res.message || "Student added successfully!");
+      resetForm();
+      router.push("/lms/students");
+    } else {
+      handleFormErrors(res as ApiErrorResponse, setFormError as UseFormSetError<any>);
     }
   };
 

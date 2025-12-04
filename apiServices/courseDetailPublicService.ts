@@ -151,11 +151,6 @@ export async function getCourseDetailBySlug(slug: string): Promise<ApiResponse> 
     } catch (error) {
         console.error("Error in getCourseDetailBySlug:", error);
         toast.error("Error in getCourseDetailBySlug:");
-        return {
-            success: false,
-            message: "Failed to fetch course details",
-            code: 500,
-            data: null as any,
-        };
+        throw new Error("Error in getCourseDetailBySlug");
     }
 }

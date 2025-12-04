@@ -1,11 +1,11 @@
 import { getBatches } from "@/apiServices/batchService";
 import { getCourses } from "@/apiServices/courseService";
-import { getChapters } from "@/apiServices/chapterService"; // This will be created later
+import { getSimpleChapters } from "@/apiServices/chaptersService";
 import LessonFilter from "./LessonFilter"; // This will be created later
 
 export default async function LessonFilterData() {
   const [chaptersRes, coursesRes, batchesRes] = await Promise.all([
-    getChapters(),
+    getSimpleChapters(),
     getCourses(),
     getBatches(),
   ]);

@@ -68,32 +68,27 @@ export interface ApiResponse {
     pagination: Pagination;
   };
 }
+export interface GetPublicCoursesParams {
+  page?: number;
+  params?: Record<string, unknown>;
+}
 
-export async function getPublicCoursesList(
-  page = 1,
-  params: Record<string, unknown> = {}
-): Promise<ApiResponse> {
+export async function getPublicCoursesList({
+  params = {},
+}: GetPublicCoursesParams): Promise<ApiResponse> {
   "use cache";
     cacheTag("courses-list");
   try {
     const urlParams = new URLSearchParams();
-    urlParams.append("page", page.toString());
-
-    for (const key in params) {
-      if (
-        params[key] !== undefined &&
-        params[key] !== null &&
-        params.hasOwnProperty(key)
-      ) {
-        urlParams.append(key, params[key].toString());
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        urlParams.append(key, String(value));
       }
-    }
+    });
 
-    const res = await fetch(`${API_BASE}/public/courses?${urlParams.toString()}`, {
-      headers: {
-        "Content-Type": "application/json",
-      },
-      
+    const queryString = urlParams.toString();
+    const res = await fetch(`${API_BASE}/public/courses?${queryString}`, {
+      headers: {"Content-Type": "application/json",},
     });
 
     const data: ApiResponse = await res.json();

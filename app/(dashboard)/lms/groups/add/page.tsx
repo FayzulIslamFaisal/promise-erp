@@ -1,8 +1,10 @@
 "use client";
 import GroupForm from "@/components/lms/groups/GroupForm";
 import { useRouter } from "next/navigation";
-import { toast } from "sonner";
-import { addGroup, AddGroupApiResponse, GroupFormData } from "@/apiServices/groupService";
+import { addGroup, GroupFormData } from "@/apiServices/groupService";
+import { handleFormErrors, handleFormSuccess } from "@/lib/formErrorHandler";
+import { UseFormSetError } from "react-hook-form";
+import { ApiErrorResponse } from "@/lib/apiErrorHandler";
 
 const GroupAddPage = () => {
   const router = useRouter();
@@ -12,27 +14,14 @@ const GroupAddPage = () => {
     setFormError: (field: string, message: string) => void,
     resetForm: () => void
   ) => {
-    try {
-      const res: AddGroupApiResponse = await addGroup(groupData); 
-      
-      if (res?.success) {
-        toast.success(res.message || "Group added successfully!");
-        resetForm();
-        router.push("/lms/groups");
-      } 
-      else if (res?.errors) {
-        Object.entries(res.errors).forEach(([field, messages]) => {
-          if (Array.isArray(messages) && messages.length > 0) {
-            setFormError(field, messages[0]);
-          }
-        });
-        toast.error("Please fix the errors below.");
-      } 
-      else {
-        toast.error(res?.message || "Failed to add group.");
-      }
-    } catch {
-      toast.error("Something went wrong. Try again later.");
+    const res = await addGroup(groupData);
+
+    if (res.success) {
+      handleFormSuccess(res.message || "Group added successfully!");
+      resetForm();
+      router.push("/lms/groups");
+    } else {
+      handleFormErrors(res as ApiErrorResponse, setFormError as UseFormSetError<any>);
     }
   };
 

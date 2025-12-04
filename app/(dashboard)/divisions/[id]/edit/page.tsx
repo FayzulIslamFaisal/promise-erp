@@ -6,6 +6,9 @@ import DivisionForm from "@/components/division/DivisionForm";
 import { toast } from "sonner";
 import { DivisionDetailsResponse } from "@/apiServices/divisionService";
 import TableSkeleton from "@/components/TableSkeleton";
+import { handleFormErrors, handleFormSuccess } from "@/lib/formErrorHandler";
+import { UseFormSetError } from "react-hook-form";
+import { ApiErrorResponse } from "@/lib/apiErrorHandler";
 
 interface EditDivisionPageProps {
   params: Promise<{ id: string }>;
@@ -48,25 +51,13 @@ export default function EditDivisionPage({ params }: EditDivisionPageProps) {
     formData: DivisionFormData,
     setFormError: (field: string, message: string) => void
   ) => {
-    try {
-      const result = await updateDivision(divisionId, formData);
-      if (result.success) {
-        toast.success("Division updated successfully!");
-        router.push("/divisions");
-      } else {
-        if (result.errors) {
-          Object.keys(result.errors).forEach((key) => {
-            const errorMessages = result.errors?.[key];
-            if (errorMessages && errorMessages.length > 0) {
-              setFormError(key, errorMessages[0]);
-            }
-          });
-        }
-        toast.error(result.message || "Failed to update division.");
-      }
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "An unknown error occurred.";
-      toast.error(errorMessage);
+    const result = await updateDivision(divisionId, formData);
+    
+    if (result.success) {
+      handleFormSuccess(result.message || "Division updated successfully!");
+      router.push("/divisions");
+    } else {
+      handleFormErrors(result as ApiErrorResponse, setFormError as UseFormSetError<any>);
     }
   };
 

@@ -1,5 +1,5 @@
 import LessonForm from "@/components/lms/lessons/LessonForm";
-import { getChapters } from "@/apiServices/chapterService";
+import { getSimpleChapters } from "@/apiServices/chaptersService";
 import { getCourses } from "@/apiServices/courseService";
 import { getBatches } from "@/apiServices/batchService";
 import { getLessonById } from "@/apiServices/lessonService";
@@ -12,7 +12,7 @@ export default async function EditLessonPage({
   const { id } = await params;
   const [lessonRes, chaptersRes, coursesRes, batchesRes] = await Promise.all([
     getLessonById(id),
-    getChapters(),
+    getSimpleChapters(),
     getCourses(),
     getBatches(),
   ]);

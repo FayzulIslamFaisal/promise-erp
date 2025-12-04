@@ -2,6 +2,7 @@
 import { authOptions } from "@/lib/auth"
 import { getServerSession } from "next-auth"
 import { cacheTag, updateTag } from 'next/cache'
+import { handleApiError, processApiResponse } from "@/lib/apiErrorHandler"
 
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api/v1"
@@ -57,43 +58,50 @@ export interface TeacherResponseType {
   errors?: {
     [key: string]: string[] | string;
   };
-  data?: any;
+  data?: Teacher;
+  code?: number;
 }
 
 // add teacher
 export async function addTeacher(
   formData: FormData
 ): Promise<TeacherResponseType> {
-  const session = await getServerSession(authOptions);
-  const token = session?.accessToken;
+  try {
+    const session = await getServerSession(authOptions);
+    const token = session?.accessToken;
 
-  if (!token) {
+    if (!token) {
+      return {
+        success: false,
+        message: "No valid session or access token found.",
+        code: 401,
+      };
+    }
+
+    const res = await fetch(`${API_BASE}/teachers`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData,
+    });
+
+    const result = await processApiResponse(res, "Failed to add teacher.");
+
+    if (!result.success) {
+      return result;
+    }
+
+    updateTag("teachers-list");
     return {
-      success: false,
-      message: "No valid session or access token found.",
+      success: true,
+      message: result.message || "Teacher added successfully.",
+      data: result.data,
+      code: result.code,
     };
+  } catch (error) {
+    return await handleApiError(error, "Failed to add teacher.");
   }
-
-  const res = await fetch(`${API_BASE}/teachers`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    body: formData,
-  });
-
-  const data = await res.json();
-
-  if (!res.ok) {
-    return {
-      success: false,
-      message: data.message || "Failed to add teacher.",
-      errors: data.errors,
-    };
-  }
-
-  updateTag("teachers-list");
-  return { success: true, message: data.message, data };
 }
 
 // =======================
@@ -103,7 +111,7 @@ export async function addTeacher(
 async function getTeachersCached(
   page: number,
   token: string,
-  params: any
+  params: Record<string, unknown> = {}
 ): Promise<TeacherResponse> {
   "use cache"
   cacheTag("teachers-list")
@@ -111,13 +119,11 @@ async function getTeachersCached(
   const url = new URL(`${API_BASE}/teachers`)
   url.searchParams.append("page", String(page))
 
-  if (params) {
-    Object.keys(params).forEach((key) => {
-      if (params[key]) {
-        url.searchParams.append(key, params[key])
+  Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        url.searchParams.append(key, String(value));
       }
-    })
-  }
+    });
 
   const res = await fetch(url.toString(), {
     headers: {
@@ -135,7 +141,7 @@ async function getTeachersCached(
 
 export async function getTeachers(
   page = 1,
-  params: any = {}
+  params: Record<string, unknown> = {}
 ): Promise<TeacherResponse> {
   const session = await getServerSession(authOptions)
   const token = session?.accessToken
@@ -181,64 +187,77 @@ export async function updateTeacher(
   id: string,
   formData: FormData
 ): Promise<TeacherResponseType> {
-  const session = await getServerSession(authOptions);
-  const token = session?.accessToken;
+  try {
+    const session = await getServerSession(authOptions);
+    const token = session?.accessToken;
 
-  if (!token) {
+    if (!token) {
+      return {
+        success: false,
+        message: "No valid session or access token found.",
+        code: 401,
+      };
+    }
+
+    formData.append("_method", "PATCH");
+
+    const res = await fetch(`${API_BASE}/teachers/${id}`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData,
+    });
+
+    const result = await processApiResponse(res, "Failed to update teacher.");
+
+    if (!result.success) {
+      return result;
+    }
+
+    updateTag("teachers-list");
     return {
-      success: false,
-      message: "No valid session or access token found.",
+      success: true,
+      message: result.message || "Teacher updated successfully.",
+      data: result.data,
+      code: result.code,
     };
+  } catch (error) {
+    return await handleApiError(error, "Failed to update teacher.");
   }
-
-  formData.append("_method", "PATCH");
-
-  const res = await fetch(`${API_BASE}/teachers/${id}`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    body: formData,
-  });
-
-  const data = await res.json();
-
-  if (!res.ok) {
-    return {
-      success: false,
-      message: data.message || "Failed to update teacher.",
-      errors: data.errors,
-    };
-  }
-
-  updateTag("teachers-list");
-  return { success: true, message: data.message, data };
 }
 
 // =======================
 // 🔹 Delete Teacher
 // =======================
 export async function deleteTeacher(id: number): Promise<{ success: boolean; message?: string; code?: number }> {
-  const session = await getServerSession(authOptions);
-  const token = session?.accessToken;
+  try {
+    const session = await getServerSession(authOptions);
+    const token = session?.accessToken;
 
-  if (!token) {
-    return { success: false, message: "Unauthorized", code: 401 };
+    if (!token) {
+      return { success: false, message: "Unauthorized", code: 401 };
+    }
+
+    const res = await fetch(`${API_BASE}/teachers/${id}`, {
+      method: "DELETE",
+      headers: {
+        "Authorization": `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    const result = await processApiResponse(res, "Failed to delete teacher");
+    
+    if (!result.success) {
+      return { success: false, message: result.message, code: result.code };
+    }
+    
+    updateTag("teachers-list");
+    return { success: true, message: result.message || "Teacher deleted successfully", code: result.code };
+  } catch (error) {
+    const errorResult = await handleApiError(error, "Failed to delete teacher");
+    return { success: false, message: errorResult.message, code: errorResult.code };
   }
-
-  const res = await fetch(`${API_BASE}/teachers/${id}`, {
-    method: "DELETE",
-    headers: {
-      "Authorization": `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
-  });
-
-  const data = await res.json().catch(async () => ({ message: await res.text() }));
-  if (!res.ok) {
-    return { success: false, message: data.message || "Failed to delete teacher", code: res.status };
-  }
-  updateTag("teachers-list");
-  return { success: true, message: data.message || "Teacher deleted successfully" };
 }
 

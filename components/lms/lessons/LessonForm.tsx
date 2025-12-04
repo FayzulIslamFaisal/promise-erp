@@ -12,7 +12,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { Chapter } from '@/apiServices/chapterService';
+import { SimpleChapter as Chapter } from '@/apiServices/chaptersService';
 import { Course } from '@/apiServices/courseService';
 import { Batch } from '@/apiServices/batchService';
 import {

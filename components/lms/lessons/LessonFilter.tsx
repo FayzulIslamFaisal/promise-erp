@@ -14,7 +14,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { Course } from "@/apiServices/courseService"
 import { Batch } from "@/apiServices/batchService"
-import { Chapter } from "@/apiServices/chapterService" // This will be created later
+import { SimpleChapter as Chapter } from "@/apiServices/chaptersService"
 import { Search, FilterX } from "lucide-react"
 
 interface FilterFormValues {

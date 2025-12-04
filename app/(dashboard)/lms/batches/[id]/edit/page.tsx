@@ -4,8 +4,10 @@
 import { getBatchById, updateBatch, Batch } from '@/apiServices/batchService'
 import BatchForm from '@/components/lms/batches/BatchForm'
 import { useRouter } from 'next/navigation'
-import { toast } from 'sonner'
 import { useEffect, useState, use } from 'react'
+import { handleFormErrors, handleFormSuccess } from '@/lib/formErrorHandler'
+import { UseFormSetError } from 'react-hook-form'
+import { ApiErrorResponse } from '@/lib/apiErrorHandler'
 
 export default function EditBatchPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter()
@@ -31,28 +33,16 @@ export default function EditBatchPage({ params }: { params: Promise<{ id: string
   }, [resolvedParams.id])
 
   const handleSubmit = async (
-    formData: any,
+    formData: FormData,
     setFormError: (field: string, message: string) => void
   ) => {
-    try {
-      const res: any = await updateBatch(resolvedParams.id, formData)
+    const res = await updateBatch(resolvedParams.id, formData)
 
-      if (res?.success) {
-        toast.success(res.message || 'Batch updated successfully!')
-        router.push('/lms/batches')
-      } else if (res?.errors) {
-        Object.entries(res.errors).forEach(([field, messages]) => {
-          if (Array.isArray(messages) && messages.length > 0) {
-            setFormError(field, messages[0])
-          }
-        })
-        toast.error('Please fix the errors below.')
-      } else {
-        toast.error(res?.message || 'Failed to update batch.')
-      }
-    } catch(error: unknown) {
-      console.error("Something went wrong. Try again later.", error);
-      toast.error("Something went wrong. Try again later.");
+    if (res.success) {
+      handleFormSuccess(res.message || 'Batch updated successfully!')
+      router.push('/lms/batches')
+    } else {
+      handleFormErrors(res as ApiErrorResponse, setFormError as UseFormSetError<Batch>)
     }
   }
 

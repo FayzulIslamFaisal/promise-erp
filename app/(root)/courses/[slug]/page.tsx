@@ -1,5 +1,5 @@
 import { getPublicCoursesList } from "@/apiServices/courseListPublicService";
-import { getCourseDetailBySlug } from "@/apiServices/courseDetailPublicService";
+import { ApiResponse, getCourseDetailBySlug } from "@/apiServices/courseDetailPublicService";
 
 import { CertificateSection } from "@/components/root/courseDetail/CertificateSection";
 import { CurriculumSection } from "@/components/root/courseDetail/CurriculumSection";
@@ -22,7 +22,7 @@ interface CourseDetailPageProps {
 }
 // ssg for course detail pages
 export async function generateStaticParams() {
-  const response = await getPublicCoursesList(1, { paginate: false });
+  const response = await getPublicCoursesList({ params: { per_page: 100 } });
 
   return response?.data?.courses?.map((course) => ({
     slug: course.slug,
@@ -33,7 +33,7 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: CourseDetailPageProps) {
   const { slug } = await params;
 
-  const response = await getCourseDetailBySlug(slug);
+  const response: ApiResponse = await getCourseDetailBySlug(slug);
 
   if (!response.success) {
     return {

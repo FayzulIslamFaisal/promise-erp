@@ -1,12 +1,16 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { toast } from "sonner";
 import DivisionAddForm from "@/components/division/DivisionAddForm";
-import { addDivision,  DivisionResponseType } from "@/apiServices/divisionService";
+import { addDivision } from "@/apiServices/divisionService";
+import { handleFormErrors, handleFormSuccess } from "@/lib/formErrorHandler";
+import { UseFormSetError } from "react-hook-form";
+import { ApiErrorResponse } from "@/lib/apiErrorHandler";
+
 interface DivisionFormData {
   name: string;
 }
+
 export default function AddPage() {
   const router = useRouter();
 
@@ -15,28 +19,14 @@ export default function AddPage() {
     setFormError: (field: string, message: string) => void,
     resetForm: () => void
   ) => {
-    try {
-      const res: DivisionResponseType = await addDivision(formData);
+    const res = await addDivision(formData);
 
-      if (res?.success) {
-        toast.success(res.message || "Division added successfully!");
-        resetForm();
-        router.push("/divisions");
-      } 
-      else if (res?.errors) {
-        Object.entries(res.errors).forEach(([field, messages]) => {
-          if (Array.isArray(messages) && messages.length > 0) {
-            setFormError(field, messages[0]);
-          }
-        });
-        toast.error("Please fix the errors below.");
-      } 
-      else {
-        toast.error(res?.message || "Failed to add division.");
-      }
-    } catch(error: unknown) {
-      console.error("Something went wrong. Try again later.", error);
-      toast.error("Something went wrong. Try again later.");
+    if (res.success) {
+      handleFormSuccess(res.message || "Division added successfully!");
+      resetForm();
+      router.push("/divisions");
+    } else {
+      handleFormErrors(res as ApiErrorResponse, setFormError as UseFormSetError<any>);
     }
   };
 

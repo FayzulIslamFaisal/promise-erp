@@ -12,8 +12,6 @@ const CourseListWrapper = async ({
   | { [key: string]: string | string[] | undefined };
 }) => {
   const resolvedParams = await searchParams;
-  const page =
-    typeof resolvedParams.page === "string" ? Number(resolvedParams.page) : 1;
 
   const params = {
     category_id: resolvedParams.category_id?.toString(),
@@ -33,12 +31,13 @@ const CourseListWrapper = async ({
     sort_order: resolvedParams.sort_order?.toString(),
     budget_scale: resolvedParams.budget_scale?.toString(),
     course_track: resolvedParams.course_track?.toString(),
+    page: resolvedParams.page?.toString(),
   };
 
   let results;
 
   try {
-    results = await getPublicCoursesList(page, params);
+    results = await getPublicCoursesList({ params });
   } catch (error) {
     if (error instanceof Error) {
       return <ErrorComponent message={error.message} />;

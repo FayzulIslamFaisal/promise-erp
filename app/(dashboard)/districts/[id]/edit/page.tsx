@@ -1,10 +1,12 @@
 'use client'
 
-import { getDistrictById, updateDistrict, District, AddDistrictApiResponse, DistrictFormData } from '@/apiServices/districtService'
+import { getDistrictById, updateDistrict, District, DistrictFormData } from '@/apiServices/districtService'
 import DistrictForm from '@/components/districts/DistrictForm'
 import { useRouter } from 'next/navigation'
-import { toast } from 'sonner'
 import { useEffect, useState, use } from 'react'
+import { handleFormErrors, handleFormSuccess } from '@/lib/formErrorHandler'
+import { UseFormSetError } from 'react-hook-form'
+import { ApiErrorResponse } from '@/lib/apiErrorHandler'
 
 export default function EditDistrictPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter()
@@ -33,25 +35,13 @@ export default function EditDistrictPage({ params }: { params: Promise<{ id: str
     formData: DistrictFormData,
     setFormError: (field: string, message: string) => void
   ) => {
-    try {
-      const res: AddDistrictApiResponse = await updateDistrict(resolvedParams.id, formData)
+    const res = await updateDistrict(resolvedParams.id, formData)
 
-      if (res?.success) {
-        toast.success(res.message || 'District updated successfully!')
-        router.push('/districts')
-      } else if (res?.errors) {
-        Object.entries(res.errors).forEach(([field, messages]) => {
-          if (Array.isArray(messages) && messages.length > 0) {
-            setFormError(field, messages[0])
-          }
-        })
-        toast.error('Please fix the errors below.')
-      } else {
-        toast.error(res?.message || 'Failed to update district.')
-      }
-    } catch(error: unknown) {
-      console.error("Something went wrong. Try again later.", error);
-      toast.error("Something went wrong. Try again later.");
+    if (res.success) {
+      handleFormSuccess(res.message || 'District updated successfully!')
+      router.push('/districts')
+    } else {
+      handleFormErrors(res as ApiErrorResponse, setFormError as UseFormSetError<any>)
     }
   }
 

@@ -2,6 +2,7 @@
 import { authOptions } from "@/lib/auth"
 import { getServerSession } from "next-auth"
 import { cacheTag, updateTag } from "next/cache"
+import { handleApiError, processApiResponse } from "@/lib/apiErrorHandler"
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api/v1"
 
@@ -55,50 +56,57 @@ export interface StudentResponseType {
   errors?: {
     [key: string]: string[] | string;
   };
-  data?: any;
+  data?: Student;
+  code?: number;
 }
 
 // add student
 export async function addStudent(
   formData: FormData
 ): Promise<StudentResponseType> {
-  const session = await getServerSession(authOptions);
-  const token = session?.accessToken;
+  try {
+    const session = await getServerSession(authOptions);
+    const token = session?.accessToken;
 
-  if (!token) {
+    if (!token) {
+      return {
+        success: false,
+        message: "No valid session or access token found.",
+        code: 401,
+      };
+    }
+
+    const res = await fetch(`${API_BASE}/students`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData,
+    });
+
+    const result = await processApiResponse(res, "Failed to add student.");
+
+    if (!result.success) {
+      return result;
+    }
+
+    updateTag("students-list");
     return {
-      success: false,
-      message: "No valid session or access token found.",
+      success: true,
+      message: result.message || "Student added successfully.",
+      data: result.data,
+      code: result.code,
     };
+  } catch (error) {
+    return await handleApiError(error, "Failed to add student.");
   }
-
-  const res = await fetch(`${API_BASE}/students`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    body: formData,
-  });
-
-  const data = await res.json();
-
-  if (!res.ok) {
-    return {
-      success: false,
-      message: data.message || "Failed to add student.",
-      errors: data.errors,
-    };
-  }
-
-  updateTag("students-list");
-  return { success: true, message: data.message, data };
 }
 
 // Get students
 export async function getStudentsCached(
   page = 1,
   token: string,
-  params: Record<string, any> = {}
+  params: Record<string, unknown> = {}
 ): Promise<StudentResponse> {
   "use cache"
   cacheTag("students-list")
@@ -129,7 +137,7 @@ export async function getStudentsCached(
 
 export async function getStudents(
   page = 1,
-  params: Record<string, any> = {}
+  params: Record<string, unknown> = {}
 ): Promise<StudentResponse> {
   const session = await getServerSession(authOptions)
   const token = session?.accessToken
@@ -177,38 +185,44 @@ export async function updateStudent(
   id: string,
   formData: FormData
 ): Promise<StudentResponseType> {
-  const session = await getServerSession(authOptions);
-  const token = session?.accessToken;
+  try {
+    const session = await getServerSession(authOptions);
+    const token = session?.accessToken;
 
-  if (!token) {
+    if (!token) {
+      return {
+        success: false,
+        message: "No valid session or access token found.",
+        code: 401,
+      };
+    }
+
+    formData.append("_method", "PATCH");
+
+    const res = await fetch(`${API_BASE}/students/${id}`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData,
+    });
+
+    const result = await processApiResponse(res, "Failed to update student.");
+
+    if (!result.success) {
+      return result;
+    }
+
+    updateTag("students-list");
     return {
-      success: false,
-      message: "No valid session or access token found.",
+      success: true,
+      message: result.message || "Student updated successfully.",
+      data: result.data,
+      code: result.code,
     };
+  } catch (error) {
+    return await handleApiError(error, "Failed to update student.");
   }
-
-  formData.append("_method", "PATCH");
-
-  const res = await fetch(`${API_BASE}/students/${id}`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    body: formData,
-  });
-
-  const data = await res.json();
-
-  if (!res.ok) {
-    return {
-      success: false,
-      message: data.message || "Failed to update student.",
-      errors: data.errors,
-    };
-  }
-
-  updateTag("students-list");
-  return { success: true, message: data.message, data };
 }
 
 // =======================
@@ -222,25 +236,32 @@ export interface MutationResponse {
 }
 
 export async function deleteStudent(id: number): Promise<MutationResponse> {
-  const session = await getServerSession(authOptions);
-  const token = session?.accessToken;
+  try {
+    const session = await getServerSession(authOptions);
+    const token = session?.accessToken;
 
-  if (!token) {
-    return { success: false, message: "Unauthorized", code: 401 };
+    if (!token) {
+      return { success: false, message: "Unauthorized", code: 401 };
+    }
+
+    const res = await fetch(`${API_BASE}/students/${id}`, {
+      method: "DELETE",
+      headers: {
+        "Authorization": `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    const result = await processApiResponse(res, "Failed to delete student");
+    
+    if (!result.success) {
+      return { success: false, message: result.message, code: result.code };
+    }
+    
+    updateTag("students-list");
+    return { success: true, message: result.message || "Student deleted successfully", code: result.code };
+  } catch (error) {
+    const errorResult = await handleApiError(error, "Failed to delete student");
+    return { success: false, message: errorResult.message, code: errorResult.code };
   }
-
-  const res = await fetch(`${API_BASE}/students/${id}`, {
-    method: "DELETE",
-    headers: {
-      "Authorization": `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
-  });
-
-  const data = await res.json().catch(async () => ({ message: await res.text() }));
-  if (!res.ok) {
-    return { success: false, message: data.message || "Failed to delete student", code: res.status };
-  }
-  updateTag("students-list");
-  return { success: true, message: data.message || "Student deleted successfully" };
 }

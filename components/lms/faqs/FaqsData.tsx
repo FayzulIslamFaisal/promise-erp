@@ -52,7 +52,7 @@ export default async function FaqsData({
     let data;
 
     try {
-        data = await getFaqs(page, params);
+        data = await getFaqs(params);
     } catch (error: any) {
         return (
             <ErrorComponent

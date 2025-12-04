@@ -2,6 +2,7 @@ import { Card } from "@/components/ui/card";
 import CourseFilterSection from "./CourseFilterSection";
 import ErrorComponent from "@/components/common/ErrorComponent";
 import { getPublicCoursesList } from "@/apiServices/courseListPublicService";
+import page from "@/app/(dashboard)/hr/employees/page";
 
 const CourseFilterSidebar = async ({
   searchParams,
@@ -11,8 +12,6 @@ const CourseFilterSidebar = async ({
     | { [key: string]: string | string[] | undefined };
 }) => {
   const resolvedParams = await searchParams;
-  const page =
-    typeof resolvedParams.page === "string" ? Number(resolvedParams.page) : 1;
 
   const params = {
     category_id: resolvedParams.category_id?.toString(),
@@ -31,11 +30,12 @@ const CourseFilterSidebar = async ({
     course_track: resolvedParams.course_track?.toString(),
     sort_order: resolvedParams.sort_order?.toString(),
     budget_scale: resolvedParams.budget_scale?.toString(),
+    page: resolvedParams.page?.toString(),
   };
 
   let filtersData;
   try {
-    const response = await getPublicCoursesList(page, params);
+    const response = await getPublicCoursesList({ params });
      filtersData = response?.data?.filters;
   } catch (error) {
     if (error instanceof Error) {

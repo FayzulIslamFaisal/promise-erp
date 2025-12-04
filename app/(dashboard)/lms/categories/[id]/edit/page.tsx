@@ -1,10 +1,12 @@
 'use client'
 
-import { getCategoryById, updateCategory, Category, SingleCategoryResponse, UpdateCategoryRequest } from '@/apiServices/categoryService'
+import { getCategoryById, updateCategory, Category } from '@/apiServices/categoryService'
 import CategoryForm from '@/components/lms/categories/CategoryForm'
 import { useRouter } from 'next/navigation'
-import { toast } from 'sonner'
 import { useEffect, useState, use } from 'react'
+import { handleFormErrors, handleFormSuccess } from '@/lib/formErrorHandler'
+import { UseFormSetError } from 'react-hook-form'
+import { ApiErrorResponse } from '@/lib/apiErrorHandler'
 
 export default function EditCategoryPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter()
@@ -15,7 +17,7 @@ export default function EditCategoryPage({ params }: { params: Promise<{ id: str
   useEffect(() => {
     const fetchCategory = async () => {
       try {
-        const response: SingleCategoryResponse = await getCategoryById(Number(resolvedParams.id))
+        const response = await getCategoryById(Number(resolvedParams.id))
         if (response?.data) {
           setCategory(response.data)
         } else {
@@ -37,25 +39,13 @@ export default function EditCategoryPage({ params }: { params: Promise<{ id: str
     formData: FormData,
     setFormError: (field: string, message: string) => void
   ) => {
-    try {
-      const res: SingleCategoryResponse = await updateCategory(Number(resolvedParams.id), formData)
+    const res = await updateCategory(Number(resolvedParams.id), formData)
 
-      if (res?.success) {
-        toast.success(res.message || 'Category updated successfully!')
-        router.push('/lms/categories')
-      }else if (res?.errors) {
-        Object.entries(res.errors).forEach(([field, messages]) => {
-          if (Array.isArray(messages) && messages.length > 0) {
-            setFormError(field, messages[0])
-          }
-        })
-        toast.error('Please fix the errors below.')
-      }else {
-        toast.error(res?.message || 'Failed to update category.')
-      }
-    } catch(error: unknown) {
-      console.error("Something went wrong. Try again later.", error);
-      toast.error("Something went wrong. Try again later.");
+    if (res.success) {
+      handleFormSuccess(res.message || 'Category updated successfully!')
+      router.push('/lms/categories')
+    } else {
+      handleFormErrors(res as ApiErrorResponse, setFormError as UseFormSetError<any>)
     }
   }
 

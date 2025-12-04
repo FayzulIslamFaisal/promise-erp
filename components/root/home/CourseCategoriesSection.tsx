@@ -12,50 +12,17 @@ import {
 } from "@/components/ui/carousel";
 import Image from "next/image";
 import Link from "next/link";
-import SectionTitle from "@/components/common/SectionTitle";
+import { CategoriesResponse } from "@/apiServices/categoryService";
 
-const categories = [
-  {
-    icon: "/images/home/course1.png",
-    id: 1,
-    title: "Web & Software Development",
-    courses: "৬ Courses",
-  },
-  {
-    icon: "/images/home/course2.png",
-    id: 2,
-    title: "Graphics & Multimedia",
-    courses: "৫ Courses",
-  },
-  {
-    icon: "/images/home/course3.png",
-    id: 3,
-    title: "Digital Marketing",
-    courses: "৪ Courses",
-  },
-  {
-    icon: "/images/home/course4.png",
-    id: 4,
-    title: "Networking",
-    courses: "২ Courses",
-  },
-  {
-    icon: "/images/home/course1.png",
-    id: 5,
-    title: "Ai & ML",
-    courses: "5 Courses",
-  },
-];
 
-const CourseCategoriesSection = () => {
+interface CategoriesData {
+  categoriesData: CategoriesResponse;
+}
+
+const CourseCategoriesSection = ({categoriesData}: CategoriesData) => {
+  const categories = categoriesData?.data?.categories || [];
   return (
-    <section className="bg-secondary py-8 md:py-14">
-      <div className="container mx-auto px-4">
-        <SectionTitle 
-           title="আপনার আগ্রহের কোর্স বিভাগ খেঁজে নিন" 
-           subtitle="দক্ষতা উন্নয়নের জন্য পছন্দের বিষয় থেকে কোর্স খুঁজে নিন"
-           iswhite={true}
-          />
+    
       <Carousel
         opts={{
           align: "start",
@@ -73,22 +40,22 @@ const CourseCategoriesSection = () => {
               <CardContent className="flex flex-col items-center justify-between gap-6 p-8">
                 <div className="bg-white p-4 mt-4 mx-auto rounded-full shadow-md w-[100] h-[100] flex items-center justify-center">
                   <Image
-                    src={course.icon}
-                    alt={course.title}
-                    width={56}
-                    height={56}
-                    className="object-contain"
+                    src={course.image || "/images/placeholder_img.jpg"}
+                    alt={course.name}
+                    width={80}
+                    height={80}
+                    className="object-cover rounded-full"
                   />
                 </div>
 
                 <h3 className="text-base md:text-2xl font-semibold capitalize text-white">
-                  {course.title}
+                  {course.name}
                 </h3>
 
                 <div className="flex justify-center ">
                   <Button variant="outline" asChild className="text-white py-5 flex items-center gap-2 ">
                     <Link href="/courses">
-                      <span className="font-semibold">{course.courses}</span>
+                      <span className="font-semibold">{course.total_course}{" "}Courses</span>
                       <div className="bg-primary text-white p-2 rounded-full inline-flex items-center justify-center">
                         <ChevronRight width={20} height={20} />
                       </div>
@@ -105,8 +72,6 @@ const CourseCategoriesSection = () => {
         <CarouselPrevious className=" absolute cursor-pointer left-0 md:-left-2 top-1/2 -translate-y-1/2 bg-primary hover:bg-primary/80 text-white hover:text-white rounded-full border-none " />
         <CarouselNext className="absolute cursor-pointer right-0 md:-right-2 top-1/2 -translate-y-1/2 bg-primary hover:bg-primary/80 text-white hover:text-white rounded-full border-none" />
       </Carousel>
-    </div>
-    </section>
   );
 };
 

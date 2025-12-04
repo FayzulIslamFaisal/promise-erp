@@ -52,7 +52,6 @@ export interface SingleFaqResponse {
 // =======================
 
 export async function getFaqsCached(
-  page = 1,
   token: string,
   params: Record<string, unknown> = {}
 ): Promise<FaqsResponse> {
@@ -61,7 +60,6 @@ export async function getFaqsCached(
 
   try {
     const urlParams = new URLSearchParams();
-    urlParams.append("page", page.toString());
 
     for (const key in params) {
       if (params[key] !== undefined && params[key] !== null) {
@@ -89,7 +87,6 @@ export async function getFaqsCached(
 // =======================
 
 export async function getFaqs(
-  page = 1,
   params: Record<string, unknown> = {}
 ): Promise<FaqsResponse> {
   const session = await getServerSession(authOptions);
@@ -97,7 +94,7 @@ export async function getFaqs(
 
   if (!token) throw new Error("No valid session/token");
 
-  return await getFaqsCached(page, token, params);
+  return await getFaqsCached(token, params);
 }
 
 // =======================
@@ -140,7 +137,7 @@ export async function createFaq(
   try {
     const session = await getServerSession(authOptions);
     const token = session?.accessToken;
-    if (!token) return { success: false, message: "No token found", code: 401 } as any;
+    if (!token) return { success: false, message: "No token found", code: 401 };
 
     const res = await fetch(`${API_BASE}/faq-sections`, {
       method: "POST",
@@ -151,20 +148,20 @@ export async function createFaq(
       body: JSON.stringify(formData),
     });
 
-    const data: SingleFaqResponse = await res.json().catch(async () => ({ message: await res.text() } as any));
+    const data: SingleFaqResponse = await res.json().catch(async () => ({ message: await res.text() }));
     if (!res.ok) {
       return {
         success: false,
         message: data.message || "Failed to create FAQ",
-        errors: (data as any).errors,
+        errors: data.errors,
         code: res.status,
-      } as any;
+      };
     }
 
     updateTag("faqs-list");
     return data;
   } catch (error) {
-    return { success: false, message: error instanceof Error ? error.message : "Failed to create FAQ", code: 500 } as any;
+    return { success: false, message: error instanceof Error ? error.message : "Failed to create FAQ", code: 500 };
   }
 }
 
@@ -185,7 +182,7 @@ export async function updateFaq(
   try {
     const session = await getServerSession(authOptions);
     const token = session?.accessToken;
-    if (!token) return { success: false, message: "No token found", code: 401 } as any;
+    if (!token) return { success: false, message: "No token found", code: 401 };
 
     const res = await fetch(`${API_BASE}/faq-sections/${id}`, {
       method: "PATCH",
@@ -196,20 +193,20 @@ export async function updateFaq(
       body: JSON.stringify(updateData),
     });
 
-    const data: SingleFaqResponse = await res.json().catch(async () => ({ message: await res.text() } as any));
+    const data: SingleFaqResponse = await res.json().catch(async () => ({ message: await res.text() }));
     if (!res.ok) {
       return {
         success: false,
         message: data.message || "Failed to update FAQ",
-        errors: (data as any).errors,
+        errors: data.errors,
         code: res.status,
-      } as any;
+      }
     }
 
     updateTag("faqs-list");
     return data;
   } catch (error) {
-    return { success: false, message: error instanceof Error ? error.message : "Failed to update FAQ", code: 500 } as any;
+    return { success: false, message: error instanceof Error ? error.message : "Failed to update FAQ", code: 500 };
   }
 }
 
@@ -221,7 +218,7 @@ export async function deleteFaq(id: number): Promise<SingleFaqResponse> {
   try {
     const session = await getServerSession(authOptions);
     const token = session?.accessToken;
-    if (!token) return { success: false, message: "No token found", code: 401 } as any;
+    if (!token) return { success: false, message: "No token found", code: 401 };
 
     const res = await fetch(`${API_BASE}/faq-sections/${id}`, {
       method: "DELETE",
@@ -231,19 +228,19 @@ export async function deleteFaq(id: number): Promise<SingleFaqResponse> {
       },
     });
 
-    const data: SingleFaqResponse = await res.json().catch(async () => ({ message: await res.text() } as any));
+    const data: SingleFaqResponse = await res.json().catch(async () => ({ message: await res.text() }));
 
     if (!res.ok) {
       return {
         success: false,
         message: data.message || "Failed to delete FAQ",
         code: res.status,
-      } as any;
+      };
     }
 
     updateTag("faqs-list");
     return data;
   } catch (error) {
-    return { success: false, message: error instanceof Error ? error.message : "Failed to delete FAQ", code: 500 } as any;
+    return { success: false, message: error instanceof Error ? error.message : "Failed to delete FAQ", code: 500 };
   }
 }

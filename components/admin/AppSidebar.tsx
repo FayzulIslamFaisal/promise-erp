@@ -106,6 +106,11 @@ const data = {
           title: "Lessons",
           url: "/lms/lessons",
         },
+         {
+          title: "Facilities",
+          url: "/lms/facilities",
+        },
+
         {
           title: "FAQs",
           url: "/lms/faqs",

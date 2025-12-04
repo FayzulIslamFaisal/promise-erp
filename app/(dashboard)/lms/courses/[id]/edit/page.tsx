@@ -7,8 +7,10 @@ import {
 } from "@/apiServices/courseService";
 import CourseAddForm from "@/components/lms/courses/CourseAddForm";
 import { useRouter } from "next/navigation";
-import { toast } from "sonner";
 import { useEffect, useState, use } from "react";
+import { handleFormErrors, handleFormSuccess } from "@/lib/formErrorHandler";
+import { UseFormSetError } from "react-hook-form";
+import { ApiErrorResponse } from "@/lib/apiErrorHandler";
 
 export default function EditCoursePage({
   params,
@@ -24,7 +26,11 @@ export default function EditCoursePage({
     const fetchCourse = async () => {
       try {
         const response = await getCourseById(resolvedParams.id);
-        setCourse(response.data);
+        if (response.success && response.data) {
+          setCourse(response.data);
+        } else {
+          setError(response.message || "Course not found");
+        }
       } catch (error: unknown) {
         if (error instanceof Error) {
           setError(error.message);
@@ -39,44 +45,28 @@ export default function EditCoursePage({
 
   const handleSubmit = async (
     formData: FormData,
-    setFormError: (field: string, message: string) => void
+    setFormError: (field: string, message: string) => void,
+    resetForm: () => void
   ) => {
-    try {
-      const result = await updateCourse(resolvedParams.id, formData);
+    const res = await updateCourse(resolvedParams.id, formData);
 
-      if (result.success) {
-        toast.success("Course updated successfully!");
-        router.push("/lms/courses");
-      } else {
-        toast.error(result.message || "Failed to update course.");
-        if (result.errors) {
-          for (const key in result.errors) {
-            setFormError(key, result.errors[key][0]);
-          }
-        }
-      }
-    } catch (error: PromiseRejectionEvent | any) {
-      toast.error(error.message || "An unexpected error occurred.");
-      console.error("Error updating course:", error);
+    if (res.success) {
+      handleFormSuccess(res.message || "Course updated successfully!");
+      router.push("/lms/courses");
+    } else {
+      handleFormErrors(res as ApiErrorResponse, setFormError as UseFormSetError<any>);
     }
-    
   };
 
   if (error) {
-    return <div>Error: {error}</div>;
+    return <div className="text-red-500 text-center p-4">Error: {error}</div>;
   }
 
   if (!course) {
-    return <div>Loading...</div>;
+    return <div className="text-center p-4">Loading...</div>;
   }
 
   return (
-    <div>
-      <CourseAddForm
-        title="Edit Course"
-        onSubmit={handleSubmit}
-        initialData={course}
-      />
-    </div>
+    <CourseAddForm title="Edit Course" onSubmit={handleSubmit} initialData={course} />
   );
 }

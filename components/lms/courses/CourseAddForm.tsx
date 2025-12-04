@@ -1,20 +1,18 @@
 "use client";
 
-import { useForm, useFieldArray } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useEffect, useState } from "react";
 import { getCategories } from "@/apiServices/categoryService";
-import { getBranches } from "@/apiServices/branchService";
-import RichTextEditor from "./RichTextEditor";
-import { Controller } from "react-hook-form";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Course } from "@/apiServices/courseService";
+import RichTextEditor from "./RichTextEditor";
 import Image from "next/image";
+import { toast } from "sonner";
 
-interface CourseFormProps {
+interface CourseAddFormProps {
   title: string;
   onSubmit: (
     formData: FormData,
@@ -28,16 +26,11 @@ interface FormValues {
   category_id: string;
   title: string;
   sub_title?: string;
-  slug?: string;
-  short_description?: string;
   description?: string;
-  featured_image?: FileList; // For file input
+  featured_image?: FileList;
   video_link?: string;
   level: string;
-  end_date?: string;
-  status: string; // "0", "1", "2"
-  is_default: boolean;
-  branch_ids: number[];
+  status: string;
   price?: number;
   discount?: number;
 }
@@ -46,10 +39,8 @@ export default function CourseAddForm({
   title,
   onSubmit,
   initialData,
-}: CourseFormProps) {
+}: CourseAddFormProps) {
   const [categories, setCategories] = useState<Array<{ id: number; name: string }>>([]);
-  const [branches, setBranches] = useState<Array<{ id: number; name: string }>>([]);
-
   const [preview, setPreview] = useState<string | null>(null);
 
   const {
@@ -61,76 +52,46 @@ export default function CourseAddForm({
     formState: { errors, isSubmitting },
   } = useForm<FormValues>({
     defaultValues: {
-      category_id: initialData?.category?.id.toString() || "",
+      category_id: initialData?.category?.id?.toString() || "",
       title: initialData?.title || "",
       sub_title: initialData?.sub_title || "",
-      short_description: initialData?.short_description || "",
       description: initialData?.description || "",
       video_link: initialData?.video_link || "",
       level: initialData?.level || "beginner",
       status: initialData?.status || "1",
-      is_default: initialData?.is_default || false,
-      branch_ids: initialData?.branches?.map((b) => b.id) || [],
       price: initialData?.price || 0,
       discount: initialData?.discount || 0,
     },
   });
 
+  // Load existing image preview (EDIT mode)
   useEffect(() => {
-    if (initialData) {
-      reset({
-        category_id: initialData.category?.id.toString() || "",
-        title: initialData.title || "",
-        sub_title: initialData.sub_title || "",
-        short_description: initialData.short_description || "",
-        description: initialData.description || "",
-        video_link: initialData.video_link || "",
-        level: initialData.level || "beginner",
-        status: initialData.status || "1",
-        is_default: initialData.is_default || false,
-        branch_ids: initialData.branches?.map((b) => b.id) || [],
-        price: initialData.price || 0,
-        discount: initialData.discount || 0,
-      });
-      if (initialData.featured_image) {
-        setPreview(`http://127.0.0.1:8000/${initialData.featured_image}`);
-      }
+    if (initialData?.featured_image) {
+      setPreview(`http://127.0.0.1:8000/${initialData.featured_image}`);
     }
-  }, [initialData, reset]);
+  }, [initialData]);
 
+  // Image preview handler
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      setPreview(URL.createObjectURL(file));
-    }
+    if (file) setPreview(URL.createObjectURL(file));
   };
-
-
 
   // Fetch categories
   useEffect(() => {
     const fetchCategories = async () => {
       try {
         const res = await getCategories();
-        if (res.success) setCategories(res.data.categories);
+        if (res.success) {
+          setCategories(res.data.categories);
+        } else {
+          toast.error(res.message || "Failed to load categories");
+        }
       } catch (error) {
-        console.error("Failed to fetch categories:", error);
+        toast.error(error instanceof Error ? error.message : "Failed to load categories");
       }
     };
     fetchCategories();
-  }, []);
-
-  // Fetch branches
-  useEffect(() => {
-    const fetchBranches = async () => {
-      try {
-        const res = await getBranches();
-        if (res.success) setBranches(res.data.branches);
-      } catch (error) {
-        console.error("Failed to fetch branches:", error);
-      }
-    };
-    fetchBranches();
   }, []);
 
   const setFormError = (field: string, message: string) => {
@@ -139,22 +100,18 @@ export default function CourseAddForm({
 
   const submitForm = async (data: FormValues) => {
     const formData = new FormData();
-
     formData.append("category_id", data.category_id);
     formData.append("title", data.title);
     if (data.sub_title) formData.append("sub_title", data.sub_title);
-    if (data.short_description) formData.append("short_description", data.short_description);
     if (data.description) formData.append("description", data.description);
-    if (data.featured_image && data.featured_image.length > 0) {
+    if (data.featured_image?.length) {
       formData.append("featured_image", data.featured_image[0]);
     }
     if (data.video_link) formData.append("video_link", data.video_link);
     formData.append("level", data.level);
     formData.append("status", data.status);
-    formData.append("is_default", data.is_default ? "1" : "0");
-    data.branch_ids.forEach((id) => formData.append("branch_ids[]", id.toString()));
-    if (data.price) formData.append("price", data.price.toString());
-    if (data.discount) formData.append("discount", data.discount.toString());
+    formData.append("price", data.price?.toString() || "0");
+    formData.append("discount", data.discount?.toString() || "0");
 
     await onSubmit(formData, setFormError, () => reset());
   };
@@ -167,79 +124,65 @@ export default function CourseAddForm({
 
       <CardContent>
         <form onSubmit={handleSubmit(submitForm)} className="grid gap-6">
-          {/* Category and Title */}
+
+          {/* Category + Title */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="grid gap-2">
-              <Label htmlFor="category_id">
-                Category<span className="text-red-500">*</span>
-              </Label>
+              <Label htmlFor="category_id">Category<span className="text-red-500">*</span></Label>
               <select
                 id="category_id"
                 {...register("category_id", { required: "Category is required" })}
                 className="border border-gray-300 rounded px-2 py-1"
               >
-                <option value="">-- Select a category --</option>
-                {categories.map((category) => (
-                  <option key={category.id} value={category.id}>
-                    {category.name}
-                  </option>
+                <option value="">-- Select Category --</option>
+                {categories.map((cat) => (
+                  <option key={cat.id} value={cat.id}>{cat.name}</option>
                 ))}
               </select>
-              {errors.category_id && (
-                <span className="text-sm text-red-600">{errors.category_id.message}</span>
-              )}
+              {errors.category_id && <p className="text-red-500 text-sm">{errors.category_id.message}</p>}
             </div>
 
             <div className="grid gap-2">
-              <Label htmlFor="title">
-                Title<span className="text-red-500">*</span>
-              </Label>
+              <Label htmlFor="title">Title<span className="text-red-500">*</span></Label>
               <Input
                 id="title"
                 placeholder="Course Title"
                 {...register("title", { required: "Title is required" })}
               />
-              {errors.title && (
-                <span className="text-sm text-red-600">{errors.title.message}</span>
-              )}
+              {errors.title && <p className="text-red-500 text-sm">{errors.title.message}</p>}
             </div>
           </div>
 
-          {/* price and discount */}
+          
+
+          {/* Description (Rich Text) */}
+          <div className="grid gap-2 pb-10">
+            <Label>Description</Label>
+            <Controller
+              name="description"
+              control={control}
+              render={({ field }) => (
+                <RichTextEditor value={field.value || ""} onChange={field.onChange} />
+              )}
+            />
+            {errors.description && <p className="text-red-500 text-sm">{errors.description.message}</p>}
+          </div>
+          {/* Price + Discount */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="grid gap-2">
               <Label htmlFor="price">Price</Label>
-              <Input
-                id="price"
-                type="number"
-                placeholder="Price"
-                {...register("price")}
-              />
+              <Input id="price" type="number" {...register("price")} />
+              {errors.price && <p className="text-red-500 text-sm">{errors.price.message}</p>}
             </div>
             <div className="grid gap-2">
               <Label htmlFor="discount">Discount</Label>
-              <Input
-                id="discount"
-                type="number"
-                placeholder="Discount"
-                {...register("discount")}
-              />
+              <Input id="discount" type="number" {...register("discount")} />
+              {errors.discount && <p className="text-red-500 text-sm">{errors.discount.message}</p>}
             </div>
           </div>
 
-          {/* Sub Title and Level */}
+          {/* Level+ Status */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="grid gap-2">
-              <Label htmlFor="sub_title">Sub Title</Label>
-              <Input
-                id="sub_title"
-                placeholder="Course Sub Title"
-                {...register("sub_title")}
-              />
-              {errors.sub_title && (
-                <span className="text-sm text-red-600">{errors.sub_title.message}</span>
-              )}
-            </div>
             <div className="grid gap-2">
               <Label htmlFor="level">Level</Label>
               <select
@@ -251,81 +194,8 @@ export default function CourseAddForm({
                 <option value="intermediate">Intermediate</option>
                 <option value="advanced">Advanced</option>
               </select>
-              {errors.level && (
-                <span className="text-sm text-red-600">{errors.level.message}</span>
-              )}
+              {errors.level && <p className="text-red-500 text-sm">{errors.level.message}</p>}
             </div>
-          </div>
-
-          {/* Short Description */}
-          {/* <div className="grid gap-2">
-            <Label htmlFor="short_description">Short Description</Label>
-            <Textarea
-              id="short_description"
-              placeholder="A brief description of the course"
-              {...register("short_description")}
-            />
-          {errors.short_description && (
-              <span className="text-sm text-red-600">{errors.short_description.message}</span>
-            )}
-          </div> */}
-
-          {/* Description */}
-          <div className="grid gap-2 pb-10">
-            <Label htmlFor="description">Description</Label>
-            <Controller
-              name="description"
-              control={control}
-              render={({ field }) => (
-                <RichTextEditor
-                  value={field.value || ""}
-                  onChange={field.onChange}
-                />
-              )}
-            />
-            {errors.description && (
-              <span className="text-sm text-red-600">{errors.description.message}</span>
-            )}
-          </div>
-
-          {/* Featured Image and Video Link */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="grid gap-2">
-              <Label htmlFor="featured_image">Featured Image</Label>
-              <Input
-                id="featured_image"
-                type="file"
-                accept="image/*"
-                {...register("featured_image")}
-                onChange={handleImageChange}
-              />
-              {preview && (
-                <div className="mt-2">
-                  <Image
-                    src={preview}
-                    alt="Featured Image Preview"
-                    width={100}
-                    height={100}
-                    className="rounded-md object-cover"
-                  />
-                </div>
-              )}
-              {errors.featured_image && (
-                <span className="text-sm text-red-600">{errors.featured_image.message}</span>
-              )}
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="video_link">Video Link</Label>
-              <Input
-                id="video_link"
-                placeholder="https://youtube.com/watch?v=example"
-                {...register("video_link")}
-              />
-            </div>
-          </div>
-
-          {/* Status and Is Default */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="grid gap-2">
               <Label htmlFor="status">Status</Label>
               <select
@@ -337,55 +207,49 @@ export default function CourseAddForm({
                 <option value="1">Published</option>
                 <option value="2">Archived</option>
               </select>
-              {errors.status && (
-                <span className="text-sm text-red-600">{errors.status.message}</span>
-              )}
+              {errors.status && <p className="text-red-500 text-sm">{errors.status.message}</p>}
             </div>
-            {/* <div className="flex items-center space-x-2 mt-6">
-              <Checkbox
-                id="is_default"
-                {...register("is_default")}
-              />
-              <Label htmlFor="is_default">Mark as Default Course</Label>
-              {errors.is_default && (
-                <span className="text-sm text-red-600">{errors.is_default.message}</span>
-              )}
-            </div> */}
           </div>
 
-          {/* Branch IDs (Multi-select Checkboxes) */}
-          {/* <div className="grid gap-2">
-            <Label>Branches</Label>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
-              {branches.map((branch) => (
-                <div key={branch.id} className="flex items-center space-x-2">
-                  <Checkbox
-                    id={`branch-${branch.id}`}
-                    value={branch.id}
-                    {...register("branch_ids", {
-                      setValueAs: (value) =>
-                        Array.isArray(value) ? value.map(Number) : [],
-                    })}
+          {/* Image + Video Link */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid gap-2">
+              <Label htmlFor="featured_image">Featured Image</Label>
+              <Input
+                id="featured_image"
+                type="file"
+                accept="image/*"
+                {...register("featured_image")}
+                onChange={handleImageChange}
+              />
+              {errors.featured_image && <p className="text-red-500 text-sm">{errors.featured_image.message}</p>}
+              {preview && (
+                <div className="mt-2">
+                  <Image
+                    src={preview}
+                    alt="Preview"
+                    width={100}
+                    height={100}
+                    className="rounded-md object-cover"
                   />
-                  <Label htmlFor={`branch-${branch.id}`}>{branch.name}</Label>
                 </div>
-              ))}
+              )}
             </div>
-            {errors.branch_ids && (
-              <span className="text-sm text-red-600">{errors.branch_ids.message}</span>
-            )}
-          </div> */}
+
+            <div className="grid gap-2">
+              <Label htmlFor="video_link">Video Link</Label>
+              <Input id="video_link" {...register("video_link")} />
+              {errors.video_link && <p className="text-red-500 text-sm">{errors.video_link.message}</p>}
+            </div>
+          </div>
+
+          {/* Status */}
+
 
           {/* Submit */}
           <div className="flex justify-center">
-            <Button
-              variant="default"
-              size="default"
-              type="submit"
-              className="w-32"
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? "Submitting..." : "Submit"}
+            <Button type="submit" disabled={isSubmitting} className="w-40">
+              {isSubmitting ? "Submitting..." : "Save & Continue"}
             </Button>
           </div>
         </form>

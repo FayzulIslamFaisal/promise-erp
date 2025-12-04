@@ -2,6 +2,7 @@
 import { authOptions } from "@/lib/auth";
 import { getServerSession } from "next-auth";
 import { cacheTag, updateTag } from "next/cache";
+import { handleApiError, processApiResponse } from "@/lib/apiErrorHandler";
 
 const API_BASE =
   process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api/v1";
@@ -129,7 +130,7 @@ export interface AddGroupApiResponse {
   message: string;
   code: number;
   data?: Group;
-  errors?: Record<string, string[]>;
+  errors?: Record<string, string[] | string>;
 }
 export interface GroupFormData {
   group_name: string;
@@ -165,35 +166,27 @@ export async function addGroup(
       body: JSON.stringify(groupData),
     });
 
-    const data = await response.json();
+    const result = await processApiResponse(response, "Failed to add group.");
 
-    if (!response.ok) {
+    if (!result.success) {
       return {
         success: false,
-        message: data.message || "Failed to add group.",
-        errors: data.errors,
-        code: response.status,
+        message: result.message,
+        errors: result.errors,
+        code: result.code,
       };
     }
 
     updateTag("groups-list");
 
-    return data;
-  } catch (error: unknown) {
-    console.error("Error adding group:", error);
-    if (error instanceof Error) {
-      return {
-        success: false,
-        message: error.message || "An unexpected error occurred.",
-        code: 500,
-      };
-    }
-
     return {
-      success: false,
-      message: "An unexpected error occurred.",
-      code: 500,
+      success: true,
+      message: result.message || "Group added successfully.",
+      data: result.data,
+      code: result.code || 200,
     };
+  } catch (error) {
+    return await handleApiError(error, "Failed to add group.");
   }
 }
 
@@ -266,21 +259,27 @@ export async function updateGroup(
       body: JSON.stringify(groupData),
     });
 
-    const data = await res.json();
+    const result = await processApiResponse(res, "Failed to update group.");
 
-    if (!res.ok) {
+    if (!result.success) {
       return {
         success: false,
-        message: data.message || "Failed to update group.",
-        errors: data.errors,
-        code: res.status,
+        message: result.message,
+        errors: result.errors,
+        code: result.code,
       };
     }
 
     updateTag("groups-list");
-    return data;
-  } catch (error: unknown) {
-    return {      success: false,      message: "An unexpected error occurred.",      code: 500,    };  }
+    return {
+      success: true,
+      message: result.message || "Group updated successfully.",
+      data: result.data,
+      code: result.code || 200,
+    };
+  } catch (error) {
+    return await handleApiError(error, "Failed to update group.");
+  }
 }
 
 // =======================
@@ -313,14 +312,16 @@ export async function deleteGroup(
       },
     });
 
-    const result = await res.json().catch(async () => ({ message: await res.text() }));
-    if (!res.ok) {
-      return { success: false, message: result.message || "Failed to delete group", code: res.status };
+    const result = await processApiResponse(res, "Failed to delete group");
+    
+    if (!result.success) {
+      return { success: false, message: result.message, code: result.code };
     }
+    
     updateTag("groups-list");
-    return { success: true, message: result.message || "Group deleted successfully" };
+    return { success: true, message: result.message || "Group deleted successfully", code: result.code };
   } catch (error) {
-    console.error("Error in groups:", error);
-    return { success: false, message: error instanceof Error ? error.message : "Failed to delete group", code: 500 };
+    const errorResult = await handleApiError(error, "Failed to delete group");
+    return { success: false, message: errorResult.message, code: errorResult.code };
   }
 }

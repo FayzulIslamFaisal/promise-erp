@@ -2,6 +2,7 @@
 import { authOptions } from "@/lib/auth"
 import { getServerSession } from "next-auth"
 import { cacheTag, updateTag } from "next/cache"
+import { handleApiError, processApiResponse } from "@/lib/apiErrorHandler"
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api/v1"
 
@@ -47,7 +48,7 @@ export interface DivisionErrorResponse {
   success: false;
   message: string;
   code: number;
-  errors?: Record<string, string[]>;
+  errors?: Record<string, string[] | string>;
 }
 
 //  Union Type for Response
@@ -120,37 +121,43 @@ export interface DivisionFormData {
 export async function addDivision(
   formData: DivisionFormData
 ): Promise<DivisionResponseType> {
-  const session = await getServerSession(authOptions);
-  const token = session?.accessToken;
+  try {
+    const session = await getServerSession(authOptions);
+    const token = session?.accessToken;
 
-  if (!token) {
+    if (!token) {
+      return {
+        success: false,
+        message: "No valid session or access token found.",
+        code: 401,
+      };
+    }
+
+    const res = await fetch(`${API_BASE}/divisions`, {
+      method: "POST",
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(formData),
+    });
+
+    const result = await processApiResponse(res, "Failed to add division.");
+    
+    if (!result.success) {
+      return result;
+    }
+    
+    updateTag("divisions-list");
     return {
-      success: false,
-      message: "No valid session or access token found.",
-      code: 401,
+      success: true,
+      message: result.message || "Division added successfully.",
+      data: result.data,
+      code: result.code || 200,
     };
+  } catch (error) {
+    return await handleApiError(error, "Failed to add division.");
   }
-
-  const res = await fetch(`${API_BASE}/divisions`, {
-    method: "POST",
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify(formData),
-  });
-
-  const result = await res.json();
-  if (!res.ok) {
-    return {
-      success: false,
-      message: result.message || "Failed to add division.",
-      errors: result.errors,
-      code: res.status,
-    };
-  }
-  updateTag("divisions-list");
-  return result;
 }
 
 // =======================
@@ -200,37 +207,43 @@ export async function updateDivision(
   id: number,
   formData: DivisionFormData
 ): Promise<DivisionResponseType> {
-  const session = await getServerSession(authOptions);
-  const token = session?.accessToken;
+  try {
+    const session = await getServerSession(authOptions);
+    const token = session?.accessToken;
 
-  if (!token) {
+    if (!token) {
+      return {
+        success: false,
+        message: "No valid session or access token found.",
+        code: 401,
+      };
+    }
+
+    const res = await fetch(`${API_BASE}/divisions/${id}`, {
+      method: "PATCH",
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(formData),
+    });
+
+    const result = await processApiResponse(res, "Failed to update division.");
+    
+    if (!result.success) {
+      return result;
+    }
+    
+    updateTag("divisions-list");
     return {
-      success: false,
-      message: "No valid session or access token found.",
-      code: 401,
+      success: true,
+      message: result.message || "Division updated successfully.",
+      data: result.data,
+      code: result.code || 200,
     };
+  } catch (error) {
+    return await handleApiError(error, "Failed to update division.");
   }
-
-  const res = await fetch(`${API_BASE}/divisions/${id}`, {
-    method: "PATCH",
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify(formData),
-  });
-
-  const result = await res.json();
-  if (!res.ok) {
-    return {
-      success: false,
-      message: result.message || "Failed to update division.",
-      errors: result.errors,
-      code: res.status,
-    };
-  }
-  updateTag("divisions-list");
-  return result;
 }
 
 // =======================
