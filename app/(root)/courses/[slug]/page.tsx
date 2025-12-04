@@ -33,26 +33,33 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: CourseDetailPageProps) {
   const { slug } = await params;
 
-  const response: ApiResponse = await getCourseDetailBySlug(slug);
+  try {
+    const response: ApiResponse = await getCourseDetailBySlug(slug);
 
-  if (!response.success) {
+    if (!response.success || !response.data) {
+      return {
+        title: "Course Not Found",
+        description: "The course does not exist.",
+      };
+    }
+
+    const course = response.data;
+
+    return {
+      title: course.title,
+      description: course.description,
+      openGraph: {
+        title: course.title,
+        description: course.description,
+        images: course.featured_image ? [{ url: course.featured_image }] : [],
+      },
+    };
+  } catch (error) {
     return {
       title: "Course Not Found",
       description: "The course does not exist.",
     };
   }
-
-  const course = response.data;
-
-  return {
-    title: course.title,
-    description: course.description,
-    openGraph: {
-      title: course.title,
-      description: course.description,
-      images: course.featured_image ? [{ url: course.featured_image }] : [],
-    },
-  };
 }
 
 // Course Detail Page Component

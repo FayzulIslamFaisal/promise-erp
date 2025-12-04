@@ -1,6 +1,5 @@
 "use server";
 import { cacheTag } from "next/cache";
-import { toast } from "sonner";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api/v1";
 
@@ -143,14 +142,23 @@ export async function getCourseDetailBySlug(slug: string): Promise<ApiResponse> 
         });
 
         if (!res.ok) {
-            throw new Error(`HTTP error! status: ${res.status}`);
+            return {
+                success: false,
+                message: `Course not found: ${res.status}`,
+                code: res.status,
+                data: null as any,
+            };
         }
 
         const data: ApiResponse = await res.json();
         return data;
     } catch (error) {
         console.error("Error in getCourseDetailBySlug:", error);
-        toast.error("Error in getCourseDetailBySlug:");
-        throw new Error("Error in getCourseDetailBySlug");
+        return {
+            success: false,
+            message: "Error fetching course details",
+            code: 500,
+            data: null as any,
+        };
     }
 }
