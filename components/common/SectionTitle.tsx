@@ -16,18 +16,18 @@ const SectionTitle = ({
           iswhite ? "text-white" : "text-secondary"
         }`}
       >
-        {title}
+        {title || "Title Not Found"}
       </h2>
 
-      {subtitle && (
+      {/* {subtitle && ( */}
         <p
           className={`text-lg max-w-2xl mx-auto ${
             iswhite ? "text-white" : "text-black/75"
           }`}
         >
-          {subtitle}
+          {subtitle || "Subtitle Not Found"}
         </p>
-      )}
+      {/* )} */}
     </div>
   );
 };

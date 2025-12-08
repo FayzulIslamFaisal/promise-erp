@@ -20,8 +20,8 @@ const HomeCoursesWrapper = async ({ searchParams }: HomeCoursesWrapperProps) => 
     <section className="bg-white py-8 md:py-14">
       <div className="container mx-auto px-4">
         <SectionTitle
-          title="শিক্ষার্থীদের পছন্দের কোর্সসমূহ"
-          subtitle="দেখে নিন কোন কোর্সগুলো সবচেয়ে বেশি জনপ্রিয় হয়েছে"
+          title={coursesData?.data?.section_title}
+          subtitle={coursesData?.data?.section_subtitle}
           iswhite={false}
         />
           <HomeCourses coursesData={coursesData} />

@@ -24,6 +24,7 @@ export interface Batch {
     start_date: string;
     end_date: string;
     duration: string;
+    discount_percentage?: number;
 }
 
 export interface CourseFacility {
@@ -137,7 +138,7 @@ export async function getCourseDetailBySlug(slug: string): Promise<ApiResponse> 
                 "Content-Type": "application/json",
             },
             next: {
-                revalidate: 3600, // Revalidate every hour
+                revalidate: 0, // Revalidate every hour
             },
         });
 

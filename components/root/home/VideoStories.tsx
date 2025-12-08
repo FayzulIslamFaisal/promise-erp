@@ -19,14 +19,13 @@ const VideoStories = async({ searchParams }: HomesearchParamsProps) => {
 
   const storyData = await fetchPublicVideoGalleries({ params });
   const stories: SuccessStoryItem[] = storyData?.data?.video_galleries || [];
-  console.log(stories, "stories");
   
   return (
     <section className="bg-white py-8 md:py-14">
       <div className="container mx-auto px-4">
         <SectionTitle
-          title="Stories of Progress"
-          subtitle="Watch how our students are transforming their lives through learning."
+          title={storyData?.data?.section_title}
+          subtitle={storyData?.data?.section_subtitle}
           iswhite={false}
         />
         <VideoStoriesCard stories={stories} />

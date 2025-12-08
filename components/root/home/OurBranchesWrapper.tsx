@@ -14,8 +14,8 @@ const OurBranchesWrapper = async ({searchParams}:HomesearchParamsProps) => {
     <section className="py-8 md:py-14">
       <div className="container mx-auto px-4">
         <SectionTitle
-          title="Our Branches"
-          subtitle="Find our learning centers near you."
+          title={branches?.data?.section_title}
+          subtitle={branches?.data?.section_subtitle}
           iswhite={false}
         />
           <OurBranches branchesData={branches} />

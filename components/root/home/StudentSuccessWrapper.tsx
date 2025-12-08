@@ -20,8 +20,8 @@ const StudentSuccessWrapper = async ({
     >
       <div className="container mx-auto px-4">
         <SectionTitle
-          title="আমাদের শিক্ষার্থীদের সাফল্যের গল্প শুনুন"
-          subtitle="দেখুন কীভাবে আমাদের কোর্সগুলো তাদের জীবন ও ক্যারিয়ারে নতুন সুযোগ তৈরি করেছে!"
+          title={reviewsData?.data?.section_title}
+          subtitle={reviewsData?.data?.section_subtitle}
           iswhite={false}
         />
 

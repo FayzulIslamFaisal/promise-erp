@@ -13,13 +13,15 @@ interface HeroSectionProps {
 }
 
 export const HeroSection = ({ course }: HeroSectionProps) => {
-  const displayImage = course.featured_image || PLACEHOLDER_IMAGE;
   const totalReviews = course.reviews?.length || 0;
   const rating = course.ratings || 0;
   const price = course.batch?.after_discount || course.batch?.price || 0;
   const originalPrice = course.batch?.price || 0;
   const discount = course.batch?.discount || 0;
   const hasDiscount = discount > 0 && originalPrice > price;
+  const discount_percentage = course.batch?.discount_percentage || 0;
+
+  console.log("Course Hero Section:", course);
 
   return (
     <div className="grid lg:grid-cols-2 gap-12 items-center">
@@ -85,9 +87,7 @@ export const HeroSection = ({ course }: HeroSectionProps) => {
         <div>
           {hasDiscount && (
             <Badge className="mb-3">
-              {course.batch.discount_type === "percentage"
-                ? `${discount}% OFF`
-                : `${discount} ৳ OFF`}
+              {discount_percentage}% OFF
             </Badge>
           )}
           <div className="flex items-center gap-5 mb-4">
@@ -108,9 +108,7 @@ export const HeroSection = ({ course }: HeroSectionProps) => {
         <Card>
           <CardContent className="p-6">
             <h2 className="text-2xl font-bold mb-4">About this Course</h2>
-            <p className="text-muted-foreground leading-relaxed">
               <div dangerouslySetInnerHTML={{ __html: course.description }} />
-            </p>
           </CardContent>
         </Card>
       </div>

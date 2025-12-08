@@ -5,6 +5,7 @@ interface PartnerItemProps {
   items: PartnerItem[];
 }
 const AffiliatesClientsTab = ({ items }: PartnerItemProps) => {
+  console.log("client===>",items);
 
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
@@ -16,10 +17,10 @@ const AffiliatesClientsTab = ({ items }: PartnerItemProps) => {
           <CardContent className="flex flex-col items-center px-4">
             <div className="relative w-40 h-20 mb-3 shadow-none">
               <Image
-                src={`${process.env.NEXT_PUBLIC_URL}/${item?.image} || /images/placeholder_img.jpg`}
+                src={item?.image || "/images/placeholder_img.jpg"}
                 alt={item?.title}
                 fill
-                className="object-contain"
+                className="object-cover rounded-lg"
               />
             </div>
             <p className="text-base font-semibold text-center text-secondary">

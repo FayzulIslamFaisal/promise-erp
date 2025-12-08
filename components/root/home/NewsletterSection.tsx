@@ -4,8 +4,10 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import SectionTitle from "@/components/common/SectionTitle";
 import { toast } from "sonner";
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import {
+  getNewsletterItemResponse,
+  getPublicNewsletterSection,
   NewsletterApiResponse,
   SubscribeToNewsletter,
 } from "@/apiServices/homePageService";
@@ -14,10 +16,12 @@ import { Spinner } from "@/components/ui/spinner";
 const NewsletterSection = () => {
   const [email, setEmail] = useState<string>("");
   const [isPending, startTransition] = useTransition();
+  const [subscriptionData, setSubscriptionData] =
+    useState<getNewsletterItemResponse | null>(null);
 
+  //Submit post api call
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
     startTransition(async () => {
       if (!email) {
         toast.error("Please enter your email");
@@ -40,11 +44,31 @@ const NewsletterSection = () => {
     });
   };
 
+  // Fetch newsletter section data on mount
+  useEffect(() => {
+    startTransition(() => {
+      (async () => {
+        try {
+          const res = await getPublicNewsletterSection();
+          if (!res.success) {
+            toast.error(res.message);
+            return;
+          } else {
+            setSubscriptionData(res);
+          }
+        } catch (error) {
+          console.error("Newsletter fetch failed:", error);
+          toast.error("Could not load subscription section");
+        }
+      })();
+    });
+  }, []);
+
   return (
     <section className="relative py-8 md:py-14 w-full h-[400px] flex items-center justify-center overflow-hidden">
       <div className="absolute inset-0 z-0">
         <Image
-          src="/images/hero-banner/courselist.png"
+          src={subscriptionData?.data?.image || "/images/placeholder_img.jpg"}
           alt="Computer Lab Background"
           fill
           className="object-cover"
@@ -53,11 +77,13 @@ const NewsletterSection = () => {
       </div>
       <div className="absolute inset-0 z-10 bg-secondary/60" />
       <div className="relative z-20 container mx-auto px-4 flex flex-col items-center text-center space-y-6">
-        <SectionTitle
-          title="আপডেট পেতে আমাদের সাথে থাকুন"
-          subtitle="নতুন কোর্স ও বিশেষ অফারের সর্বশেষ আপডেট পেতে এখনই সাবস্ক্রাইব করুন"
-          iswhite={true}
-        />
+        {subscriptionData && (
+          <SectionTitle
+            title={subscriptionData?.data?.title}
+            subtitle={subscriptionData?.data?.sub_title}
+            iswhite={true}
+          />
+        )}
         <form onSubmit={handleSubmit} className="w-full max-w-2xl">
           <div className=" flex flex-col sm:flex-row gap-4 items-center justify-center">
             <Input

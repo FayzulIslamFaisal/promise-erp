@@ -64,6 +64,8 @@ export interface Branch {
 
 export interface BranchList {
   total_branches: number;
+  section_title?: string | null;
+  section_subtitle?: string | null;
   branches: Branch[];
   pagination: Pagination;
 }
@@ -74,6 +76,22 @@ export interface BranchApiResponse {
   code: number;
   data: BranchList;
   errors?: Record<string, string[]>;
+}
+
+// Single branch interface
+export interface HeaderBranchList {
+  id: number;
+  name: string;
+}
+
+// Main response interface
+interface HeaderBranchListResponse {
+  success: boolean;
+  message: string;
+  code: number;
+  data: {
+    branches: HeaderBranchList[];
+  };
 }
 //End Interfaces home page branch section ---
 
@@ -90,6 +108,8 @@ export interface Teacher {
 
 export interface TeacherList {
   total_teachers: number;
+  section_title?: string | null;
+  section_subtitle?: string | null;
   teachers: Teacher[] | null;
   pagination: Pagination;
 }
@@ -115,6 +135,8 @@ export interface Review {
 
 export interface ReviewList {
   total_reviews: number;
+  section_title?: string | null;
+  section_subtitle?: string | null;
   reviews: Review[] | null;
   pagination: Pagination;
 }
@@ -129,7 +151,22 @@ export interface ReviewApiResponse {
 // End Interfaces home page Reviews section ---
 
 //Start Home Newsletter Subscription --
+export interface getNewsletterItem {
+  title: string;
+  sub_title: string;
+  image: string | null;
+}
+
+export interface getNewsletterItemResponse {
+  success: boolean;
+  message: string;
+  code: number;
+  data?: getNewsletterItem;
+  errors?: Record<string, string[]>;
+}
 export interface NewsletterData {
+  section_title?: string | null;
+  section_subtitle?: string | null;
   id: number;
   email: string;
   subscribed_at: string;
@@ -147,15 +184,19 @@ export interface NewsletterApiResponse {
 export interface PartnerItem {
   id: number;
   title: string;
-  image: string;
+  image: string | null;
   status: number;
   partner_type: number;
 }
 
 export interface PartnersResponseData {
-  affiliate: PartnerItem[];
-  concern: PartnerItem[];
-  client: PartnerItem[];
+  section_title?: string | null;
+  section_subtitle?: string | null;
+  partners: {
+    affiliate: PartnerItem[];
+    concern: PartnerItem[];
+    client: PartnerItem[];
+  };
 }
 
 export interface PartnersApiResponse {
@@ -177,6 +218,8 @@ export interface ServiceItem {
 }
 export interface ServicesResponseData {
   total_services: number;
+  section_title?: string | null;
+  section_subtitle?: string | null;
   services: ServiceItem[];
   pagination: Pagination;
 }
@@ -200,6 +243,8 @@ export interface SuccessStoryItem {
 }
 export interface SuccessStoryData {
   total_video_galleries: number;
+  section_title?: string | null;
+  section_subtitle?: string | null;
   video_galleries: SuccessStoryItem[];
   pagination: Pagination;
 }
@@ -212,6 +257,109 @@ export interface SuccessStoryApiResponse {
   errors?: Record<string, string[]>;
 }
 //End Home page CompanyServiceItem section get API --
+//start Home page News Feed  section get API --
+export interface NewsFeedItem {
+  id: number;
+  news_link: string;
+  image: string;
+  entry_date: string;
+}
+
+export interface NewsFeedData {
+  total_news_feeds: number;
+  section_title?: string | null;
+  section_subtitle?: string | null;
+  news_feeds: NewsFeedItem[];
+  pagination: Pagination;
+}
+
+export interface NewsFeedApiResponse {
+  success: boolean;
+  message: string;
+  code: number;
+  data: NewsFeedData;
+  errors?: Record<string, string[]>;
+}
+//End Home page News Feed section get API --
+
+//Start Home page OpportunityItem section get API --
+export interface OpportunityItem {
+  id: number;
+  title: string;
+  sub_title: string;
+  image: string;
+}
+export interface OpportunityData {
+  total_opportunities: number;
+  section_title?: string | null;
+  section_subtitle?: string | null;
+  section_image?: string | null;
+  opportunities: OpportunityItem[];
+  pagination: Pagination;
+}
+
+export interface OpportunityApiResponse {
+  success: boolean;
+  message: string;
+  code: number;
+  data: OpportunityData;
+  errors?: Record<string, string[]>;
+}
+//End Home page OpportunityItem section get API --
+
+//Start Home page Blogs section get API --
+
+export interface BlogCategory {
+  id: number;
+  title: string;
+  slug?: string;
+}
+
+export interface Blog {
+  id: number;
+  category: BlogCategory;
+  title: string;
+  slug: string;
+  author?: string;
+  short_description?: string;
+  thumbnail: string;
+  published_at: string;
+}
+
+export interface BlogApiData {
+  section_title?: string | null;
+  section_subtitle?: string | null;
+  total_blogs: number;
+  blogs: Blog[] | null;
+  pagination: Pagination;
+}
+
+export interface BlogApiResponse {
+  success: boolean;
+  message: string;
+  code: number;
+  data: BlogApiData;
+}
+// End Home page Blogs section get API --
+
+// Start Home page Govt Course Section get API --
+export interface GovtCourseData {
+  id?: number;
+  title?: string;
+  sub_title?: string;
+  image?: string;
+}
+
+export interface GovtCourseResponse {
+  success: boolean;
+  message: string;
+  code: number;
+  data?: GovtCourseData;
+  errors?: Record<string, string[]>;
+}
+
+// End Home page Govt Course Section get API --
+
 
 // Home Hero section get API
 export async function getLatestHeroSection(): Promise<HeroSectionResponse> {
@@ -457,7 +605,7 @@ export async function fetchPublicCompanyServices({
   }
 }
 
-
+// Home page Video Galleries section get API
 export async function fetchPublicVideoGalleries({
   params = {},
 }: {
@@ -492,6 +640,173 @@ export async function fetchPublicVideoGalleries({
     console.error("Error fetching video galleries:", error);
     toast.error("Error fetching video galleries");
     return null;
+  }
+}
+// Home page News Feeds section get API
+export async function fetchPublicNewsFeeds({
+  params = {},
+}: {
+  params?: Record<string, unknown>;
+}): Promise<NewsFeedApiResponse | null> {
+  try {
+    const urlParams = new URLSearchParams();
+
+    // add dynamic params
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        urlParams.append(key, String(value));
+      }
+    });
+
+    const queryString = urlParams.toString();
+
+    const res = await fetch(`${API_BASE}/public/news-feeds?${queryString}`);
+
+    if (!res.ok) {
+      console.error(
+        `fetchPublicNewsFeeds API error: ${res.status} ${res.statusText}`
+      );
+      toast.error("Error fetching news feeds");
+      return null;
+    }
+
+    const data: NewsFeedApiResponse = await res.json();
+    return data;
+
+  } catch (error) {
+    console.error("Error fetching news feeds:", error);
+    toast.error("Error fetching news feeds");
+    return null;
+  }
+}
+
+// Home page opportunity section get API
+export async function fetchPublicOpportunities({
+  params = {},
+}: {
+  params?: Record<string, unknown>;
+}): Promise<OpportunityApiResponse | null> {
+  try {
+    const urlParams = new URLSearchParams();
+
+    // add dynamic params
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        urlParams.append(key, String(value));
+      }
+    });
+
+    const queryString = urlParams.toString();
+
+    const res = await fetch(`${API_BASE}/public/public-opportunities?${queryString}`);
+
+    if (!res.ok) {
+      console.error(
+        `fetchPublicOpportunities API error: ${res.status} ${res.statusText}`
+      );
+      toast.error("Error fetching opportunities");
+      return null;
+    }
+
+    const data: OpportunityApiResponse = await res.json();
+    return data;
+
+  } catch (error) {
+    console.error("Error fetching opportunities:", error);
+    toast.error("Error fetching opportunities");
+    return null;
+  }
+}
+// home page featured course section get API
+export async function fetchPublicHomeBlog({
+  params = {},
+}: {
+  params?: Record<string, unknown>;
+}): Promise<BlogApiResponse | null> {
+  try {
+    const urlParams = new URLSearchParams();
+
+    // add dynamic params
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        urlParams.append(key, String(value));
+      }
+    });
+
+    const queryString = urlParams.toString();
+    const res = await fetch(`${API_BASE}/public/blogs?${queryString}`);
+
+    if (!res.ok) {
+      console.error(
+        `fetchPublicHomeBlog API error: ${res.status} ${res.statusText}`
+      );
+      toast.error("Error fetching HomeBlog");
+      return null;
+    }
+
+    const data: BlogApiResponse = await res.json();
+    return data;
+
+  } catch (error) {
+    console.error("Error fetching HomeBlog:", error);
+    toast.error("Error fetching HomeBlog");
+    return null;
+  }
+}
+
+// Home Govt Course Section get API
+export async function getPublicGovtCourseSection(): Promise<GovtCourseResponse> {
+  try {
+    const res = await fetch(`${API_BASE}/public/govt-course-section`);
+
+    if (!res.ok) {
+      throw new Error(
+        `Govt Course Section API failed — HTTP ${res.status} (${res.statusText})`
+      );
+    }
+
+    const data: GovtCourseResponse = await res.json();
+    return data;
+  } catch (error) {
+    console.error("Govt Course Section API Error:", error);
+    throw new Error("Error fetching govt course section");
+  }
+}
+// Home Get Newsletter Section --
+export async function getPublicNewsletterSection(): Promise<getNewsletterItemResponse> {
+  try {
+    const res = await fetch(`${API_BASE}/public/newsletter-section`);
+
+    if (!res.ok) {
+      throw new Error(
+        `Newsletter Section API failed — HTTP ${res.status} (${res.statusText})`
+      );
+    }
+
+    const data: getNewsletterItemResponse = await res.json();
+    return data;
+  } catch (error) {
+    console.error("Newsletter Section API Error:", error);
+    throw new Error("Error fetching newsletter section");
+  }
+}
+
+
+export async function getPublicBranchList(): Promise<HeaderBranchListResponse> {
+  try {
+    const res = await fetch(`${API_BASE}/public/branch-list`);
+
+    if (!res.ok) {
+      throw new Error(
+        `Branch List API failed — HTTP ${res.status} (${res.statusText})`
+      );
+    }
+
+    const data: HeaderBranchListResponse = await res.json();
+    return data;
+  } catch (error) {
+    console.error("Branch List API Error:", error);
+    throw new Error("Error fetching Branch List ");
   }
 }
 

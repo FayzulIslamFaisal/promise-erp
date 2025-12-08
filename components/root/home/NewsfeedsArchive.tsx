@@ -1,5 +1,6 @@
-"use client";
 
+import {  fetchPublicNewsFeeds, NewsFeedItem } from "@/apiServices/homePageService";
+import { HomesearchParamsProps } from "@/app/(root)/page";
 import SectionTitle from "@/components/common/SectionTitle";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Button } from "@/components/ui/button";
@@ -8,57 +9,33 @@ import { MoveRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
-const newsItems = [
-  {
-    id: 1,
-    title: "Featured News",
-    image: "/images/home/news1.png",
-    link: "#",
-  },
-  {
-    id: 2,
-    title: "News Item 1",
-    image: "/images/home/news2.png",
-    link: "#",
-  },
-  {
-    id: 3,
-    title: "News Item 2",
-    image: "/images/home/news3.png",
-    link: "#",
-  },
-  {
-    id: 4,
-    title: "News Item 3",
-    image: "/images/home/news4.png",
-    link: "#",
-  },
-  {
-    id: 5,
-    title: "News Item 4",
-    image: "/images/home/news5.png",
-    link: "#",
-  },
-];
 
-const NewsfeedsArchive = () => {
+const NewsfeedsArchive =  async({ searchParams }: HomesearchParamsProps) => {
+  const queryParams = await searchParams;
+  const page = queryParams.page ? Number(queryParams.page) : 1;
+  const params = {
+    per_page: queryParams.per_page ? queryParams.per_page : "5",
+    page: page,
+  };
+  const newsData = await fetchPublicNewsFeeds({ params });
+  const newsItems : NewsFeedItem[] = newsData?.data?.news_feeds || [];
   return (
     <section className="py-8 md:py-14 bg-secondary/5">
       <div className="container mx-auto px-4">
         <SectionTitle
-          title="In the Newsfeeds Archive"
-          subtitle={"Find previous news, insights, and important announcements"}
+          title={newsData?.data?.section_title}
+          subtitle={newsData?.data?.section_subtitle}
           iswhite={false}
         />
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 h-full">
           {/* Main Featured News */}
-          <Link href={newsItems[0].link} className="group h-full ">
+          <Link href={newsItems[0].news_link} className="group h-full ">
             <Card className="border border-secondary/30 py-0 overflow-hidden transition-transform duration-500 hover:-translate-y-1 hover:shadow-2xl">
               <AspectRatio ratio={1 / 1} className="w-full relative">
                 <Image
-                  src={newsItems[0].image}
-                  alt={newsItems[0].title}
+                  src={newsItems[0].image || "/images/placeholder_img.jpg"}
+                  alt={newsItems[0].news_link}
                   fill
                   className="object-cover transition-transform duration-500 group-hover:scale-105"
                   sizes="(min-width: 1024px) 50vw, 100vw"
@@ -71,12 +48,12 @@ const NewsfeedsArchive = () => {
           {/* Other News Items */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 h-full">
             {newsItems.slice(1).map((item) => (
-              <Link key={item.id} href={item.link} className="group">
+              <Link key={item.id} href={item.news_link} className="group">
                 <Card className="border border-secondary/30 py-0 overflow-hidden transition-transform duration-500 hover:-translate-y-1 hover:shadow-2xl">
                   <AspectRatio ratio={1 / 1} className="w-full relative">
                     <Image
-                      src={item.image}
-                      alt={item.title}
+                      src={item.image || "/images/placeholder_img.jpg"}
+                      alt={item.news_link}
                       fill
                       className="object-cover transition-transform duration-500 group-hover:scale-105"
                       sizes="(min-width: 1024px) 50vw, 100vw"

@@ -19,8 +19,8 @@ return (
     <section className="py-8 md:py-14 bg-secondary/5">
       <div className="container mx-auto px-4">
         <SectionTitle
-          subtitle={"Comprehensive support from idea to execution."}
-          title={"Services We Provide"}
+          subtitle={servicesData?.data?.section_subtitle}
+          title={servicesData?.data?.section_title}
           iswhite={false}
         />
 
@@ -36,7 +36,7 @@ return (
                     alt={services[0].title}
                     width={53}
                     height={53}
-                    className="object-contain"
+                    className="object-cover rounded-4xl"
                   />
                 </div>
                 <div className="flex-1">
@@ -58,7 +58,7 @@ return (
                     alt={services[1].title}
                     width={53}
                     height={53}
-                    className="object-contain"
+                    className="object-cover rounded-4xl"
                   />
                 </div>
                 <div className="flex-1">
@@ -87,7 +87,7 @@ return (
                     alt={services[2].title}
                     width={53}
                     height={53}
-                    className="object-contain"
+                    className="object-cover rounded-4xl"
                   />
                   <div>
                     <h3 className="text-lg font-semibold text-white">
@@ -107,7 +107,7 @@ return (
                     alt={services[3].title}
                     width={53}
                     height={53}
-                    className="object-contain"
+                    className="object-cover rounded-4xl"
                   />
                   <div>
                     <h3 className="text-lg font-semibold text-white">
@@ -141,7 +141,7 @@ return (
                     alt={services[4].title}
                     width={53}
                     height={53}
-                    className="object-contain"
+                    className="object-cover rounded-4xl"
                   />
                   <div>
                     <h3 className="text-lg font-semibold text-white">
@@ -161,7 +161,7 @@ return (
                     alt={services[5].title}
                     width={53}
                     height={53}
-                    className="object-contain"
+                    className="object-cover rounded-4xl"
                   />
                   <div>
                     <h3 className="text-lg font-semibold text-white">
@@ -187,7 +187,7 @@ return (
                   alt={services[6].title}
                   width={53}
                   height={53}
-                  className="object-contain"
+                  className="object-cover rounded-4xl"
                 />
                 <div>
                   <h3 className="text-lg font-semibold text-white">
@@ -207,7 +207,7 @@ return (
                   alt={services[7].title}
                   width={53}
                   height={53}
-                  className="object-contain"
+                  className="object-cover rounded-4xl"
                 />
                 <div>
                   <h3 className="text-lg font-semibold text-white">

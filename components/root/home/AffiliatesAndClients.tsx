@@ -8,36 +8,36 @@ import {
 
 export default async function AffiliatesClientsPage() {
   const affiliatesData: PartnersApiResponse = await fetchHomeAffiliatePartners();
-  const affiliates = affiliatesData?.data?.affiliate || [];
-  const clients = affiliatesData?.data?.client || [];
-  const concerns = affiliatesData?.data?.concern || [];
+  const affiliates = affiliatesData?.data?.partners?.affiliate || [];
+  const clients = affiliatesData?.data?.partners?.client || [];
+  const concerns = affiliatesData?.data?.partners?.concern || [];
 
   return (
     <div className="container mx-auto py-16 px-4">
       <SectionTitle
-        title="Our Affiliates, Clients & Concerns"
-        subtitle="We're proud to collaborate with leading government and private organizations."
+        title={affiliatesData?.data?.section_title}
+        subtitle={affiliatesData?.data?.section_subtitle}
       />
 
       <Tabs defaultValue="affiliates" className="mt-10">
         <TabsList className="flex justify-center mb-8 bg-transparent gap-6 pb-1 mx-auto text-secondary-foreground">
           <TabsTrigger
             value="affiliates"
-            className="rounded-none border-0 border-b-2 border-transparent data-[state=active]:border-secondary data-[state=active]:text-secondary data-[state=active]:shadow-none px-8 py-3 text-xl"
+            className="cursor-pointer rounded-none border-0 border-b-2 border-transparent data-[state=active]:border-secondary data-[state=active]:text-secondary data-[state=active]:shadow-none px-8 py-3 text-xl"
           >
             Affiliates
           </TabsTrigger>
 
           <TabsTrigger
             value="clients"
-            className="rounded-none border-0 border-b-2 border-transparent data-[state=active]:border-secondary data-[state=active]:text-secondary data-[state=active]:shadow-none px-8 py-3 text-xl"
+            className="cursor-pointer rounded-none border-0 border-b-2 border-transparent data-[state=active]:border-secondary data-[state=active]:text-secondary data-[state=active]:shadow-none px-8 py-3 text-xl"
           >
             Clients
           </TabsTrigger>
 
           <TabsTrigger
             value="concerns"
-            className="rounded-none border-0 border-b-2 border-transparent data-[state=active]:border-secondary data-[state=active]:text-secondary data-[state=active]:shadow-none px-8 py-3 text-xl"
+            className="cursor-pointer rounded-none border-0 border-b-2 border-transparent data-[state=active]:border-secondary data-[state=active]:text-secondary data-[state=active]:shadow-none px-8 py-3 text-xl"
           >
             Concerns
           </TabsTrigger>

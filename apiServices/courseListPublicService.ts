@@ -63,6 +63,8 @@ export interface ApiResponse {
   message: string;
   code: number;
   data: {
+    section_title?: string | null;
+    section_subtitle?: string | null;
     courses: Course[];
     filters: Filters;
     pagination: Pagination;

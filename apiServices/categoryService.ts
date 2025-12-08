@@ -32,6 +32,8 @@ export interface CategoriesResponse {
   code: number;
   data: {
     total_categories: number;
+    section_subtitle?: string;
+    section_title?: string;
     categories: Category[];
     pagination: Pagination;
   };
