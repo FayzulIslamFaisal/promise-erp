@@ -1,14 +1,14 @@
 "use client";
 import SupportContact from "@/components/root/enrollment/SupportContact";
 import dynamic from 'next/dynamic'
-const EnrollmentClientLoader = dynamic(() => import('@/components/root/enrollment/EnrollmentClientLoader'), { ssr: false })
+import { useParams } from "next/navigation";
+const EnrollmentClientLoader = dynamic(() => import('@/components/root/enrollment/EnrollmentClientLoader'))
 
-interface Props {
-  params: { slug: string };
-}
 
-const EnrollmentPage = ({ params }: Props) => {
-  const { slug } = params;
+const EnrollmentPage = () => {
+  const params = useParams<{ slug: string }>();
+  const slug = params.slug;
+  console.log("enrollment slug", slug);
 
   return (
     <section className="bg-secondary/5 py-8 md:py-14">

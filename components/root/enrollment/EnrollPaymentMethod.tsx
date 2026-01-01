@@ -79,17 +79,19 @@ const EnrollPaymentMethod = ({
           payment_type: 0, // 0 = full payment
           partial_payment_amount: 0,
         }, token);
+        console.log("res enroll submit ", res);
 
         if (res.success) {
           toast.success(res?.data?.message || "Enrollment successful");
           router.push("/student/dashboard");
           // future redirect here
         } else {
-          toast.error(res.message || "Payment failed");
+          toast.error(res?.message || "Payment failed");
         }
-      } catch (error) {
-        console.error(error);
-        toast.error("Enrollment submission failed");
+      } catch (error:unknown) {
+        console.log("Enrollment submission failed", error);
+        toast.error("Enrollment submission failed");  
+        
       }
     });
   };

@@ -143,7 +143,7 @@ export async function getEnrollmentDetails(slug: string,  token: string): Promis
     const res = await fetch(
       `${API_BASE}/courses/${slug}/enrollment-details`,
       {
-        cache: "no-store",
+        cache: "no-cache",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
@@ -235,12 +235,6 @@ export async function postEnrollmentSubmit(
       },
       body: JSON.stringify(body),
     });
-
-    if (!response.ok) {
-      throw new Error(
-        `Enrollment failed ${response.status} (${response.statusText})`
-      );
-    }
 
     const data: EnrollmentSubmitResponse = await response.json();
     return data;

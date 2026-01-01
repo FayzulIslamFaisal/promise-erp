@@ -72,17 +72,17 @@ const EnrollPaymentSummary = ({
                     <div className="space-y-3">
                         <div className="flex justify-between">
                             <span className="text-black/80">Price</span>
-                            <span>৳ {price}</span>
+                            <span> {price} ৳</span>
                         </div>
                         <div className="flex justify-between">
                             <span className="text-black/80">Discount</span>
-                            <span>-৳ {discount}</span>
+                            <span>- {discount} ৳</span>
                         </div>
                         <div className="border-t border-border pt-3">
                             <div className="flex justify-between">
                                 <span className="text-black/80 font-semibold">Total</span>
                                 <span className="text-primary font-semibold text-lg">
-                                    ৳ {total}
+                                     {total} ৳
                                 </span>
                             </div>
                         </div>

@@ -11,11 +11,7 @@ import Link from "next/link";
 
 const NewsfeedsArchive =  async() => {
 
-  const params = {
-    per_page: 5,
-    page: 1,
-  };
-  const newsData = await fetchPublicNewsFeeds({ params });
+  const newsData = await fetchPublicNewsFeeds();
   const newsItems : NewsFeedItem[] = newsData?.data?.news_feeds || [];
   return (
     <section className="py-8 md:py-14 bg-secondary/5">

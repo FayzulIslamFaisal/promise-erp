@@ -7,12 +7,8 @@ import dynamic from "next/dynamic";
 const VideoStoriesCard = dynamic(() => import("./VideoStoriesCard"));
 
 const VideoStories = async () => {
-  const params = {
-    per_page: 4,
-    page: 1,
-  };
 
-  const storyData = await fetchPublicVideoGalleries({ params });
+  const storyData = await fetchPublicVideoGalleries();
   const stories: SuccessStoryItem[] = storyData?.data?.video_galleries || [];
 
   return (

@@ -389,9 +389,7 @@ export interface CourseSearchResponse {
 // Home Hero section get API
 export async function getLatestHeroSection(): Promise<HeroSectionResponse> {
   try {
-    const res = await fetch(`${API_BASE}/public/hero-section/latest`, {
-      cache: "no-store",
-    });
+    const res = await fetch(`${API_BASE}/public/hero-section/latest`);
 
     if (!res.ok) {
       throw new Error(
@@ -414,15 +412,13 @@ export async function getLatestHeroSection(): Promise<HeroSectionResponse> {
 
 export async function getLatestCountDown(): Promise<CountDownResponse> {
   try {
-    const res = await fetch(`${API_BASE}/public/stats/latest`, {
-      cache: "no-store",
-    });
+    const res = await fetch(`${API_BASE}/public/stats/latest`);
 
     if (!res.ok) {
       throw new Error(`Countdown API error: ${res.status} ${res.statusText}`);
     }
 
-    const data = await res.json();
+    const data: CountDownResponse = await res.json();
     return data;
   } catch (error: unknown) {
     if (error instanceof Error) {
@@ -433,27 +429,15 @@ export async function getLatestCountDown(): Promise<CountDownResponse> {
   }
 }
 // Home page Branches get API
-export async function fetchAllBranches({
-  params = {},
-}: {
-  params?: Record<string, unknown>;
-}): Promise<BranchApiResponse | null> {
+export async function fetchAllBranches(): Promise<BranchApiResponse | null> {
   try {
-    const urlParams = new URLSearchParams();
 
-    Object.entries(params).forEach(([key, value]) => {
-      if (value !== undefined && value !== null) {
-        urlParams.append(key, String(value));
-      }
-    });
-
-    const queryString = urlParams.toString();
-    const res = await fetch(`${API_BASE}/public/our-branches?${queryString}`, {
-      cache: "no-store",
-    });
+    const res = await fetch(`${API_BASE}/public/branch-list`);
 
     if (!res.ok) {
-      throw new Error(`fetchAllBranches API error: ${res.status} ${res.statusText}`);
+      throw new Error(
+        `fetchAllBranches API error: ${res.status} ${res.statusText}`
+      );
     }
 
     const data: BranchApiResponse = await res.json();
@@ -468,27 +452,14 @@ export async function fetchAllBranches({
 }
 // Home page Teachers get API
 
-export async function fetchAllPublicTeachers({
-  params = {},
-}: {
-  params?: Record<string, unknown>;
-}): Promise<TeacherApiResponse | null> {
+export async function fetchAllPublicTeachers(): Promise<TeacherApiResponse | null> {
   try {
-    const urlParams = new URLSearchParams();
-
-    Object.entries(params).forEach(([key, value]) => {
-      if (value !== undefined && value !== null) {
-        urlParams.append(key, String(value));
-      }
-    });
-
-    const queryString = urlParams.toString();
-    const res = await fetch(`${API_BASE}/public/teachers-list?${queryString}`, {
-      cache: "no-store",
-    });
+    const res = await fetch(`${API_BASE}/public/teachers-list`);
 
     if (!res.ok) {
-      throw new Error(`fetchAllTeachers API error: ${res.status} ${res.statusText}`);
+      throw new Error(
+        `fetchAllTeachers API error: ${res.status} ${res.statusText}`
+      );
     }
 
     const data: TeacherApiResponse = await res.json();
@@ -503,29 +474,14 @@ export async function fetchAllPublicTeachers({
 }
 
 // Home page Reviews get API
-export async function fetchPublicFeaturedReviews({
-  params = {},
-}: {
-  params?: Record<string, unknown>;
-}): Promise<ReviewApiResponse | null> {
+export async function fetchPublicFeaturedReviews(): Promise<ReviewApiResponse | null> {
   try {
-    const urlParams = new URLSearchParams();
-
-    Object.entries(params).forEach(([key, value]) => {
-      if (value !== undefined && value !== null) {
-        urlParams.append(key, String(value));
-      }
-    });
-
-    const queryString = urlParams.toString();
-    const res = await fetch(
-      `${API_BASE}/public/reviews-featured?${queryString}`, {
-      cache: "no-store",
-    }
-    );
+    const res = await fetch(`${API_BASE}/public/reviews-featured`);
 
     if (!res.ok) {
-      throw new Error(`fetchPublicFeaturedReviews API error: ${res.status} ${res.statusText}`);
+      throw new Error(
+        `fetchPublicFeaturedReviews API error: ${res.status} ${res.statusText}`
+      );
     }
 
     const data: ReviewApiResponse = await res.json();
@@ -569,9 +525,7 @@ export async function SubscribeToNewsletter(
 // Home page affiliate Partner section get API --
 export async function fetchHomeAffiliatePartners(): Promise<PartnersApiResponse> {
   try {
-    const res = await fetch(`${API_BASE}/public/partners`, {
-      cache: "no-store",
-    });
+    const res = await fetch(`${API_BASE}/public/partners`);
 
     if (!res.ok) {
       throw new Error(`Partners API error: ${res.status} ${res.statusText}`);
@@ -589,30 +543,14 @@ export async function fetchHomeAffiliatePartners(): Promise<PartnersApiResponse>
 }
 
 // Home page Services section get API
-export async function fetchPublicCompanyServices({
-  params = {},
-}: {
-  params?: Record<string, unknown>;
-}): Promise<ServicesApiResponse | null> {
+export async function fetchPublicCompanyServices(): Promise<ServicesApiResponse | null> {
   try {
-    const urlParams = new URLSearchParams();
-
-    Object.entries(params).forEach(([key, value]) => {
-      if (value !== undefined && value !== null) {
-        urlParams.append(key, String(value));
-      }
-    });
-
-    const queryString = urlParams.toString();
-
-    const res = await fetch(
-      `${API_BASE}/public/company-services?${queryString}`, {
-      cache: "no-store",
-    }
-    );
+    const res = await fetch(`${API_BASE}/public/company-services`);
 
     if (!res.ok) {
-      throw new Error(`fetchPublicCompanyServices API error: ${res.status} ${res.statusText}`);
+      throw new Error(
+        `fetchPublicCompanyServices API error: ${res.status} ${res.statusText}`
+      );
     }
 
     const data: ServicesApiResponse = await res.json();
@@ -625,31 +563,18 @@ export async function fetchPublicCompanyServices({
     throw new Error("Unknown error occurred while fetching company services");
   }
 }
-
+// {
+//         cache: "no-store",
+//       }
 // Home page Video Galleries section get API
-export async function fetchPublicVideoGalleries({
-  params = {},
-}: {
-  params?: Record<string, unknown>;
-}): Promise<SuccessStoryApiResponse | null> {
+export async function fetchPublicVideoGalleries(): Promise<SuccessStoryApiResponse | null> {
   try {
-    const urlParams = new URLSearchParams();
-
-    Object.entries(params).forEach(([key, value]) => {
-      if (value !== undefined && value !== null) {
-        urlParams.append(key, String(value));
-      }
-    });
-    const queryString = urlParams.toString();
-
-    const res = await fetch(
-      `${API_BASE}/public/video-galleries?${queryString}`, {
-      cache: "no-store",
-    }
-    );
+    const res = await fetch(`${API_BASE}/public/video-galleries`);
 
     if (!res.ok) {
-      throw new Error(`fetchPublicVideoGalleries API error: ${res.status} ${res.statusText}`);
+      throw new Error(
+        `fetchPublicVideoGalleries API error: ${res.status} ${res.statusText}`
+      );
     }
 
     const data: SuccessStoryApiResponse = await res.json();
@@ -663,29 +588,15 @@ export async function fetchPublicVideoGalleries({
   }
 }
 // Home page News Feeds section get API
-export async function fetchPublicNewsFeeds({
-  params = {},
-}: {
-  params?: Record<string, unknown>;
-}): Promise<NewsFeedApiResponse | null> {
+export async function fetchPublicNewsFeeds(): Promise<NewsFeedApiResponse | null> {
   try {
-    const urlParams = new URLSearchParams();
 
-    // add dynamic params
-    Object.entries(params).forEach(([key, value]) => {
-      if (value !== undefined && value !== null) {
-        urlParams.append(key, String(value));
-      }
-    });
-
-    const queryString = urlParams.toString();
-
-    const res = await fetch(`${API_BASE}/public/news-feeds?${queryString}`, {
-      cache: "no-store",
-    });
+    const res = await fetch(`${API_BASE}/public/news-feeds`);
 
     if (!res.ok) {
-      throw new Error(`fetchPublicNewsFeeds API error: ${res.status} ${res.statusText}`);
+      throw new Error(
+        `fetchPublicNewsFeeds API error: ${res.status} ${res.statusText}`
+      );
     }
 
     const data: NewsFeedApiResponse = await res.json();
@@ -700,31 +611,14 @@ export async function fetchPublicNewsFeeds({
 }
 
 // Home page opportunity section get API
-export async function fetchPublicOpportunities({
-  params = {},
-}: {
-  params?: Record<string, unknown>;
-}): Promise<OpportunityApiResponse | null> {
+export async function fetchPublicOpportunities(): Promise<OpportunityApiResponse | null> {
   try {
-    const urlParams = new URLSearchParams();
-
-    // add dynamic params
-    Object.entries(params).forEach(([key, value]) => {
-      if (value !== undefined && value !== null) {
-        urlParams.append(key, String(value));
-      }
-    });
-
-    const queryString = urlParams.toString();
-
-    const res = await fetch(
-      `${API_BASE}/public/public-opportunities?${queryString}`, {
-      cache: "no-store",
-    }
-    );
+    const res = await fetch(`${API_BASE}/public/public-opportunities`);
 
     if (!res.ok) {
-      throw new Error(`fetchPublicOpportunities API error: ${res.status} ${res.statusText}`);
+      throw new Error(
+        `fetchPublicOpportunities API error: ${res.status} ${res.statusText}`
+      );
     }
 
     const data: OpportunityApiResponse = await res.json();
@@ -738,28 +632,13 @@ export async function fetchPublicOpportunities({
   }
 }
 // home page featured course section get API
-export async function fetchPublicHomeBlog({
-  params = {},
-}: {
-  params?: Record<string, unknown>;
-}): Promise<BlogApiResponse | null> {
+export async function fetchPublicHomeBlog(): Promise<BlogApiResponse | null> {
   try {
-    const urlParams = new URLSearchParams();
-
-    // add dynamic params
-    Object.entries(params).forEach(([key, value]) => {
-      if (value !== undefined && value !== null) {
-        urlParams.append(key, String(value));
-      }
-    });
-
-    const queryString = urlParams.toString();
-    const res = await fetch(`${API_BASE}/public/blogs?${queryString}`, {
-      cache: "no-store",
-    });
-
+    const res = await fetch(`${API_BASE}/public/blogs`);
     if (!res.ok) {
-      throw new Error(`fetchPublicHomeBlog API error: ${res.status} ${res.statusText}`);
+      throw new Error(
+        `fetchPublicHomeBlog API error: ${res.status} ${res.statusText}`
+      );
     }
 
     const data: BlogApiResponse = await res.json();
@@ -776,10 +655,7 @@ export async function fetchPublicHomeBlog({
 // Home Govt Course Section get API
 export async function getPublicGovtCourseSection(): Promise<GovtCourseResponse> {
   try {
-    const res = await fetch(`${API_BASE}/public/govt-course-section`, {
-      cache: "no-store",
-    });
-
+    const res = await fetch(`${API_BASE}/public/govt-course-section`);
     if (!res.ok) {
       throw new Error(
         `Govt Course Section API failed — HTTP ${res.status} (${res.statusText})`
@@ -801,9 +677,7 @@ export async function getPublicGovtCourseSection(): Promise<GovtCourseResponse> 
 // Home Get Newsletter Section --
 export async function getPublicNewsletterSection(): Promise<getNewsletterItemResponse> {
   try {
-    const res = await fetch(`${API_BASE}/public/newsletter-section`, {
-      cache: "no-store",
-    });
+    const res = await fetch(`${API_BASE}/public/newsletter-section`);
 
     if (!res.ok) {
       throw new Error(

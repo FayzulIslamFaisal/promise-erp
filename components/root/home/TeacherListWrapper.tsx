@@ -4,12 +4,7 @@ import { fetchAllPublicTeachers } from "@/apiServices/homePageService";
 
 const TeacherListWrapper = async () => {
 
-  const params = {
-    per_page: 20,
-    page: 1,
-  };
-
-  const teacherData = await fetchAllPublicTeachers({ params });
+  const teacherData = await fetchAllPublicTeachers();
 
   return (
     <section className="py-8 md:py-14 bg-secondary/5">

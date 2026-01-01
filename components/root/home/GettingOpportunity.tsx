@@ -8,11 +8,7 @@ import Image from "next/image";
 
 const GettingOpportunity = async () => {
 
-  const params = {
-    per_page: 4,
-    page: 1,
-  };
-  const opportunitiesData = await fetchPublicOpportunities({ params });
+  const opportunitiesData = await fetchPublicOpportunities();
   const opportunities: OpportunityItem[] = opportunitiesData?.data?.opportunities || [];
 
   return (

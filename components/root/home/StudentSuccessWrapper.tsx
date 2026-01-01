@@ -5,12 +5,8 @@ import Image from "next/image";
 
 const StudentSuccessWrapper = async () => {
 
-  const params = {
-    per_page: 4,
-    page: 1,
-  };
 
-  const reviewsData = await fetchPublicFeaturedReviews({ params });
+  const reviewsData = await fetchPublicFeaturedReviews();
   return (
     <section className="py-8 md:py-14 min-h-[600px] relative">
       {/* Background Image - Optimized */}

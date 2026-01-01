@@ -4,9 +4,9 @@ import { fetchAllBranches } from "@/apiServices/homePageService";
 
 const OurBranchesWrapper = async () => {
 
+  const branches = await fetchAllBranches();
 
-  const params = {per_page: 100, page: 1,};
-  const branches = await fetchAllBranches({params});
+  console.log(branches, "branches");
 
   return (
     <section className="py-8 md:py-14">

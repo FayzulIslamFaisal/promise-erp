@@ -15,13 +15,7 @@ import Link from "next/link";
 
 const CareerDevelopmentBlog = async () => {
 
-  const params = {
-    per_page: 4,
-    page: 1,
-  };
-  const blogData: BlogApiResponse | null = await fetchPublicHomeBlog({
-    params,
-  });
+  const blogData: BlogApiResponse | null = await fetchPublicHomeBlog();
   const blogPosts = blogData?.data?.blogs || [];
   return (
     <section className="py-8 md:py-14">

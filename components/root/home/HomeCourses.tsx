@@ -11,56 +11,11 @@ import {
 } from "@/components/ui/carousel";
 import Link from "next/link";
 import CourseCard from "../courseList/CourseCard";
-import { ApiResponse, Course } from "@/apiServices/courseListPublicService";
-
-export const courses: Course[] = [
-  {
-    id: 1,
-    category_id: 1,
-    title: "Cloud Accounting (QuickBooks, Xero, Bookkeeping)",
-    slug: "cloud-accounting-quickbooks-xero-bookkeeping",
-    featured_image: "/images/hero-banner/courselist.png",
-    ratings: 4.2,
-    total_live_class: 36,
-    is_default: false, // Add missing required property
-    batch: {
-      price: 25000,
-      discount: 30,
-      discount_type: "percentage",
-      after_discount: 17500,
-      is_online: true,
-      is_offline: false,
-      start_date: "2024-01-15",
-      end_date: "2024-04-15",
-      duration: "3 Months",
-    },
-  },
-  {
-    id: 2,
-    category_id: 1,
-    title: "Project Management Professional (PMP)",
-    slug: "project-management-professional-pmp",
-    featured_image: "/images/hero-banner/courselist.png",
-    ratings: 4.5,
-    total_live_class: 24,
-    is_default: false,
-    batch: {
-      price: 20000,
-      discount: 20,
-      discount_type: "percentage",
-      after_discount: 16000,
-      is_online: true,
-      is_offline: true,
-      start_date: "2024-02-01",
-      end_date: "2024-03-31",
-      duration: "2 Months",
-    },
-  },
-  // ... rest of courses with complete batch data
-];
+import { ApiResponse } from "@/apiServices/courseListPublicService";
 
 interface HomeCoursesProps {
-  coursesData: ApiResponse;
+  coursesData: ApiResponse | null;
+  isPending?: boolean;
 }
 
 const HomeCourses = ({coursesData}:HomeCoursesProps ) => {

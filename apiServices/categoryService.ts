@@ -308,8 +308,8 @@ export async function deleteCategory(id: number): Promise<SingleCategoryResponse
 // functions for home page getHomeCourseCategories ---
 
 export async function getHomeCourseCategories(): Promise<CategoriesResponse> {
-  "use cache";
-  cacheTag("course-categories");
+  // "use cache";
+  // cacheTag("course-categories");
 
   try {
 
