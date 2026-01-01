@@ -85,7 +85,6 @@ export interface UpdateHeroSectionRequest extends Partial<CreateHeroSectionReque
 // ============================================================
 
 export async function getHeroSectionsCached(
-  page = 1,
   token: string,
   params: Record<string, unknown> = {}
 ): Promise<HeroSectionsResponse> {
@@ -94,7 +93,6 @@ export async function getHeroSectionsCached(
 
   try {
     const urlParams = new URLSearchParams();
-    urlParams.append("page", page.toString());
 
     for (const key in params) {
       if (params[key] !== undefined && params[key] !== null) {
@@ -124,7 +122,6 @@ export async function getHeroSectionsCached(
 }
 
 export async function getHeroSections(
-  page = 1,
   params: Record<string, unknown> = {}
 ): Promise<HeroSectionsResponse> {
   try {
@@ -132,7 +129,7 @@ export async function getHeroSections(
     const token = session?.accessToken;
     if (!token) throw new Error("No valid session or access token found.");
 
-    return await getHeroSectionsCached(page, token, params);
+    return await getHeroSectionsCached( token, params);
   } catch (error) {
     throw new Error(
       error instanceof Error

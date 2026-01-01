@@ -137,29 +137,20 @@ export async function getCourseDetailBySlug(slug: string): Promise<ApiResponse> 
             headers: {
                 "Content-Type": "application/json",
             },
-            next: {
-                revalidate: 0, // Revalidate every hour
-            },
         });
 
         if (!res.ok) {
-            return {
-                success: false,
-                message: `Course not found: ${res.status}`,
-                code: res.status,
-                data: null as any,
-            };
+            throw new Error(`Failed to fetch course details: ${res.statusText}`);
         }
 
         const data: ApiResponse = await res.json();
         return data;
-    } catch (error) {
-        console.error("Error in getCourseDetailBySlug:", error);
-        return {
-            success: false,
-            message: "Error fetching course details",
-            code: 500,
-            data: null as any,
-        };
+    } catch (error: unknown) {
+        if (error instanceof Error) {
+            console.error("Error in getCourseDetailBySlug:", error);
+            throw new Error("Error fetching course details");
+        } else {
+            throw new Error("Error fetching course details");
+        }
     }
 }

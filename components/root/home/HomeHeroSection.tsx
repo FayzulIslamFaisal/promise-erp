@@ -26,8 +26,7 @@ const HomeHeroSection = ({ heroBannerData }: HeroVideoData) => {
 
   return (
     <section
-      className="bg-secondary/5 bg-cover bg-no-repeat bg-center"
-      style={{ backgroundImage: "url('/images/home/hero-slider.png')" }}
+      className="bg-secondary/5 bg-cover bg-no-repeat bg-center bg-[url('/images/home/hero-slider.png')]"
     >
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">

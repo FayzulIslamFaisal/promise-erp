@@ -31,11 +31,9 @@ const HeroSectionData = async ({
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) => {
   const resolvedSearchParams = await searchParams;
-  const page =
-    typeof resolvedSearchParams.page === "string"
-      ? Number(resolvedSearchParams.page)
-      : 1;
+    const page =  typeof resolvedSearchParams.page === "string" ? Number(resolvedSearchParams.page) : 1;
   const params = {
+    page: page,
     search:
       typeof resolvedSearchParams.search === "string"
         ? resolvedSearchParams.search
@@ -57,7 +55,7 @@ const HeroSectionData = async ({
 
   let results;
   try {
-    results = await getHeroSections(page, params);
+    results = await getHeroSections(params);
   } catch (error: unknown) {
     if (error instanceof Error) {
       return <ErrorComponent message={error.message} />;
