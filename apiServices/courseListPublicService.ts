@@ -79,7 +79,7 @@ export async function getPublicCoursesList({
   params = {},
 }: GetPublicCoursesParams): Promise<ApiResponse> {
   "use cache";
-    cacheTag("courses-list");
+  cacheTag("courses-list");
   try {
     const urlParams = new URLSearchParams();
     Object.entries(params).forEach(([key, value]) => {
@@ -90,7 +90,7 @@ export async function getPublicCoursesList({
 
     const queryString = urlParams.toString();
     const res = await fetch(`${API_BASE}/public/courses?${queryString}`, {
-      headers: {"Content-Type": "application/json",},
+      headers: { "Content-Type": "application/json", },
     });
 
     const data: ApiResponse = await res.json();

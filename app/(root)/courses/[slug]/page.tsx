@@ -57,8 +57,6 @@ export async function generateMetadata({ params }: CourseDetailPageProps) {
 
 // Course Detail Page Component
 const CourseDetail = async ({ params }: CourseDetailPageProps) => {
-  "use cache";
-  cacheLife("max");
   const { slug } = await params;
   return (
     <Suspense fallback={<div className="min-h-screen bg-background">

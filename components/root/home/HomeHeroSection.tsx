@@ -22,12 +22,23 @@ const HomeHeroSection = ({ heroBannerData }: HeroVideoData) => {
     sliderData?.video_url || "https://youtu.be/DeRVmBh0oG8?si=_tjmWhyhs7nBQC64";
 
   const featureImage =
-    sliderData?.background_image || "/images/home/hero-banner.png";
+    sliderData?.background_image || "/images/home/hero-banner.webp";
 
   return (
-    <section
-      className="bg-secondary/5 bg-cover bg-no-repeat bg-center bg-[url('/images/home/hero-slider.png')]"
-    >
+    <section className="bg-secondary/5 relative">
+      {/* Hero Background Image - Optimized for LCP */}
+      <div className="absolute inset-0 -z-10">
+        <Image
+          src="/images/home/hero-slider.webp"
+          alt="Hero background"
+          fill
+          priority
+          quality={85}
+          sizes="100vw"
+          className="object-cover object-center"
+        />
+      </div>
+
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
           {/* LEFT CONTENT */}
@@ -64,7 +75,7 @@ const HomeHeroSection = ({ heroBannerData }: HeroVideoData) => {
           <div
             className="group py-14 md:py-18 "
             style={{
-              backgroundImage: 'url("/images/home/hero-video-bg-image.png")',
+              backgroundImage: 'url("/images/home/hero-video-bg-image.webp")',
               backgroundSize: "contain",
               backgroundPosition: "center",
               backgroundRepeat: "no-repeat",
@@ -92,6 +103,7 @@ const HomeHeroSection = ({ heroBannerData }: HeroVideoData) => {
                       src={featureImage}
                       alt="Feature"
                       fill
+                      sizes="(max-width: 1024px) 100vw, 50vw"
                       className="object-cover"
                     />
                     <div className="flex items-center justify-center h-full">

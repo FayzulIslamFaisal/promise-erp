@@ -1,6 +1,7 @@
 import SectionTitle from "@/components/common/SectionTitle";
 import StudentSuccessStories from "./StudentSuccessStories";
 import { fetchPublicFeaturedReviews } from "@/apiServices/homePageService";
+import Image from "next/image";
 
 const StudentSuccessWrapper = async () => {
 
@@ -11,10 +12,19 @@ const StudentSuccessWrapper = async () => {
 
   const reviewsData = await fetchPublicFeaturedReviews({ params });
   return (
-    <section
-      className="py-8 md:py-14  bg-cover bg-no-repeat bg-center min-h-[600px] relative"
-      style={{ backgroundImage: "url('/images/home/success-story-bg.png')" }}
-    >
+    <section className="py-8 md:py-14 min-h-[600px] relative">
+      {/* Background Image - Optimized */}
+      <div className="absolute inset-0 -z-10">
+        <Image
+          src="/images/home/success-story-bg.webp"
+          alt="Success story background"
+          fill
+          quality={80}
+          sizes="100vw"
+          className="object-cover object-center"
+        />
+      </div>
+
       <div className="container mx-auto px-4">
         <SectionTitle
           title={reviewsData?.data?.section_title}

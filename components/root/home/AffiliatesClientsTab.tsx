@@ -16,12 +16,13 @@ const AffiliatesClientsTab = ({ items }: PartnerItemProps) => {
           className="rounded-2xl flex flex-col items-center justify-center hover:shadow-md transition"
         >
           <CardContent className="flex flex-col items-center px-4">
-            <div className="relative w-40 h-20 mb-3 shadow-none">
+            <div className="relative mb-3 shadow-none">
               <Image
                 src={item?.image || "/images/placeholder_img.jpg"}
                 alt={item?.title}
-                fill
-                className="object-cover rounded-lg"
+                height={80}
+                width={160}
+                className="rounded-lg object-contain"
               />
             </div>
             <p className="text-base font-semibold text-center text-secondary">

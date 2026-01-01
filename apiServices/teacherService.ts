@@ -116,12 +116,11 @@ async function getTeachersCached(
   cacheTag("teachers-list")
 
   const url = new URL(`${API_BASE}/teachers`)
-
   Object.entries(params).forEach(([key, value]) => {
-      if (value !== undefined && value !== null) {
-        url.searchParams.append(key, String(value));
-      }
-    });
+    if (value !== undefined && value !== null) {
+      url.searchParams.append(key, String(value))
+    }
+  })
 
   const res = await fetch(url.toString(), {
     headers: {

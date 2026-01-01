@@ -5,7 +5,6 @@ export default function StudentSuccessSkeleton() {
   return (
     <section
       className="py-8 md:py-14 bg-cover bg-no-repeat bg-center min-h-[600px] relative"
-      style={{ backgroundImage: "url('/images/home/success-story-bg.png')" }}
     >
       <div className="container mx-auto px-4">
         {/* Title Section Skeleton */}

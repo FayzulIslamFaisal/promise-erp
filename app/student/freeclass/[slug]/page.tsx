@@ -2,6 +2,19 @@ import { ChevronLeft } from "lucide-react";
 import FreeClasseSession from "@/components/student-dashboard/FreeClasseSession";
 import FreeClasseInstructors from "@/components/student-dashboard/FreeClasseInstructors";
 import FreeClasseZoomLink from "@/components/student-dashboard/FreeClasseZoomLink";
+import { Metadata } from "next";
+
+export function generateStaticParams() {
+  return [
+    { slug: "freelancing" },
+  ];
+}
+
+export function generateMetadata(): Metadata {
+  return {
+    title: "Free Class Details",
+  };
+}
 
 const FreeClassDetailsPage = () => {
   return (

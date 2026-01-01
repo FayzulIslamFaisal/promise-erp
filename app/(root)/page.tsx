@@ -30,10 +30,13 @@ import StudentSuccessSkeleton from "@/components/common/StudentSuccessSkeleton";
 import NewsfeedsArchiveSkeleton from "@/components/common/NewsfeedsArchiveSkeleton";
 import NewsletterSkeleton from "@/components/common/NewsletterSkeleton";
 
+// Route Segment Configuration for Performance
+// Exports removed to avoid conflict with cacheComponents
+
 export interface HomesearchParamsProps {
-  searchParams:Promise<{ [key: string]: string | string[] | undefined }>
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }
-const HomePage = async({ searchParams }: HomesearchParamsProps) => {
+const HomePage = async ({ searchParams }: HomesearchParamsProps) => {
 
   return (
     <>
