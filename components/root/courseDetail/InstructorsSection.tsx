@@ -10,7 +10,7 @@ interface InstructorsSectionProps {
 }
 
 export const InstructorsSection = ({ course }: InstructorsSectionProps) => {
-  const instructors = course.course_instructors || [];
+  const instructors = course?.course_instructors || [];
 
   if (instructors.length === 0) return null;
 
@@ -47,7 +47,7 @@ export const InstructorsSection = ({ course }: InstructorsSectionProps) => {
                         {instructor?.instructors_tools?.map((tool, idx) => (
                           <Image
                             src={tool.image || INSTRUCTOR_PLACEHOLDER}
-                            alt={tool.title}
+                            alt={tool.title || instructor.name}
                             width={36}
                             height={36}
                             key={idx}

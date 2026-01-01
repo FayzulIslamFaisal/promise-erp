@@ -34,7 +34,7 @@ export default async function CoursesData({
   const params = {
     search: typeof resolvedSearchParams.search === "string" ? resolvedSearchParams.search : undefined,
     sort_order: typeof resolvedSearchParams.sort_order === "string" ? resolvedSearchParams.sort_order : undefined,
-    level: typeof resolvedSearchParams.level === "string" ? resolvedSearchParams.level : undefined,
+    // level: typeof resolvedSearchParams.level === "string" ? resolvedSearchParams.level : undefined,
     division_id: typeof resolvedSearchParams.division_id === "string" ? resolvedSearchParams.division_id : undefined,
     branch_id: typeof resolvedSearchParams.branch_id === "string" ? resolvedSearchParams.branch_id : undefined,
     category_id: typeof resolvedSearchParams.category_id === "string" ? resolvedSearchParams.category_id : undefined,
@@ -42,7 +42,9 @@ export default async function CoursesData({
 
   let data;
   try {
+    console.log("Fetching courses with params:", params, "and page:", page);
     data = await getCourses(page, params);
+    console.log("Courses Data:", data);
   } catch (error: unknown) {
     if (error instanceof Error) {
       return <ErrorComponent message={error.message} />;
@@ -63,25 +65,25 @@ export default async function CoursesData({
       <div className="rounded-md border">
         <Table>
           <TableHeader>
-            <TableRow>
-              <TableHead>#</TableHead>
+            <TableRow className="text-center">
+              <TableHead className="text-center">#</TableHead>
               <TableHead className="text-center">Action</TableHead>
-              <TableHead>Course</TableHead>
-              <TableHead>Price</TableHead>
-              <TableHead>Category</TableHead>
-              <TableHead>Level</TableHead>
-              <TableHead>Enrolled</TableHead>
-              <TableHead>Branches</TableHead>
-              <TableHead>Status</TableHead>
+              <TableHead className="text-center">Course</TableHead>
+              <TableHead className="text-center">Price</TableHead>
+              <TableHead className="text-center">Category</TableHead>
+              <TableHead className="text-center">Ratings</TableHead>
+              <TableHead className="text-center">Enrolled</TableHead>
+              <TableHead className="text-center">Branches</TableHead>
+              <TableHead className="text-center">Status</TableHead>
             </TableRow>
           </TableHeader>
 
           <TableBody>
             {courses.map((course, index) => (
               <TableRow key={course.id}>
-                <TableCell>{index + 1}</TableCell>
+                <TableCell className="text-center">{index + 1}</TableCell>
 
-                {/* 🔹 Action Dropdown */}
+                {/* Action Dropdown */}
                 <TableCell className="text-center">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -134,24 +136,34 @@ export default async function CoursesData({
                     </div>
                     <div>
                       <p className="font-medium">{course.title}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {course.sub_title}
-                      </p>
+                      {course.latest_batch && (
+                        <p className="text-xs text-blue-600 font-semibold mt-1">
+                          Latest: {course.latest_batch.name}
+                        </p>
+                      )}
                     </div>
                   </div>
                 </TableCell>
 
-                <TableCell>
-                  <small><del>{course.price} ৳</del></small> <br />
-                  {(course.price - course.discount).toFixed(2)} ৳
+                <TableCell className="text-end">
+                  <small>
+                    <del>{course.price} ৳</del>
+                  </small>{" "}
+                  <br />
+                  {(Number(course.price) - Number(course.discount)).toFixed(2)} ৳
                 </TableCell>
 
-                <TableCell>{course.category?.name || "N/A"}</TableCell>
-                <TableCell>{course.level || "N/A"}</TableCell>
-                <TableCell>{course.total_enrolled}</TableCell>
-                <TableCell>{course.branch_count || 0}</TableCell>
+                <TableCell className="text-center">{course.category?.name || "N/A"}</TableCell>
+                <TableCell className="text-center">
+                  <div className="flex items-center justify-center gap-1">
+                    <span className="text-yellow-500">★</span>
+                    <span>{course.ratings || "0.00"}</span>
+                  </div>
+                </TableCell>
+                <TableCell className="text-end">{course.total_enrolled}</TableCell>
+                <TableCell className="text-end">{course.branch_count || 0}</TableCell>
 
-                <TableCell>
+                <TableCell className="text-center">
                   {course.status === "Published" ? (
                     <Badge className="bg-green-600 hover:bg-green-700">
                       Published

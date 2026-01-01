@@ -28,6 +28,7 @@ export const authOptions:NextAuthOptions = {
           id: data.user.id.toString(),
           name: data.user.name,
           email: data.user.email,
+          image: data.user.image,
           roles: data.roles,
           permissions: Array.isArray(data.permissions) ? data.permissions : [],
           accessToken: data.access_token,
@@ -44,6 +45,7 @@ export const authOptions:NextAuthOptions = {
         token.id = user.id;
         token.name = user.name;
         token.email = user.email;
+        token.image = user.image;
         token.roles = user.roles;
         token.permissions = user.permissions;
         token.accessToken = user.accessToken;
@@ -65,6 +67,7 @@ export const authOptions:NextAuthOptions = {
         session.user.id = token.id as string;
         session.user.name = token.name;
         session.user.email = token.email;
+        session.user.image = token.image;
         session.user.roles = token.roles;
         session.user.permissions = token.permissions;
       }

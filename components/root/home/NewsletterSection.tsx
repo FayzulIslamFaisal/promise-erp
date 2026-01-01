@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import SectionTitle from "@/components/common/SectionTitle";
 import { toast } from "sonner";
 import { useEffect, useState, useTransition } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   getNewsletterItemResponse,
   getPublicNewsletterSection,
@@ -77,13 +78,22 @@ const NewsletterSection = () => {
       </div>
       <div className="absolute inset-0 z-10 bg-secondary/60" />
       <div className="relative z-20 container mx-auto px-4 flex flex-col items-center text-center space-y-6">
-        {subscriptionData && (
-          <SectionTitle
-            title={subscriptionData?.data?.title}
-            subtitle={subscriptionData?.data?.sub_title}
-            iswhite={true}
-          />
-        )}
+        <>
+          {isPending ? (
+            <div className="flex flex-col items-center gap-3 mb-10">
+              <Skeleton className="h-10 w-64 bg-white/45" />
+              <Skeleton className="h-5 w-40 bg-white/45" />
+            </div>
+          ) : (
+            subscriptionData && (
+              <SectionTitle
+                title={subscriptionData?.data?.title}
+                subtitle={subscriptionData?.data?.sub_title}
+                iswhite={true}
+              />
+            )
+          )}
+        </>
         <form onSubmit={handleSubmit} className="w-full max-w-2xl">
           <div className=" flex flex-col sm:flex-row gap-4 items-center justify-center">
             <Input

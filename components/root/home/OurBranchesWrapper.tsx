@@ -1,14 +1,12 @@
 import SectionTitle from "@/components/common/SectionTitle";
 import OurBranches from "./OurBranches";
 import { fetchAllBranches } from "@/apiServices/homePageService";
-import { HomesearchParamsProps } from "@/app/(root)/page";
 
-const OurBranchesWrapper = async ({searchParams}:HomesearchParamsProps) => {
-  const queryParams = await searchParams;
-  const page = queryParams.page ? Number(queryParams.page) : 1;
+const OurBranchesWrapper = async () => {
 
-  const params = {per_page: queryParams.per_page ? queryParams.per_page : "100"};
-  const branches = await fetchAllBranches({page,params});
+
+  const params = {per_page: 100, page: 1,};
+  const branches = await fetchAllBranches({params});
 
   return (
     <section className="py-8 md:py-14">

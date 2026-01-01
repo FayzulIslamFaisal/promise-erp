@@ -3,7 +3,6 @@
 const API_BASE =
   process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api/v1";
 import { Pagination } from "./courseService";
-import { toast } from "sonner";
 
 // ---Start Interfaces home page hero section ---
 export interface HeroSection {
@@ -360,11 +359,39 @@ export interface GovtCourseResponse {
 
 // End Home page Govt Course Section get API --
 
+// Start Home page Course Search get API --
+export interface HomeSearchCourse {
+  id: number;
+  title: string;
+  slug: string;
+  image: string | null;
+}
+
+export interface HomeSearchCategory {
+  id: number;
+  title: string;
+  slug: string;
+  image: string | null;
+}
+
+export interface CourseSearchResponse {
+  success: boolean;
+  message: string;
+  code: number;
+  data: {
+    courses: HomeSearchCourse[];
+    categories: HomeSearchCategory[];
+  };
+  errors?: Record<string, string[]>;
+}
+// End Home page Course Search get API --
 
 // Home Hero section get API
 export async function getLatestHeroSection(): Promise<HeroSectionResponse> {
   try {
-    const res = await fetch(`${API_BASE}/public/hero-section/latest`);
+    const res = await fetch(`${API_BASE}/public/hero-section/latest`, {
+      cache: "no-store",
+    });
 
     if (!res.ok) {
       throw new Error(
@@ -374,9 +401,12 @@ export async function getLatestHeroSection(): Promise<HeroSectionResponse> {
 
     const data: HeroSectionResponse = await res.json();
     return data;
-  } catch (error) {
-    console.error("Hero Section API Error:", error);
-    throw new Error("Error fetching hero section");
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("Hero Section API Error:", error.message);
+      throw new Error("Error fetching hero section");
+    }
+    throw new Error("Unknown error occurred while fetching hero section");
   }
 }
 
@@ -384,7 +414,9 @@ export async function getLatestHeroSection(): Promise<HeroSectionResponse> {
 
 export async function getLatestCountDown(): Promise<CountDownResponse> {
   try {
-    const res = await fetch(`${API_BASE}/public/stats/latest`);
+    const res = await fetch(`${API_BASE}/public/stats/latest`, {
+      cache: "no-store",
+    });
 
     if (!res.ok) {
       throw new Error(`Countdown API error: ${res.status} ${res.statusText}`);
@@ -392,23 +424,22 @@ export async function getLatestCountDown(): Promise<CountDownResponse> {
 
     const data = await res.json();
     return data;
-  } catch (error) {
-    console.error("Latest Countdown Fetch Error:", error);
-    throw new Error("Error fetching countdown");
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("Latest Countdown Fetch Error:", error.message);
+      throw new Error("Error fetching countdown");
+    }
+    throw new Error("Unknown error occurred while fetching countdown");
   }
 }
 // Home page Branches get API
 export async function fetchAllBranches({
-  page = 1,
   params = {},
 }: {
-  page?: number;
   params?: Record<string, unknown>;
 }): Promise<BranchApiResponse | null> {
   try {
-    const urlParams = new URLSearchParams({
-      page: page.toString(),
-    });
+    const urlParams = new URLSearchParams();
 
     Object.entries(params).forEach(([key, value]) => {
       if (value !== undefined && value !== null) {
@@ -417,37 +448,33 @@ export async function fetchAllBranches({
     });
 
     const queryString = urlParams.toString();
-    const res = await fetch(`${API_BASE}/public/our-branches?${queryString}`);
+    const res = await fetch(`${API_BASE}/public/our-branches?${queryString}`, {
+      cache: "no-store",
+    });
 
     if (!res.ok) {
-      console.error(
-        `fetchAllBranches API error: ${res.status} ${res.statusText}`
-      );
-      toast.error("Error fetching branches");
-      return null;
+      throw new Error(`fetchAllBranches API error: ${res.status} ${res.statusText}`);
     }
 
     const data: BranchApiResponse = await res.json();
     return data;
-  } catch (error) {
-    console.error("Error fetching branches:", error);
-    toast.error("Error fetching branches");
-    return null;
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("Error fetching branches:", error.message);
+      return null;
+    }
+    throw new Error("Unknown error occurred while fetching branches");
   }
 }
 // Home page Teachers get API
 
 export async function fetchAllPublicTeachers({
-  page = 1,
   params = {},
 }: {
-  page?: number;
   params?: Record<string, unknown>;
 }): Promise<TeacherApiResponse | null> {
   try {
-    const urlParams = new URLSearchParams({
-      page: page.toString(),
-    });
+    const urlParams = new URLSearchParams();
 
     Object.entries(params).forEach(([key, value]) => {
       if (value !== undefined && value !== null) {
@@ -456,37 +483,33 @@ export async function fetchAllPublicTeachers({
     });
 
     const queryString = urlParams.toString();
-    const res = await fetch(`${API_BASE}/public/teachers-list?${queryString}`);
+    const res = await fetch(`${API_BASE}/public/teachers-list?${queryString}`, {
+      cache: "no-store",
+    });
 
     if (!res.ok) {
-      console.error(
-        `fetchAllTeachers API error: ${res.status} ${res.statusText}`
-      );
-      toast.error("Error fetching teachers");
-      return null;
+      throw new Error(`fetchAllTeachers API error: ${res.status} ${res.statusText}`);
     }
 
     const data: TeacherApiResponse = await res.json();
     return data;
-  } catch (error) {
-    console.error("Error fetching teachers:", error);
-    toast.error("Error fetching teachers");
-    return null;
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("Error fetching teachers:", error.message);
+      return null;
+    }
+    throw new Error("Unknown error occurred while fetching teachers");
   }
 }
 
 // Home page Reviews get API
 export async function fetchPublicFeaturedReviews({
-  page = 1,
   params = {},
 }: {
-  page?: number;
   params?: Record<string, unknown>;
 }): Promise<ReviewApiResponse | null> {
   try {
-    const urlParams = new URLSearchParams({
-      page: page.toString(),
-    });
+    const urlParams = new URLSearchParams();
 
     Object.entries(params).forEach(([key, value]) => {
       if (value !== undefined && value !== null) {
@@ -496,23 +519,23 @@ export async function fetchPublicFeaturedReviews({
 
     const queryString = urlParams.toString();
     const res = await fetch(
-      `${API_BASE}/public/reviews-featured?${queryString}`
+      `${API_BASE}/public/reviews-featured?${queryString}`, {
+      cache: "no-store",
+    }
     );
 
     if (!res.ok) {
-      console.error(
-        `fetchPublicFeaturedReviews API error: ${res.status} ${res.statusText}`
-      );
-      toast.error("Error fetching featured reviews");
-      return null;
+      throw new Error(`fetchPublicFeaturedReviews API error: ${res.status} ${res.statusText}`);
     }
 
     const data: ReviewApiResponse = await res.json();
     return data;
-  } catch (error) {
-    console.error("Error fetching featured reviews:", error);
-    toast.error("Error fetching featured reviews");
-    return null;
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("Error fetching featured reviews:", error.message);
+      return null;
+    }
+    throw new Error("Unknown error occurred while fetching featured reviews");
   }
 }
 
@@ -524,45 +547,44 @@ export async function SubscribeToNewsletter(
     const res = await fetch(`${API_BASE}/public/newsletter-subscriptions`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body:  JSON.stringify({ email }),
+      body: JSON.stringify({ email }),
     });
 
     const data: NewsletterApiResponse = await res.json();
 
     if (!res.ok) {
-      return {
-        success: false,
-        message: data.errors?.email?.[0] || data.message || "Subscription failed",
-        code: data.code || res.status,
-      };
+      throw new Error(data.message || "Failed to subscribe to newsletter.");
     }
 
     return data;
-  } catch (error) {
-    console.error("Newsletter error:", error);
-    return {
-      success: false,
-      message: "Something went wrong. Try again.",
-      code: 500,
-    };
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("Newsletter error:", error.message);
+      throw new Error("Failed to subscribe to newsletter.");
+    }
+    throw new Error("Unknown error occurred while fetching newsletter");
   }
 }
 
 // Home page affiliate Partner section get API --
 export async function fetchHomeAffiliatePartners(): Promise<PartnersApiResponse> {
   try {
-    const res = await fetch(`${API_BASE}/public/partners`);
+    const res = await fetch(`${API_BASE}/public/partners`, {
+      cache: "no-store",
+    });
 
     if (!res.ok) {
       throw new Error(`Partners API error: ${res.status} ${res.statusText}`);
     }
 
-    const data:PartnersApiResponse = (await res.json());
+    const data: PartnersApiResponse = await res.json();
     return data;
-
-  } catch (error) {
-    console.error("Partners Fetch Error:", error);
-    throw new Error("Error fetching partners data");
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("Partners Fetch Error:", error.message);
+      throw new Error("Error fetching partners data");
+    }
+    throw new Error("Unknown error occurred while fetching partners data");
   }
 }
 
@@ -584,24 +606,23 @@ export async function fetchPublicCompanyServices({
     const queryString = urlParams.toString();
 
     const res = await fetch(
-      `${API_BASE}/public/company-services?${queryString}`
+      `${API_BASE}/public/company-services?${queryString}`, {
+      cache: "no-store",
+    }
     );
 
     if (!res.ok) {
-      console.error(
-        `fetchPublicCompanyServices API error: ${res.status} ${res.statusText}`
-      );
-      toast.error("Error fetching company services");
-      return null;
+      throw new Error(`fetchPublicCompanyServices API error: ${res.status} ${res.statusText}`);
     }
 
     const data: ServicesApiResponse = await res.json();
     return data;
-
-  } catch (error) {
-    console.error("Error fetching company services:", error);
-    toast.error("Error fetching company services");
-    return null;
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("Error fetching company services:", error.message);
+      return null;
+    }
+    throw new Error("Unknown error occurred while fetching company services");
   }
 }
 
@@ -622,24 +643,23 @@ export async function fetchPublicVideoGalleries({
     const queryString = urlParams.toString();
 
     const res = await fetch(
-      `${API_BASE}/public/video-galleries?${queryString}`
+      `${API_BASE}/public/video-galleries?${queryString}`, {
+      cache: "no-store",
+    }
     );
 
     if (!res.ok) {
-      console.error(
-        `fetchPublicVideoGalleries API error: ${res.status} ${res.statusText}`
-      );
-      toast.error("Error fetching video galleries");
-      return null;
+      throw new Error(`fetchPublicVideoGalleries API error: ${res.status} ${res.statusText}`);
     }
 
     const data: SuccessStoryApiResponse = await res.json();
     return data;
-
-  } catch (error) {
-    console.error("Error fetching video galleries:", error);
-    toast.error("Error fetching video galleries");
-    return null;
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("Error fetching video galleries:", error.message);
+      return null;
+    }
+    throw new Error("Unknown error occurred while fetching video galleries");
   }
 }
 // Home page News Feeds section get API
@@ -660,23 +680,22 @@ export async function fetchPublicNewsFeeds({
 
     const queryString = urlParams.toString();
 
-    const res = await fetch(`${API_BASE}/public/news-feeds?${queryString}`);
+    const res = await fetch(`${API_BASE}/public/news-feeds?${queryString}`, {
+      cache: "no-store",
+    });
 
     if (!res.ok) {
-      console.error(
-        `fetchPublicNewsFeeds API error: ${res.status} ${res.statusText}`
-      );
-      toast.error("Error fetching news feeds");
-      return null;
+      throw new Error(`fetchPublicNewsFeeds API error: ${res.status} ${res.statusText}`);
     }
 
     const data: NewsFeedApiResponse = await res.json();
     return data;
-
-  } catch (error) {
-    console.error("Error fetching news feeds:", error);
-    toast.error("Error fetching news feeds");
-    return null;
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("Error fetching news feeds:", error.message);
+      return null;
+    }
+    throw new Error("Unknown error occurred while fetching news feeds");
   }
 }
 
@@ -698,23 +717,24 @@ export async function fetchPublicOpportunities({
 
     const queryString = urlParams.toString();
 
-    const res = await fetch(`${API_BASE}/public/public-opportunities?${queryString}`);
+    const res = await fetch(
+      `${API_BASE}/public/public-opportunities?${queryString}`, {
+      cache: "no-store",
+    }
+    );
 
     if (!res.ok) {
-      console.error(
-        `fetchPublicOpportunities API error: ${res.status} ${res.statusText}`
-      );
-      toast.error("Error fetching opportunities");
-      return null;
+      throw new Error(`fetchPublicOpportunities API error: ${res.status} ${res.statusText}`);
     }
 
     const data: OpportunityApiResponse = await res.json();
     return data;
-
-  } catch (error) {
-    console.error("Error fetching opportunities:", error);
-    toast.error("Error fetching opportunities");
-    return null;
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("Error fetching opportunities:", error.message);
+      return null;
+    }
+    throw new Error("Unknown error occurred while fetching opportunities");
   }
 }
 // home page featured course section get API
@@ -734,30 +754,31 @@ export async function fetchPublicHomeBlog({
     });
 
     const queryString = urlParams.toString();
-    const res = await fetch(`${API_BASE}/public/blogs?${queryString}`);
+    const res = await fetch(`${API_BASE}/public/blogs?${queryString}`, {
+      cache: "no-store",
+    });
 
     if (!res.ok) {
-      console.error(
-        `fetchPublicHomeBlog API error: ${res.status} ${res.statusText}`
-      );
-      toast.error("Error fetching HomeBlog");
-      return null;
+      throw new Error(`fetchPublicHomeBlog API error: ${res.status} ${res.statusText}`);
     }
 
     const data: BlogApiResponse = await res.json();
     return data;
-
-  } catch (error) {
-    console.error("Error fetching HomeBlog:", error);
-    toast.error("Error fetching HomeBlog");
-    return null;
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("Error fetching HomeBlog:", error.message);
+      return null;
+    }
+    throw new Error("Unknown error occurred while fetching HomeBlog");
   }
 }
 
 // Home Govt Course Section get API
 export async function getPublicGovtCourseSection(): Promise<GovtCourseResponse> {
   try {
-    const res = await fetch(`${API_BASE}/public/govt-course-section`);
+    const res = await fetch(`${API_BASE}/public/govt-course-section`, {
+      cache: "no-store",
+    });
 
     if (!res.ok) {
       throw new Error(
@@ -767,15 +788,22 @@ export async function getPublicGovtCourseSection(): Promise<GovtCourseResponse> 
 
     const data: GovtCourseResponse = await res.json();
     return data;
-  } catch (error) {
-    console.error("Govt Course Section API Error:", error);
-    throw new Error("Error fetching govt course section");
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("Govt Course Section API Error:", error.message);
+      throw new Error("Error fetching govt course section");
+    }
+    throw new Error(
+      "Unknown error occurred while fetching govt course section"
+    );
   }
 }
 // Home Get Newsletter Section --
 export async function getPublicNewsletterSection(): Promise<getNewsletterItemResponse> {
   try {
-    const res = await fetch(`${API_BASE}/public/newsletter-section`);
+    const res = await fetch(`${API_BASE}/public/newsletter-section`, {
+      cache: "no-store",
+    });
 
     if (!res.ok) {
       throw new Error(
@@ -785,16 +813,20 @@ export async function getPublicNewsletterSection(): Promise<getNewsletterItemRes
 
     const data: getNewsletterItemResponse = await res.json();
     return data;
-  } catch (error) {
-    console.error("Newsletter Section API Error:", error);
-    throw new Error("Error fetching newsletter section");
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("Newsletter Section API Error:", error.message);
+      throw new Error("Error fetching newsletter section");
+    }
+    throw new Error("Unknown error occurred while fetching newsletter section");
   }
 }
 
-
 export async function getPublicBranchList(): Promise<HeaderBranchListResponse> {
   try {
-    const res = await fetch(`${API_BASE}/public/branch-list`);
+    const res = await fetch(`${API_BASE}/public/branch-list`, {
+      cache: "no-store",
+    });
 
     if (!res.ok) {
       throw new Error(
@@ -804,9 +836,48 @@ export async function getPublicBranchList(): Promise<HeaderBranchListResponse> {
 
     const data: HeaderBranchListResponse = await res.json();
     return data;
-  } catch (error) {
-    console.error("Branch List API Error:", error);
-    throw new Error("Error fetching Branch List ");
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("Branch List API Error:", error.message);
+      throw new Error("Error fetching Branch List ");
+    }
+    throw new Error("Unknown error occurred while fetching Branch List");
   }
 }
+// Home page Course Search API
+export async function getPublicCourseSearch({
+  params = {},
+}: {
+  params?: Record<string, unknown>;
+}): Promise<CourseSearchResponse | null> {
+  try {
+    const urlParams = new URLSearchParams();
 
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        urlParams.append(key, String(value));
+      }
+    });
+
+    const queryString = urlParams.toString();
+
+    const res = await fetch(`${API_BASE}/public/home-search?${queryString}`, {
+      cache: "no-store",
+    });
+
+    if (!res.ok) {
+      throw new Error(
+        `fetchPublicCourseSearch API error: ${res.status} ${res.statusText}`
+      );
+    }
+
+    const data: CourseSearchResponse = await res.json();
+    return data;
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("Error fetching course search:", error.message);
+      return null;
+    }
+    throw new Error("Unknown error occurred while fetching course search");
+  }
+}

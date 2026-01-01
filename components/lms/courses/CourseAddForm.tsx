@@ -6,20 +6,18 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useEffect, useState } from "react";
-import { getCategories } from "@/apiServices/categoryService";
-import { Course } from "@/apiServices/courseService";
+import { CategoriesResponse, getCategories } from "@/apiServices/categoryService";
+import { Course, createCourse, updateCourse } from "@/apiServices/courseService";
 import RichTextEditor from "./RichTextEditor";
 import Image from "next/image";
 import { toast } from "sonner";
+import { Camera } from "lucide-react";
 
 interface CourseAddFormProps {
   title: string;
-  onSubmit: (
-    formData: FormData,
-    setFormError: (field: string, message: string) => void,
-    resetForm: () => void
-  ) => void | Promise<void>;
   initialData?: Course | null;
+  setCourseId?: (id: number) => void;
+  goNext?: () => void;
 }
 
 interface FormValues {
@@ -29,7 +27,7 @@ interface FormValues {
   description?: string;
   featured_image?: FileList;
   video_link?: string;
-  level: string;
+  // level: string;
   status: string;
   price?: number;
   discount?: number;
@@ -37,11 +35,18 @@ interface FormValues {
 
 export default function CourseAddForm({
   title,
-  onSubmit,
+  setCourseId,
+  goNext,
   initialData,
 }: CourseAddFormProps) {
   const [categories, setCategories] = useState<Array<{ id: number; name: string }>>([]);
   const [preview, setPreview] = useState<string | null>(null);
+
+  const statusMap: Record<string, string> = {
+    Draft: "0",
+    Published: "1",
+    Archived: "2",
+  };
 
   const {
     register,
@@ -49,41 +54,28 @@ export default function CourseAddForm({
     reset,
     control,
     setError,
-    formState: { errors, isSubmitting },
+    formState: { isSubmitting, errors },
   } = useForm<FormValues>({
     defaultValues: {
-      category_id: initialData?.category?.id?.toString() || "",
-      title: initialData?.title || "",
-      sub_title: initialData?.sub_title || "",
-      description: initialData?.description || "",
-      video_link: initialData?.video_link || "",
-      level: initialData?.level || "beginner",
-      status: initialData?.status || "1",
-      price: initialData?.price || 0,
-      discount: initialData?.discount || 0,
+      category_id: "",
+      title: "",
+      sub_title: "",
+      description: "",
+      video_link: "",
+      // level: "beginner",
+      status: "1",
+      price: 0,
+      discount: 0,
     },
   });
-
-  // Load existing image preview (EDIT mode)
-  useEffect(() => {
-    if (initialData?.featured_image) {
-      setPreview(`http://127.0.0.1:8000/${initialData.featured_image}`);
-    }
-  }, [initialData]);
-
-  // Image preview handler
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) setPreview(URL.createObjectURL(file));
-  };
 
   // Fetch categories
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const res = await getCategories();
-        if (res.success) {
-          setCategories(res.data.categories);
+        const res:CategoriesResponse = await getCategories();
+        if (res.success && res?.data?.categories) {
+          setCategories(res?.data?.categories || []);
         } else {
           toast.error(res.message || "Failed to load categories");
         }
@@ -94,9 +86,71 @@ export default function CourseAddForm({
     fetchCategories();
   }, []);
 
-  const setFormError = (field: string, message: string) => {
-    setError(field as keyof FormValues, { type: "server", message });
+  useEffect(() => {
+    if (initialData) {
+      console.log('Resetting form with initialData:', initialData);
+
+
+      reset({
+        category_id: initialData.category_id?.toString() || "",
+        title: initialData.title || "",
+        sub_title: initialData.sub_title || "",
+        description: initialData.description || "",
+        video_link: initialData.video_link || "",
+        // level: initialData.level,
+        status: statusMap[initialData.status] || initialData.status || "1",
+        price: initialData.price ? Number(initialData.price) : 0,
+        discount: initialData.discount ? Number(initialData.discount) : 0,
+      });
+
+      if (initialData.featured_image) {
+        setPreview(initialData.featured_image);
+      }
+    } else if (categories.length) {
+
+    }
+  }, [categories, initialData, reset]);
+
+  const handleCourseSubmit = async (
+    formData: FormData
+  ) => {
+    let res;
+    const courseId = Number(initialData?.id) || null;
+    try {
+      if (courseId) {
+        res = await updateCourse(courseId, formData);
+      } else {
+        res = await createCourse(formData);
+      }
+
+      if (res.success) {
+        const newCourseId = res.data?.id;
+        if (!courseId) {
+          toast.success("Course created successfully");
+
+          setCourseId?.(Number(newCourseId));
+          goNext?.();
+        } else {
+          toast.success("Course updated successfully");
+        }
+
+      } else {
+        if (res.errors) {
+          Object.entries(res.errors).forEach(([field, messages]) => {
+            const errorMessage = Array.isArray(messages) ? messages[0] : messages;
+            setError(field as keyof FormValues, { type: "server", message: errorMessage as string });
+          });
+        } else {
+          toast.error(res.message || "Failed to create course");
+        }
+      }
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to create course"
+      );
+    }
   };
+
 
   const submitForm = async (data: FormValues) => {
     const formData = new FormData();
@@ -108,13 +162,13 @@ export default function CourseAddForm({
       formData.append("featured_image", data.featured_image[0]);
     }
     if (data.video_link) formData.append("video_link", data.video_link);
-    formData.append("level", data.level);
     formData.append("status", data.status);
     formData.append("price", data.price?.toString() || "0");
     formData.append("discount", data.discount?.toString() || "0");
 
-    await onSubmit(formData, setFormError, () => reset());
+    await handleCourseSubmit(formData);
   };
+  console.log('Rendering CourseAddForm with errors:', errors);
 
   return (
     <Card className="w-full mx-auto">
@@ -131,12 +185,12 @@ export default function CourseAddForm({
               <Label htmlFor="category_id">Category<span className="text-red-500">*</span></Label>
               <select
                 id="category_id"
-                {...register("category_id", { required: "Category is required" })}
+                {...register("category_id")}
                 className="border border-gray-300 rounded px-2 py-1"
               >
                 <option value="">-- Select Category --</option>
                 {categories.map((cat) => (
-                  <option key={cat.id} value={cat.id}>{cat.name}</option>
+                  <option key={cat.id} value={cat.id.toString()}>{cat.name}</option>
                 ))}
               </select>
               {errors.category_id && <p className="text-red-500 text-sm">{errors.category_id.message}</p>}
@@ -146,14 +200,12 @@ export default function CourseAddForm({
               <Label htmlFor="title">Title<span className="text-red-500">*</span></Label>
               <Input
                 id="title"
-                placeholder="Course Title"
+                placeholder="e.g. Master React & Next.js"
                 {...register("title", { required: "Title is required" })}
               />
               {errors.title && <p className="text-red-500 text-sm">{errors.title.message}</p>}
             </div>
           </div>
-
-          
 
           {/* Description (Rich Text) */}
           <div className="grid gap-2 pb-10">
@@ -167,23 +219,24 @@ export default function CourseAddForm({
             />
             {errors.description && <p className="text-red-500 text-sm">{errors.description.message}</p>}
           </div>
+
           {/* Price + Discount */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="grid gap-2">
               <Label htmlFor="price">Price</Label>
-              <Input id="price" type="number" {...register("price")} />
+              <Input id="price" type="number" placeholder="e.g. 5000" {...register("price")} />
               {errors.price && <p className="text-red-500 text-sm">{errors.price.message}</p>}
             </div>
             <div className="grid gap-2">
               <Label htmlFor="discount">Discount</Label>
-              <Input id="discount" type="number" {...register("discount")} />
+              <Input id="discount" type="number" placeholder="e.g. 1000" {...register("discount")} />
               {errors.discount && <p className="text-red-500 text-sm">{errors.discount.message}</p>}
             </div>
           </div>
 
-          {/* Level+ Status */}
+          {/* Level + Video  */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="grid gap-2">
+            {/* <div className="grid gap-2">
               <Label htmlFor="level">Level</Label>
               <select
                 id="level"
@@ -195,7 +248,7 @@ export default function CourseAddForm({
                 <option value="advanced">Advanced</option>
               </select>
               {errors.level && <p className="text-red-500 text-sm">{errors.level.message}</p>}
-            </div>
+            </div> */}
             <div className="grid gap-2">
               <Label htmlFor="status">Status</Label>
               <select
@@ -209,45 +262,93 @@ export default function CourseAddForm({
               </select>
               {errors.status && <p className="text-red-500 text-sm">{errors.status.message}</p>}
             </div>
-          </div>
-
-          {/* Image + Video Link */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="grid gap-2">
-              <Label htmlFor="featured_image">Featured Image</Label>
-              <Input
-                id="featured_image"
-                type="file"
-                accept="image/*"
-                {...register("featured_image")}
-                onChange={handleImageChange}
-              />
-              {errors.featured_image && <p className="text-red-500 text-sm">{errors.featured_image.message}</p>}
-              {preview && (
-                <div className="mt-2">
-                  <Image
-                    src={preview}
-                    alt="Preview"
-                    width={100}
-                    height={100}
-                    className="rounded-md object-cover"
-                  />
-                </div>
-              )}
-            </div>
-
+            {/* Video Link */}
             <div className="grid gap-2">
               <Label htmlFor="video_link">Video Link</Label>
-              <Input id="video_link" {...register("video_link")} />
-              {errors.video_link && <p className="text-red-500 text-sm">{errors.video_link.message}</p>}
+              <Input id="video_link" placeholder="e.g. https://youtube.com/..." {...register("video_link")} />
+              {errors.video_link && (
+                <p className="text-red-500 text-sm">{errors.video_link.message}</p>
+              )}
             </div>
           </div>
 
-          {/* Status */}
+          {/* Featured Image + Video Link */}
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
+            {/* Featured Image */}
+            <div className="grid gap-2">
+              <Label htmlFor="featured_image">Featured Image</Label>
+
+              <Controller
+                name="featured_image"
+                control={control}
+                render={({ field }) => (
+                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-2 relative">
+                    {/* Hidden input */}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      id="featured_image"
+                      className="hidden"
+                      onChange={(e) => {
+                        field.onChange(e.target.files); // update react-hook-form
+                        const file = e.target.files?.[0];
+                        if (file) setPreview(URL.createObjectURL(file)); // update preview
+                      }}
+                    />
+
+                    {/* Preview + Remove button */}
+                    {preview ? (
+                      <div className="flex justify-between items-center">
+                        <Image
+                          src={preview}
+                          alt="Preview"
+                          width={150}
+                          height={100}
+                          className="rounded-md object-cover"
+                        />
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="destructive"
+                          onClick={() => {
+                            setPreview(null);
+                            field.onChange(null); // reset form value
+                            const fileInput = document.getElementById(
+                              "featured_image"
+                            ) as HTMLInputElement;
+                            if (fileInput) fileInput.value = "";
+                          }}
+                        >
+                          Remove
+                        </Button>
+                      </div>
+                    ) : (
+                      <label
+                        htmlFor="featured_image"
+                        className="cursor-pointer flex flex-col items-center justify-center gap-2 text-center"
+                      >
+                        <Camera className="w-6 h-6 text-gray-500" />
+                        <p className="text-sm font-medium text-gray-900">
+                          Click to upload image
+                        </p>
+                      </label>
+                    )}
+                  </div>
+                )}
+              />
+            </div>
+
+
+          </div>
+
+
+
+
 
 
           {/* Submit */}
-          <div className="flex justify-center">
+          <div className="flex justify-end">
             <Button type="submit" disabled={isSubmitting} className="w-40">
               {isSubmitting ? "Submitting..." : "Save & Continue"}
             </Button>

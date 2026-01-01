@@ -1,6 +1,5 @@
 import { getFaqs } from "@/apiServices/faqsService";
 import FaqsFilter from "./FaqsFilter";
-import page from "@/app/(dashboard)/hr/employees/page";
 
 export default async function FaqsFilterData() {
   await getFaqs({

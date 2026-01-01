@@ -34,8 +34,8 @@ export interface CategoriesResponse {
     total_categories: number;
     section_subtitle?: string;
     section_title?: string;
-    categories: Category[];
-    pagination: Pagination;
+    categories?: Category[];
+    pagination?: Pagination;
   };
   errors?: Record<string, string[]>;
 }
@@ -118,11 +118,13 @@ export async function getCategories(
     }
 
     return await getCategoriesCached(page, token, params);
-  } catch (error) {
-    console.error("Error in get Categories:", error);
-    throw new Error(
-      error instanceof Error ? error.message : "Failed to get Categories"
-    );
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("Categories API Error:", error.message);
+      throw new Error("Error fetching categories");
+    }else {
+      throw new Error("Error fetching categories");
+    }
   }
 }
 
@@ -305,25 +307,14 @@ export async function deleteCategory(id: number): Promise<SingleCategoryResponse
 
 // functions for home page getHomeCourseCategories ---
 
-export async function getHomeCourseCategories({
-  params = {},
-}: {
-  params?: Record<string, unknown>;
-}): Promise<CategoriesResponse> {
+export async function getHomeCourseCategories(): Promise<CategoriesResponse> {
   "use cache";
   cacheTag("course-categories");
 
   try {
-    const urlParams = new URLSearchParams();
-    Object.entries(params).forEach(([key, value]) => {
-      if (value !== undefined && value !== null) {
-        urlParams.append(key, String(value));
-      }
-    });
-    const queryString = urlParams.toString();
 
     const res = await fetch(
-      `${API_BASE}/public/course-categories/with-count?${queryString}`
+      `${API_BASE}/public/course-categories/with-count`
     );
 
     if (!res.ok) {
@@ -331,10 +322,15 @@ export async function getHomeCourseCategories({
         `Home Course Categories API failed: ${res.status} ${res.statusText}`
       );
     }
-
-    return await res.json();
-  } catch (error) {
-    console.error("Home Course Categories API Error:", error);
-    throw new Error("Error fetching home course categories");
+    const data: CategoriesResponse = await res.json();
+    return data;
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("Home Course Categories API Error:", error.message);
+      throw new Error("Error fetching home course categories");
+    }else {
+      throw new Error("Error fetching home course categories");
+    }
+    
   }
 }

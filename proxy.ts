@@ -10,6 +10,8 @@ const protectedRoutes = [
   '/profile',
   '/settings',
   '/divisions',
+  '/student',
+  '/enrollment',
 
 ]
 
@@ -51,6 +53,8 @@ export const config = {
     '/profile/:path*',
     '/settings/:path*',
     '/divisions/:path*',
+    '/student/:path*',
+    '/enrollment/:path*',
     '/login',
     '/register'
   ]

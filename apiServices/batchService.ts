@@ -6,12 +6,16 @@ import { revalidateTag } from "next/cache";
 import { handleApiError, processApiResponse, ApiResponse } from "@/lib/apiErrorHandler";
 import { CourseProject } from "./courseProjectsService";
 
-const API_BASE =
-  process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api/v1";
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api/v1";
 
 // ==========================
 // Interfaces
 // ==========================
+
+export interface BatchInstructor {
+  id: number;
+  name: string;
+}
 
 export interface Batch {
   id: number;
@@ -19,17 +23,17 @@ export interface Batch {
   course_id: number;
   branch_id: number;
   name: string;
-  price: string;
-  discount: string;
+  price: string | number;
+  discount: string | number | null;
   discount_type: string | null;
-  discount_price: number | null;
   duration: string | null;
   start_date: string | null;
+  start_date_raw: string | null;
   end_date: string | null;
-  course_type: number | null;
-  is_online: number | null;
-  is_offline: number | null;
-  total_enrolled: string;
+  end_date_raw: string | null;
+  total_enrolled: number | null;
+  is_online: number;
+  is_offline: number;
   branch: {
     id: number;
     name: string;
@@ -37,8 +41,11 @@ export interface Batch {
   course: {
     id: number;
     title: string;
+    level: string | null;
   };
-  course_project: CourseProject;
+  instructors: BatchInstructor[];
+  after_discount?: number | null;
+  teacher_ids?: (string | number)[];
 }
 
 export interface PaginationType {
@@ -46,6 +53,9 @@ export interface PaginationType {
   last_page: number;
   per_page: number;
   total: number;
+  from: number ;
+  to: number ;
+  has_more_pages: boolean;
 }
 
 export interface BatchResponse {
@@ -61,6 +71,7 @@ export interface BatchResponse {
 export interface BatchSingleResponse {
   success: boolean;
   message: string;
+  code: number;
   data: Batch;
 }
 
@@ -72,11 +83,26 @@ export interface BatchResponseType {
   code?: number;
 }
 
+export interface CreateBatchRequest {
+  course_id: number;
+  branch_id: number;
+  name: string;
+  price: number;
+  discount: number;
+  discount_type: string;
+  duration: string;
+  start_date: string;
+  end_date: string;
+  is_online: number;
+  is_offline: number;
+  teacher_ids: number[];
+}
+
 // ==========================
 // Add Batch
 // ==========================
 
-export async function addBatch(formData: FormData): Promise<BatchResponseType> {
+export async function addBatch(batchData: CreateBatchRequest): Promise<BatchResponseType> {
   try {
     const session = await getServerSession(authOptions);
     const token = session?.accessToken;
@@ -95,7 +121,7 @@ export async function addBatch(formData: FormData): Promise<BatchResponseType> {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify(formData),
+      body: JSON.stringify(batchData),
     });
 
     const result = await processApiResponse(res, "Failed to add batch.");
@@ -104,7 +130,6 @@ export async function addBatch(formData: FormData): Promise<BatchResponseType> {
       return result;
     }
 
-    // ❗ Next.js 16 requires 2 arguments
     revalidateTag("batches-list", "max");
 
     return {
@@ -206,7 +231,7 @@ export async function getBatchById(
 
 export async function updateBatch(
   id: string,
-  formData: FormData
+  batchData: CreateBatchRequest
 ): Promise<BatchResponseType> {
   try {
     const session = await getServerSession(authOptions);
@@ -226,7 +251,7 @@ export async function updateBatch(
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify(formData),
+      body: JSON.stringify(batchData),
     });
 
     const result = await processApiResponse(res, "Failed to update batch.");
@@ -235,7 +260,6 @@ export async function updateBatch(
       return result;
     }
 
-    // ❗ Next.js 16 requires profile argument
     revalidateTag("batches-list", "max");
     revalidateTag(`batch-${id}`, "max");
 

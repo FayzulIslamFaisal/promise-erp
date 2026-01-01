@@ -1,6 +1,5 @@
 
 import {  fetchPublicNewsFeeds, NewsFeedItem } from "@/apiServices/homePageService";
-import { HomesearchParamsProps } from "@/app/(root)/page";
 import SectionTitle from "@/components/common/SectionTitle";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Button } from "@/components/ui/button";
@@ -10,12 +9,11 @@ import Image from "next/image";
 import Link from "next/link";
 
 
-const NewsfeedsArchive =  async({ searchParams }: HomesearchParamsProps) => {
-  const queryParams = await searchParams;
-  const page = queryParams.page ? Number(queryParams.page) : 1;
+const NewsfeedsArchive =  async() => {
+
   const params = {
-    per_page: queryParams.per_page ? queryParams.per_page : "5",
-    page: page,
+    per_page: 5,
+    page: 1,
   };
   const newsData = await fetchPublicNewsFeeds({ params });
   const newsItems : NewsFeedItem[] = newsData?.data?.news_feeds || [];

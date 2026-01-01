@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/table";
 import { Eye, Pencil } from "lucide-react";
 import Link from "next/link";
-import DeleteButton from "./DeleteButton"; // This will be created later
+import DeleteButton from "./DeleteButton"; 
 import Pagination from "@/components/common/Pagination";
 
 export default async function LessonsData({

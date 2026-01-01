@@ -15,7 +15,7 @@ const DeleteCategoryAction = async (id: number): Promise<SingleCategoryResponse>
     };
   } catch (error) {
     const message = error instanceof Error ? error.message : "Something went wrong!";
-    return { success: false, message, code: 500 } as any;
+    return { success: false, message, code: 500 } as SingleCategoryResponse;
   }
 };
 

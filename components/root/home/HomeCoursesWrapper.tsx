@@ -1,14 +1,14 @@
 import SectionTitle from "@/components/common/SectionTitle";
 import HomeCourses from "./HomeCourses";
 import { getPublicCoursesList } from "@/apiServices/courseListPublicService";
-interface HomeCoursesWrapperProps {
-  searchParams: { [key: string]: string | string[] | undefined };
-}
-const HomeCoursesWrapper = async ({ searchParams }: HomeCoursesWrapperProps) => {
+import { HomesearchParamsProps } from "@/app/(root)/page";
+
+const HomeCoursesWrapper = async ({ searchParams }: HomesearchParamsProps) => {
   const queryParams = await searchParams;
 
   const params = {
     per_page: 16,
+    sort_order: queryParams.sort_order ?? "desc",
     branch_id: queryParams.branch_id ?? "1",
     sort_ratings: queryParams.sort_ratings ?? "ratings",
     page: queryParams.page ? Number(queryParams.page) : 1,

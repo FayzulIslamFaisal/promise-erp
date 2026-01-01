@@ -1,317 +1,336 @@
-// "use client";
-
-// import { Button } from "@/components/ui/button";
-// import { Input } from "@/components/ui/input";
-// import { Search, Menu, Funnel } from "lucide-react";
-// import { use, useEffect, useState, useTransition } from "react";
-// import {
-//   DropdownMenu,
-//   DropdownMenuContent,
-//   DropdownMenuItem,
-//   DropdownMenuTrigger,
-// } from "@/components/ui/dropdown-menu";
-// import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-// import HeaderNavLink from "./HeaderNavLink";
-// import Image from "next/image";
-// import Link from "next/link";
-// import { getPublicBranchList, HeaderBranchList } from "@/apiServices/homePageService";
-// import { useRouter, useSearchParams } from "next/navigation";
-
-// export interface NavLink {
-//   name: string;
-//   href: string;
-//   hasDropdown?: boolean;
-// }
-// const MainHeader = () => {
-//   const [searchQuery, setSearchQuery] = useState("");
-//   const [branchList, setBranchList] = useState<HeaderBranchList[]>([]);
-//   const [isPending, startTransition] = useTransition();
-//   const router = useRouter();
-//   const searchParams = useSearchParams();
-
-//   const navLinks: NavLink[] = [
-//     { name: "Home", href: "/" },
-//     { name: "Courses", href: "/course", hasDropdown: true },
-//     { name: "Instructors", href: "/instructors" },
-//     { name: "Branch", href: "/branch" },
-//     { name: "Blog", href: "/blog" },
-//     { name: "Contact", href: "/contact" },
-//   ];
-
-//   useEffect(() => {
-//     const fetchBranchList = async () => {
-//       try {
-//         const res = await getPublicBranchList();
-//         if (res.success) {
-//           setBranchList(res.data.branches);
-//         }
-//       } catch (err) {
-//         console.error("Failed to fetch branch list:", err);
-//       }
-//     };
-//     fetchBranchList();
-//   }, []);
-
-//   // Handle branch selection
-//   const handleBranchSelect = (branchId: number) => {
-//     startTransition(() => {
-//       const params = new URLSearchParams(Array.from(searchParams.entries()));
-//       params.set("branch", branchId.toString());
-//       router.push(`/?${params.toString()}`);
-//     });
-//   };
-
-//   return (
-//     <header className="sticky top-0 z-50 w-full border-b bg-background">
-//       <div className="container mx-auto px-4 py-4">
-//         <div className="flex items-center justify-between gap-4">
-//           <div className="flex items-center gap-2">
-//             <Link href="/">
-//               <Image
-//                 src="/images/logo.svg"
-//                 alt="Logo"
-//                 width={213}
-//                 height={36}
-//               />
-//             </Link>
-//           </div>
-
-//           {/* Search Bar - Hidden on mobile */}
-//           <div className="hidden md:flex items-center flex-1 max-w-3xl mx-2 border border-secondary rounded-md">
-//             <DropdownMenu>
-//               <DropdownMenuTrigger asChild>
-//                 <Button className="header-branch-filter-btn h-8 px-4 gap-2 bg-transparent hover:bg-transparent border-0">
-//                   <span className="text-base flex items-center gap-2 text-secondary">
-//                     <Funnel className="h-4 w-4" /> Branch
-//                   </span>
-//                 </Button>
-//               </DropdownMenuTrigger>
-//               <DropdownMenuContent>
-//                 <DropdownMenuItem onClick={() => handleBranchSelect(0)}>
-//                   All Branches
-//                 </DropdownMenuItem>
-//                 {branchList.map((branch) => (
-//                   <DropdownMenuItem
-//                     key={branch.id}
-//                     onClick={() => handleBranchSelect(branch.id)}
-//                   >
-//                     {branch.name}
-//                   </DropdownMenuItem>
-//                 ))}
-//               </DropdownMenuContent>
-//             </DropdownMenu>
-//             <div className="relative flex-1">
-//               <Input
-//                 type="search"
-//                 placeholder="Search"
-//                 value={searchQuery}
-//                 onChange={(e) => setSearchQuery(e.target.value)}
-//                 className="h-11 rounded-none pe-16 border-0 outline-0 focus-visible:ring-0 focus-visible:ring-offset-0"
-//               />
-//               <Button
-//                 type="button"
-//                 className="absolute right-0 top-1/2 -translate-y-1/2 w-14 border-0 rounded-l-none px-8 h-full bg-secondary hover:bg-primary"
-//               >
-//                 <Search className="h-8 w-10" />
-//               </Button>
-//             </div>
-//           </div>
-
-//           {/* Auth Buttons - Hidden on mobile */}
-//           <div className="hidden md:flex items-center gap-3">
-//             <Button>
-//               <Link href="/login">Login</Link>
-//             </Button>
-//             <Button>
-//               <Link href="/register">Register</Link>
-//             </Button>
-//           </div>
-
-//           {/* Mobile Menu Button */}
-//           <Sheet>
-//             <SheetTrigger asChild>
-//               <Button variant="ghost" size="icon" className="md:hidden">
-//                 <Menu className="h-6 w-6" />
-//               </Button>
-//             </SheetTrigger>
-//             <SheetContent side="right" className="w-[300px]">
-//               <div className="flex flex-col gap-4 mt-8">
-//                 {/* Mobile Search */}
-//                 <div className="relative">
-//                   <Input
-//                     type="search"
-//                     placeholder="Search"
-//                     value={searchQuery}
-//                     onChange={(e) => setSearchQuery(e.target.value)}
-//                     className="pr-10"
-//                   />
-//                   <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-//                 </div>
-
-//                 {/* Mobile Navigation */}
-//                 <nav className="flex flex-col gap-2">
-//                   {navLinks.map((link) => (
-//                     <Link
-//                       key={link.name}
-//                       href={link.href}
-//                       className="px-4 py-2 text-sm font-medium hover:bg-muted rounded-md transition-colors"
-//                     >
-//                       {link.name}
-//                     </Link>
-//                   ))}
-//                 </nav>
-
-//                 {/* Mobile Auth Buttons */}
-//                 <div className="flex flex-col gap-2 pt-4 border-t">
-//                   <Button variant="default" className="w-full">
-//                     Login
-//                   </Button>
-//                   <Button variant="outline" className="w-full">
-//                     Register
-//                   </Button>
-//                 </div>
-//               </div>
-//             </SheetContent>
-//           </Sheet>
-//         </div>
-//       </div>
-
-//       {/* Navigation Bar */}
-//       <HeaderNavLink navLinks={navLinks} />
-//     </header>
-//   );
-// };
-
-// export default MainHeader;
-
-
 "use client";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, Menu } from "lucide-react";
-import { Suspense, useState } from "react";
+import { Search, Menu, Loader2 } from "lucide-react";
+import { Suspense, useEffect, useState, useTransition } from "react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import HeaderNavLink from "./HeaderNavLink";
 import Image from "next/image";
 import Link from "next/link";
 import HeaderBranchDropdown from "./HeaderBranchDropdown";
+import {
+  CourseSearchResponse,
+  getPublicCourseSearch,
+} from "@/apiServices/homePageService";
+import { useRouter } from "next/navigation";
+import { useDebounce } from "@/hooks/useDebounce";
 
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { signOut, useSession } from "next-auth/react";
 
 export interface NavLink {
   name: string;
   href: string;
   hasDropdown?: boolean;
 }
+interface AuthButtonsProps {
+  status: "loading" | "authenticated" | "unauthenticated";
+  isAuthenticated: boolean;
+  userName?: string | null;
+}
 
-const MainHeader = () => {
-  const [searchQuery, setSearchQuery] = useState("");
+const navLinks: NavLink[] = [
+  { name: "Home", href: "/" },
+  { name: "Courses", href: "/course", hasDropdown: true },
+  { name: "Instructors", href: "/instructors" },
+  { name: "Branch", href: "/branch" },
+  { name: "Blog", href: "/blog" },
+  { name: "Contact", href: "/contact" },
+];
+/* ================= AUTH BUTTONS ================= */
+const AuthButtons = ({
+  status,
+  isAuthenticated,
+  userName,
+}: AuthButtonsProps) => {
+  if (status === "loading") {
+    return <Loader2 className="h-5 w-5 animate-spin" />;
+  }
 
-  const navLinks: NavLink[] = [
-    { name: "Home", href: "/" },
-    { name: "Courses", href: "/course", hasDropdown: true },
-    { name: "Instructors", href: "/instructors" },
-    { name: "Branch", href: "/branch" },
-    { name: "Blog", href: "/blog" },
-    { name: "Contact", href: "/contact" },
-  ];
-
-
+  if (isAuthenticated) {
+    return (
+      <>
+      <div className="flex items-center gap-2">
+        <span className="text-sm font-medium">{userName}</span>
+        <Button onClick={() => signOut({ callbackUrl: "/" })}>
+          Logout
+        </Button>
+        </div>
+      </>
+    );
+  }
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background">
-      <div className="container mx-auto px-4 py-4">
-        <div className="flex items-center justify-between gap-4">
-          {/* Logo */}
-          <div className="flex items-center gap-2">
-            <Link href="/">
-              <Image src="/images/logo.svg" alt="Logo" width={213} height={36} />
-            </Link>
-          </div>
+    <>
+      <Button asChild>
+        <Link href="/login">Login</Link>
+      </Button>
+      <Button asChild variant="outline">
+        <Link href="/register">Register</Link>
+      </Button>
+    </>
+  );
+};
 
-          {/* Search & Branch Filter */}
-          <div className="hidden md:flex items-center flex-1 max-w-3xl mx-2 border border-secondary rounded-md">
-            <Suspense fallback={<div>Loading...</div>}>
-              <HeaderBranchDropdown />
-            </Suspense>
+/* ================= MAIN HEADER ================= */
+const MainHeader = () => {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [openModal, setOpenModal] = useState(false);
+  const [results, setResults] = useState<CourseSearchResponse | null>(null);
+  const [isPending, startTransition] = useTransition();
+  const { data: session, status } = useSession();
+  const isAuthenticated = !!session?.accessToken;
 
-            <div className="relative flex-1">
-              <Input
-                type="search"
-                placeholder="Search"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="h-11 rounded-none pe-16 border-0 outline-0 focus-visible:ring-0 focus-visible:ring-offset-0"
-              />
-              <Button
-                type="button"
-                className="absolute right-0 top-1/2 -translate-y-1/2 w-14 border-0 rounded-l-none px-8 h-full bg-secondary hover:bg-primary"
-              >
-                <Search className="h-8 w-10" />
-              </Button>
+  const debouncedSearch = useDebounce(searchQuery, 800);
+  const router = useRouter();
+
+  // Debounced search effect
+  useEffect(() => {
+    if (!debouncedSearch.trim()) {
+      setResults(null);
+      return;
+    }
+
+    startTransition(async () => {
+      try {
+        const res = await getPublicCourseSearch({
+          params: { search: debouncedSearch },
+        });
+
+        if (res && (res?.data?.courses?.length > 0 || res?.data?.categories?.length > 0)) {
+          setResults(res);
+          setOpenModal(true);
+        } else {
+          setResults(null);
+        }
+      } catch (error) {
+        console.error("Search failed:", error);
+        setResults(null);
+      }
+    });
+  }, [debouncedSearch]);
+
+  const handleSearchClick = () => {
+    if (!searchQuery.trim()) return;
+
+    if (results) {
+      setOpenModal(true);
+    } else {
+      startTransition(async () => {
+        try {
+          const res = await getPublicCourseSearch({
+            params: { search: searchQuery },
+          });
+          if (res) {
+            setResults(res);
+            setOpenModal(true);
+          }
+        } catch (error) {
+          console.error("Search failed:", error);
+        }
+      });
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      handleSearchClick();
+    }
+  };
+
+  return (
+    <>
+      <header className="sticky top-0 z-50 w-full border-b bg-background">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex items-center justify-between gap-4">
+            {/* Logo */}
+            <div className="flex items-center gap-2">
+              <Link href="/">
+                <Image
+                  src="/images/logo.svg"
+                  alt="Logo"
+                  width={213}
+                  height={36}
+                />
+              </Link>
             </div>
-          </div>
 
-          {/* Auth Buttons */}
-          <div className="hidden md:flex items-center gap-3">
-            <Button>
-              <Link href="/login">Login</Link>
-            </Button>
-            <Button>
-              <Link href="/register">Register</Link>
-            </Button>
-          </div>
+            {/* Search & Branch Filter */}
+            <div className="hidden lg:flex items-center flex-1 max-w-3xl mx-2 border border-secondary rounded-md">
+              <Suspense fallback={<div>Loading...</div>}>
+                <HeaderBranchDropdown />
+              </Suspense>
 
-          {/* Mobile Menu */}
-          <Sheet>
-            <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="md:hidden">
-                <Menu className="h-6 w-6" />
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="right" className="w-[300px]">
-              <div className="flex flex-col gap-4 mt-8">
-                <div className="relative">
-                  <Input
-                    type="search"
-                    placeholder="Search"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pr-10"
-                  />
-                  <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                </div>
+              <div className="relative flex-1">
+                <Input
+                  type="search"
+                  placeholder="Search"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  className="h-11 rounded-none pe-16 border-0 outline-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+                />
+                <Button
+                  type="button"
+                  className="absolute right-0 top-1/2 -translate-y-1/2 w-14 border-0 rounded-l-none px-8 h-full bg-secondary hover:bg-primary"
+                  onClick={handleSearchClick}
+                  disabled={!searchQuery.trim() || isPending}
+                >
+                  {isPending ? (
+                    <Loader2 className="h-8 w-10 animate-spin" />
+                  ) : (
+                    <Search className="h-8 w-10" />
+                  )}
+                </Button>
+              </div>
+            </div>
+            {/* Desktop Auth */}
+            <div className="hidden lg:flex gap-3">
+              <AuthButtons
+                status={status}
+                isAuthenticated={isAuthenticated}
+                userName={session?.user?.name}
+              />
+            </div>
 
-                <nav className="flex flex-col gap-2">
+            {/* Mobile Menu */}
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon" className="lg:hidden">
+                  <Menu />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="px-4">
+                <nav className="mt-14 space-y-2 flex flex-col ">
                   {navLinks.map((link) => (
-                    <Link
-                      key={link.name}
-                      href={link.href}
-                      className="px-4 py-2 text-sm font-medium hover:bg-muted rounded-md transition-colors"
-                    >
+                    <Link key={link.name} href={link.href}>
                       {link.name}
                     </Link>
                   ))}
                 </nav>
 
-                <div className="flex flex-col gap-2 pt-4 border-t">
-                  <Button variant="default" className="w-full">
-                    Login
-                  </Button>
-                  <Button variant="outline" className="w-full">
-                    Register
-                  </Button>
+                <div className="mt-6 border-t pt-4 flex gap-2">
+                  <AuthButtons
+                    status={status}
+                    isAuthenticated={isAuthenticated}
+                    userName={session?.user?.name}
+                  />
+                </div>
+              </SheetContent>
+            </Sheet>
+          </div>
+        </div>
+
+        <HeaderNavLink navLinks={navLinks} />
+      </header>
+
+      {/* Search Result Modal */}
+      <Dialog
+        open={openModal}
+        onOpenChange={(isOpen) => {
+          setOpenModal(isOpen);
+          if (!isOpen) {
+            setSearchQuery("");
+            setResults(null);
+          }
+        }}
+      >
+        <DialogContent className="max-w-lg z-[99999] max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>
+              Search Results for "{searchQuery}"
+              {isPending && (
+                <Loader2 className="ml-2 h-4 w-4 inline animate-spin" />
+              )}
+            </DialogTitle>
+          </DialogHeader>
+
+          <div className="mt-4 space-y-4">
+            {/* No Results */}
+            {!isPending &&
+              (!results || (results?.data?.courses?.length === 0 && results?.data?.categories?.length === 0)) && (
+                <div className="text-center text-2xl py-8 text-secondary">
+                  No results found
+                </div>
+              )}
+
+            {/* Loading State */}
+            {isPending && (
+              <div className="flex justify-center items-center py-8">
+                <Loader2 className="h-8 w-8 animate-spin" />
+              </div>
+            )}
+
+            {/* Courses */}
+            {!isPending && results?.data?.courses && results.data.courses.length > 0 && (
+              <div>
+                <h3 className="font-semibold mb-2 text-lg">Courses</h3>
+                <div className="space-y-2">
+                  {results.data.courses.map((item) => (
+                    <div
+                      key={item.id}
+                      onClick={() => {
+                        setOpenModal(false);
+                        router.push(`/courses/${item.slug}`);
+                      }}
+                      className="p-2 border rounded-md cursor-pointer hover:bg-muted transition-colors"
+                    >
+                      <div className="flex items-center gap-2">
+                        <Image
+                          src={item.image || "/images/placeholder_img.jpg"}
+                          alt={item.title}
+                          width={50}
+                          height={50}
+                          className="object-cover rounded-full"
+                        />
+                        <span className="font-base">{item.title}</span>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
-            </SheetContent>
-          </Sheet>
-        </div>
-      </div>
+            )}
 
-      <HeaderNavLink navLinks={navLinks} />
-    </header>
+            {/* Categories */}
+            {!isPending && results?.data?.categories && results.data.categories.length > 0 && (
+              <div>
+                <h3 className="font-semibold mt-4 mb-2 text-lg">Categories</h3>
+                <div className="space-y-2">
+                  {results.data.categories.map((item) => (
+                    <div
+                      key={item.id}
+                      onClick={() => {
+                        setOpenModal(false);
+                        router.push(`/courses/${item.slug}`);
+                      }}
+                      className="p-2 border rounded-md cursor-pointer hover:bg-muted transition-colors"
+                    >
+                      <div className="flex items-center gap-2">
+                        <Image
+                          src={item.image || "/images/placeholder_img.jpg"}
+                          alt={item.title}
+                          width={50}
+                          height={50}
+                          className="object-cover rounded-full"
+                        />
+                        <span className="font-base">{item.title}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };
 
 export default MainHeader;
-

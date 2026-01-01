@@ -14,7 +14,7 @@ export default async function HomeGovtCourse() {
     <section className="py-8 md:py-14 bg-secondary/5">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-12 items-center ">
-          <AspectRatio ratio={20 / 13} className="w-full relative">
+          <AspectRatio ratio={20 / 18} className="w-full relative">
             <Image
               src={govtCourseInfo?.image || "/images/placeholder_img.jpg"}
               alt={govtCourseInfo?.title || ""}

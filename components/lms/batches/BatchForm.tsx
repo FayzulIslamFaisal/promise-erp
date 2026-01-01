@@ -14,15 +14,19 @@ import {
 import { useEffect, useState } from "react";
 import { Branch, getBranches } from "@/apiServices/branchService";
 import { Course, getCourses } from "@/apiServices/courseService";
-import { Batch } from "@/apiServices/batchService";
+import { getTeachers } from "@/apiServices/teacherService";
+import { Batch, BatchResponseType, CreateBatchRequest } from "@/apiServices/batchService";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
+
+
+import { Teacher } from "@/apiServices/teacherService";
 
 interface BatchFormProps {
   title: string;
   onSubmit: (
-    formData: any,
-    setFormError: (field: string, message: string) => void,
+    formData: CreateBatchRequest,
+    setFormError: (field: keyof FormValues, message: string) => void,
     resetForm: () => void
   ) => void | Promise<void>;
   batch?: Batch;
@@ -33,18 +37,21 @@ interface FormValues {
   branch_id: string;
   name: string;
   price: number;
-  discount_price: number;
+  discount: number;
+  discount_type: string;
   duration: string;
   start_date: string;
   end_date: string;
   is_online: string;
   is_offline: string;
+  teacher_ids?: string[];
 }
 
 export default function BatchForm({ title, onSubmit, batch }: BatchFormProps) {
   const [branches, setBranches] = useState<Branch[]>([]);
   const [courses, setCourses] = useState<Course[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [teachers, setTeachers] = useState<Teacher[]>([]);
 
   const {
     register,
@@ -52,24 +59,32 @@ export default function BatchForm({ title, onSubmit, batch }: BatchFormProps) {
     setError,
     control,
     reset,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm<FormValues>({
     defaultValues: {
       name: batch?.name || "",
       course_id: batch?.course_id?.toString() || "",
       branch_id: batch?.branch_id?.toString() || "",
-      price: batch ? parseFloat(batch.price) : 0,
-      discount_price: batch ? parseFloat(batch.discount) : 0,
+      price: batch ? parseFloat(batch.price.toString()) : 0,
+      discount: batch ? parseFloat(batch.discount?.toString() || "0") : 0,
+      discount_type: batch?.discount_type || "percentage",
       duration: batch?.duration || "",
-      start_date: batch?.start_date || "",
-      end_date: batch?.end_date || "",
+      start_date: batch?.start_date_raw || "",
+      end_date: batch?.end_date_raw || "",
       is_online: batch?.is_online?.toString() || "0",
       is_offline: batch?.is_offline?.toString() || "0",
+      teacher_ids: batch?.instructors?.map((t) => t.id.toString()) ||
+        batch?.teacher_ids?.map((id) => id.toString()) || [],
     },
   });
 
-  const setFormError = (field: string, message: string) => {
-    setError(field as keyof FormValues, { type: "server", message });
+  const selectedBranchId = watch("branch_id");
+
+  console.log('batch', batch);
+
+  const setFormError = (field: keyof FormValues, message: string) => {
+    setError(field, { type: "server", message });
   };
 
   useEffect(() => {
@@ -78,24 +93,46 @@ export default function BatchForm({ title, onSubmit, batch }: BatchFormProps) {
         name: batch.name,
         course_id: batch.course_id?.toString(),
         branch_id: batch.branch_id?.toString(),
-        price: parseFloat(batch.price),
-        discount_price: parseFloat(batch.discount),
+        price: parseFloat(batch.price.toString()),
+        discount: parseFloat(batch.discount?.toString() || "0"),
+        discount_type: batch.discount_type || "percentage",
         duration: batch.duration || "",
-        start_date: batch.start_date || "",
-        end_date: batch.end_date || "",
+        start_date: batch.start_date_raw || "",
+        end_date: batch.end_date_raw || "",
         is_online: batch.is_online?.toString() || "0",
         is_offline: batch.is_offline?.toString() || "0",
+        teacher_ids: batch.instructors?.map((t) => t.id.toString()) ||
+          batch.teacher_ids?.map((id) => id.toString()) || [],
       });
     }
   }, [batch, reset]);
+
+  useEffect(() => {
+    async function fetchTeachers() {
+      if (!selectedBranchId) {
+        setTeachers([]);
+        return;
+      }
+      try {
+        const response = await getTeachers({ branch_id: selectedBranchId, per_page: 100, });
+        if (response.success) {
+          setTeachers(response.data?.teachers || []);
+        }
+        console.log('Fetched teachers:', response.data?.teachers);
+      } catch (error) {
+        console.error("Error fetching teachers:", error);
+      }
+    }
+    fetchTeachers();
+  }, [selectedBranchId]);
 
   useEffect(() => {
     async function loadInitialData() {
       try {
         setIsLoading(true);
         const [branchesRes, coursesRes] = await Promise.all([
-          getBranches(),
-          getCourses(),
+          getBranches(1, { per_page: 1000 }),
+          getCourses(1, { per_page: 1000 }),
         ]);
         if (branchesRes.success) {
           setBranches(branchesRes.data?.branches || []);
@@ -113,12 +150,15 @@ export default function BatchForm({ title, onSubmit, batch }: BatchFormProps) {
   }, []);
 
   const submitHandler = (values: FormValues) => {
-    const formData = {
+    const formData: CreateBatchRequest = {
       ...values,
       course_id: Number(values.course_id),
       branch_id: Number(values.branch_id),
+      price: Number(values.price),
+      discount: Number(values.discount),
       is_online: Number(values.is_online),
       is_offline: Number(values.is_offline),
+      teacher_ids: values.teacher_ids ? values.teacher_ids.map(id => Number(id)) : [],
     };
     onSubmit(formData, setFormError, () => reset());
   };
@@ -208,42 +248,69 @@ export default function BatchForm({ title, onSubmit, batch }: BatchFormProps) {
             </div>
 
             <div className="grid gap-2">
+              <Label htmlFor="duration">Duration</Label>
+              <Input
+                id="duration"
+                placeholder="e.g. 3 months"
+                {...register("duration")}
+              />
+              {errors.duration && (
+                <p className="text-sm text-red-500 mt-1">{errors.duration.message}</p>
+              )}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid gap-2">
               <Label htmlFor="price">Price</Label>
               <Input
                 id="price"
                 type="number"
-                placeholder="Enter price"
+                step="0.01"
+                placeholder="0.00"
                 {...register("price", { valueAsNumber: true })}
               />
               {errors.price && (
                 <p className="text-sm text-red-500 mt-1">{errors.price.message}</p>
               )}
             </div>
-          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="grid gap-2">
-              <Label htmlFor="discount_price">Discount Price</Label>
-              <Input
-                id="discount_price"
-                type="number"
-                placeholder="Enter discount price"
-                {...register("discount_price", { valueAsNumber: true })}
+              <Label htmlFor="discount_type">Discount Type</Label>
+              <Controller
+                name="discount_type"
+                control={control}
+                render={({ field }) => (
+                  <Select
+                    value={field.value}
+                    onValueChange={field.onChange}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="percentage">Percentage (%)</SelectItem>
+                      <SelectItem value="fixed">Fixed Amount</SelectItem>
+                    </SelectContent>
+                  </Select>
+                )}
               />
-              {errors.discount_price && (
-                <p className="text-sm text-red-500 mt-1">{errors.discount_price.message}</p>
+              {errors.discount_type && (
+                <p className="text-sm text-red-500 mt-1">{errors.discount_type.message}</p>
               )}
             </div>
 
             <div className="grid gap-2">
-              <Label htmlFor="duration">Duration</Label>
+              <Label htmlFor="discount">Discount Value</Label>
               <Input
-                id="duration"
-                placeholder="Enter duration"
-                {...register("duration")}
+                id="discount"
+                type="number"
+                step="0.01"
+                placeholder="0.00"
+                {...register("discount", { valueAsNumber: true })}
               />
-              {errors.duration && (
-                <p className="text-sm text-red-500 mt-1">{errors.duration.message}</p>
+              {errors.discount && (
+                <p className="text-sm text-red-500 mt-1">{errors.discount.message}</p>
               )}
             </div>
           </div>
@@ -275,33 +342,56 @@ export default function BatchForm({ title, onSubmit, batch }: BatchFormProps) {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* <div className="grid gap-2">
-              <Label htmlFor="course_type">Course Type</Label>
+            {/* added teacher_ids field multiselect */}
+            <div className="grid gap-2 col-span-1 md:col-span-2">
+              <Label htmlFor="teacher_ids">Teachers</Label>
               <Controller
-                name="course_type"
+                name="teacher_ids"
                 control={control}
                 render={({ field }) => (
-                  <Select
-                    value={field.value}
-                    onValueChange={field.onChange}
-                  >
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select Course Type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="0">Beginner</SelectItem>
-                      <SelectItem value="1">Intermediate</SelectItem>
-                      <SelectItem value="2">Advanced</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 border rounded-md p-4 max-h-60 overflow-y-auto bg-muted/20">
+                    {teachers.length > 0 ? (
+                      teachers.map((teacher) => (
+                        <div key={teacher.id} className="flex items-center space-x-2 p-2 rounded-md hover:bg-accent/50 transition-colors border border-transparent hover:border-accent">
+                          <input
+                            type="checkbox"
+                            id={`teacher-${teacher.id}`}
+                            checked={field.value?.includes(teacher.id.toString())}
+                            onChange={(e) => {
+                              const currentValues = field.value || [];
+                              const teacherIdStr = teacher.id.toString();
+                              if (e.target.checked) {
+                                field.onChange([...currentValues, teacherIdStr]);
+                              } else {
+                                field.onChange(currentValues.filter((id) => id !== teacherIdStr));
+                              }
+                            }}
+                            className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer"
+                          />
+                          <Label
+                            htmlFor={`teacher-${teacher.id}`}
+                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer w-full"
+                          >
+                            {teacher.name}
+                          </Label>
+                        </div>
+                      ))
+                    ) : (
+                      <p className="text-sm text-muted-foreground col-span-full text-center py-4">
+                        {selectedBranchId ? "No teachers found for this branch." : "Please select a branch first."}
+                      </p>
+                    )}
+                  </div>
                 )}
               />
-              {errors.course_type && (
-                <p className="text-sm text-red-500 mt-1">{errors.course_type.message}</p>
+              {errors.teacher_ids && (
+                <p className="text-sm text-red-500 mt-1">
+                  {errors.teacher_ids.message}
+                </p>
               )}
-            </div> */}
+            </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 col-span-1 md:col-span-2">
               <div className="grid gap-2">
                 <Label htmlFor="is_online">Is Online?</Label>
                 <Controller

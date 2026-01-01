@@ -1,18 +1,10 @@
-import { getHomeCourseCategories } from "@/apiServices/categoryService";
+import { CategoriesResponse, getHomeCourseCategories } from "@/apiServices/categoryService";
 import CourseCategoriesSection from "./CourseCategoriesSection";
 import SectionTitle from "@/components/common/SectionTitle";
-import { HomesearchParamsProps } from "@/app/(root)/page";
 
-const CourseCategoriesWrapper = async ({
-  searchParams,
-}: HomesearchParamsProps) => {
-  const resolvedSearchParams = await searchParams;
-
-  const params = {
-    limit: 8,
-    page: resolvedSearchParams.page ? Number(resolvedSearchParams.page) : 1,
-  };
-  const categoriesData = await getHomeCourseCategories({ params });
+const CourseCategoriesWrapper = async () => {
+  
+  const categoriesData:CategoriesResponse = await getHomeCourseCategories();
 
   return (
     <section className="bg-secondary py-8 md:py-14">

@@ -2,20 +2,27 @@
 
 import * as React from "react";
 import {
+  BadgeAlert,
+  Banknote,
+  BookMarked,
   BookOpen,
+  BookOpenCheck,
   BoxesIcon,
   BriefcaseBusiness,
+  Calendar,
   ChartLine,
   DollarSign,
   DollarSignIcon,
   GalleryVerticalEnd,
   GraduationCap,
+  History,
   HouseIcon,
   ImagePlay,
+  LayoutDashboard,
   LocationEdit,
   LockIcon,
   MessageSquare,
-  Package,
+  School,
   Settings,
   ShieldCheck,
   ShoppingCartIcon,
@@ -45,6 +52,7 @@ import NavUserManage from "./NavUserManage";
 import NavRolePermission from "./NavRolePermission";
 import NavDivision from "./NavDivision";
 import NavDistrict from "./NavDistrict";
+import NavStudentDashboard from "./NavStudentDashboard";
 
 // This is sample data.
 const data = {
@@ -98,15 +106,8 @@ const data = {
           title: "Groups",
           url: "/lms/groups",
         },
+       
         {
-          title: "Chapters",
-          url: "/lms/chapters",
-        },
-        {
-          title: "Lessons",
-          url: "/lms/lessons",
-        },
-         {
           title: "Facilities",
           url: "/lms/facilities",
         },
@@ -114,6 +115,18 @@ const data = {
         {
           title: "FAQs",
           url: "/lms/faqs",
+        },
+        {
+          title: "Coupons",
+          url: "/lms/coupons",
+        },
+        {
+          title: "Who Can Join",
+          url: "/lms/who-can-join",
+        },
+        {
+          title: "Course Reviews",
+          url: "/lms/reviews",
         },
       ],
     },
@@ -222,6 +235,10 @@ const data = {
       icon: ImagePlay,
       items: [
         {
+          title: "Statistics",
+          url: "/lms/stats",
+        },
+        {
           title: "Departments",
           url: "#",
         },
@@ -243,7 +260,7 @@ const data = {
         },
         {
           title: "Hero Sections",
-          url: "#",
+          url: "/web-content/hero-section",
         },
         {
           title: "Common Sections",
@@ -255,7 +272,7 @@ const data = {
         },
         {
           title: "Video Gallery",
-          url: "#",
+          url: "/web-content/video-galleries",
         },
         {
           title: "Image Gallery",
@@ -909,6 +926,62 @@ const data = {
       ],
     },
   ],
+
+  navStudentDashboard: [
+    {
+      title: "Dashboard",
+      url: "/student/dashboard",
+      icon: LayoutDashboard,
+    },
+    {
+      title: "My Courses",
+      url: "/student/mycourses",
+      icon: BookOpenCheck,
+    },
+    {
+      title: "Free Class",
+      url: "/student/freeclass",
+      icon: School,
+    },
+    {
+      title: "Upcoming Courses",
+      url: "/student/upcomingcourses",
+      icon: Calendar,
+    },
+    {
+      title: "Payment",
+      url: "/student/payment",
+      icon: Banknote,
+      children: [
+        {
+          title: "Payment History",
+          url: "/student/paymenthistory",
+          icon: History,
+        },
+        {
+          title: "Due Payments",
+          url: "/student/duepayment",
+          icon: BadgeAlert,
+        },
+      ],
+    },
+    {
+      title: "My Earnings",
+      url: "/student/myearnings",
+      icon: BookMarked,
+    },
+    {
+      title: "Certificate",
+      url: "/student/certificate",
+      icon: ShieldCheck,
+    },
+    {
+      title: "Settings",
+      url: "/student/settings",
+      icon: Settings,
+    },
+  ],
+
 };
 
 export default function AppSidebar({
@@ -921,6 +994,7 @@ export default function AppSidebar({
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
+        <NavStudentDashboard items={data.navStudentDashboard} />
         <NavHr items={data.navHr} />
         <NavInventory items={data.navInventory} />
         <NavSales items={data.navSales} />

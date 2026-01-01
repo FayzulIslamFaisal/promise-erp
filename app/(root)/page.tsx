@@ -15,16 +15,26 @@ import OurBranchesWrapper from "@/components/root/home/OurBranchesWrapper";
 import HomeCoursesWrapper from "@/components/root/home/HomeCoursesWrapper";
 import TeacherListWrapper from "@/components/root/home/TeacherListWrapper";
 import StudentSuccessWrapper from "@/components/root/home/StudentSuccessWrapper";
-import CourseCardSkeleton from "@/components/common/CourseCardSkeleton";
 import BranchesSkeleton from "@/components/common/BranchesSkeleton";
 import HomeGovtCourse from "@/components/root/home/HomeGovtCourse";
 import CourseCategorySkeleton from "@/components/common/CourseCategorySkeleton";
 import ServicesSkeleton from "@/components/common/ServicesSkeleton";
+import HomeCourseSkeleton from "@/components/common/HomeCourseSkeleton";
+import GovtCourseSkeleton from "@/components/common/GovtCourseSkeleton";
+import OpportunitySkeletone from "@/components/common/OpportunitySkeletone";
+import VideoStorySkeleton from "@/components/common/VideoStorySkeleton";
+import BlogSkeleton from "@/components/common/BlogSkeleton";
+import PartnerSkeleton from "@/components/common/PartnerSkeleton";
+import TeacherListSkeleton from "@/components/common/TeacherListSkeleton";
+import StudentSuccessSkeleton from "@/components/common/StudentSuccessSkeleton";
+import NewsfeedsArchiveSkeleton from "@/components/common/NewsfeedsArchiveSkeleton";
+import NewsletterSkeleton from "@/components/common/NewsletterSkeleton";
 
 export interface HomesearchParamsProps {
-  searchParams: { [key: string]: string | string[] | undefined };
+  searchParams:Promise<{ [key: string]: string | string[] | undefined }>
 }
-const HomePage = ({ searchParams }: HomesearchParamsProps) => {
+const HomePage = async({ searchParams }: HomesearchParamsProps) => {
+
   return (
     <>
       <Suspense fallback={<HomeHeroSkeleton />}>
@@ -34,61 +44,43 @@ const HomePage = ({ searchParams }: HomesearchParamsProps) => {
         <HighlightsSection />
       </Suspense>
       <Suspense fallback={<CourseCategorySkeleton />}>
-        <CourseCategoriesWrapper searchParams={searchParams} />
+        <CourseCategoriesWrapper />
       </Suspense>
       <Suspense fallback={<ServicesSkeleton />}>
-        <HomeServiceList searchParams={searchParams} />
+        <HomeServiceList />
       </Suspense>
-      <Suspense fallback={<CourseCardSkeleton columns={4} rows={1} />}>
+      <Suspense fallback={<HomeCourseSkeleton />}>
         <HomeCoursesWrapper searchParams={searchParams} />
       </Suspense>
-      <Suspense
-        fallback={<div className="text-6xl text-center">Loading...</div>}
-      >
+      <Suspense fallback={<GovtCourseSkeleton />}>
         <HomeGovtCourse />
       </Suspense>
-      <Suspense
-        fallback={<div className="text-6xl text-center">Loading...</div>}
-      >
-        <GettingOpportunity searchParams={searchParams} />
+      <Suspense fallback={<OpportunitySkeletone />}>
+        <GettingOpportunity />
       </Suspense>
-      <Suspense
-        fallback={<div className="text-6xl text-center">Loading...</div>}
-      >
-        <TeacherListWrapper searchParams={searchParams} />
+      <Suspense fallback={<TeacherListSkeleton />}>
+        <TeacherListWrapper />
       </Suspense>
-      <Suspense
-        fallback={<div className="text-6xl text-center">Loading...</div>}
-      >
-        <VideoStories searchParams={searchParams} />
+      <Suspense fallback={<VideoStorySkeleton />}>
+        <VideoStories />
       </Suspense>
-      <Suspense
-        fallback={<div className="text-6xl text-center">Loading...</div>}
-      >
-        <CareerDevelopmentBlog searchParams={searchParams} />
+      <Suspense fallback={<BlogSkeleton />}>
+        <CareerDevelopmentBlog />
       </Suspense>
-      <Suspense
-        fallback={<div className="text-6xl text-center">Loading...</div>}
-      >
-        <StudentSuccessWrapper searchParams={searchParams} />
+      <Suspense fallback={<StudentSuccessSkeleton />}>
+        <StudentSuccessWrapper />
       </Suspense>
-      <Suspense
-        fallback={<div className="text-6xl text-center">Loading...</div>}
-      >
-        <NewsfeedsArchive searchParams={searchParams} />
+      <Suspense fallback={<NewsfeedsArchiveSkeleton />}>
+        <NewsfeedsArchive />
       </Suspense>
-      <Suspense
-        fallback={<div className="text-6xl text-center">Loading...</div>}
-      >
+      <Suspense fallback={<NewsletterSkeleton />}>
         <NewsletterSection />
       </Suspense>
-      <Suspense
-        fallback={<div className="text-6xl text-center">Loading...</div>}
-      >
+      <Suspense fallback={<PartnerSkeleton />}>
         <AffiliatesAndClients />
       </Suspense>
       <Suspense fallback={<BranchesSkeleton />}>
-        <OurBranchesWrapper searchParams={searchParams} />
+        <OurBranchesWrapper />
       </Suspense>
     </>
   );

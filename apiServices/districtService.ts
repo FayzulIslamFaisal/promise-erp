@@ -233,7 +233,7 @@ export async function deleteDistrict(
 //  Get District By ID
 // =======================
 export async function getDistrictById(
-  id: string
+  id: number
 ): Promise<DistrictSingleResponse> {
   try {
     const session = await getServerSession(authOptions);
@@ -267,7 +267,7 @@ export async function getDistrictById(
 // =======================
 
 export async function updateDistrict(
-  id: string,
+  id: number,
   districtData: DistrictFormData
 ): Promise<AddDistrictApiResponse> {
   try {

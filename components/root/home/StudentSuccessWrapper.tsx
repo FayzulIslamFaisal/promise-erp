@@ -1,18 +1,15 @@
-import { HomesearchParamsProps } from "@/app/(root)/page";
 import SectionTitle from "@/components/common/SectionTitle";
 import StudentSuccessStories from "./StudentSuccessStories";
 import { fetchPublicFeaturedReviews } from "@/apiServices/homePageService";
 
-const StudentSuccessWrapper = async ({
-  searchParams,
-}: HomesearchParamsProps) => {
-  const queryParams = await searchParams;
-  const page = queryParams.page ? Number(queryParams.page) : 1;
+const StudentSuccessWrapper = async () => {
+
   const params = {
-    per_page: queryParams.per_page ? queryParams.per_page : "20",
+    per_page: 4,
+    page: 1,
   };
 
-  const reviewsData = await fetchPublicFeaturedReviews({ page, params });
+  const reviewsData = await fetchPublicFeaturedReviews({ params });
   return (
     <section
       className="py-8 md:py-14  bg-cover bg-no-repeat bg-center min-h-[600px] relative"

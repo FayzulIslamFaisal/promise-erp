@@ -70,7 +70,7 @@ export default function BatchFilter({
         params.delete(key)
       }
     })
-
+    params.set("page", "1") // Reset to first page on filter change
     const timer = setTimeout(() => {
       router.replace(`${pathname}?${params.toString()}`)
     }, 500)

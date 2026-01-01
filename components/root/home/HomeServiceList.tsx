@@ -2,16 +2,14 @@ import { Card } from "@/components/ui/card";
 import SectionTitle from "@/components/common/SectionTitle";
 import Image from "next/image";
 import { fetchPublicCompanyServices } from "@/apiServices/homePageService";
-interface HomeCoursesWrapperProps {
-  searchParams: { [key: string]: string | string[] | undefined };
-}
 
-const HomeServiceList = async({searchParams}: HomeCoursesWrapperProps) => {
-  const queryParams = await searchParams;
-  const page = queryParams.page ? Number(queryParams.page) : 1;
+
+
+const HomeServiceList = async() => {
+
   const params = {
-    per_page: queryParams.per_page ? queryParams.per_page : "8",
-    page: page,
+    per_page: 8,
+    page: 1,
   };
   const servicesData = await fetchPublicCompanyServices({ params });
   const services = servicesData?.data?.services || [];

@@ -7,10 +7,10 @@ import BatchFilter from "./BatchFilter"
 
 export default async function BatchFilterData() {
   const [divisionsRes, districtsRes, branchesRes, coursesRes] = await Promise.all([
-    getDivisions(),
-    getDistricts(),
-    getBranches(),
-    getCourses(),
+    getDivisions(1, { per_page: 100 }),
+    getDistricts(1, { per_page: 100 }),
+    getBranches(1, { per_page: 100 }),
+    getCourses(1, { per_page: 100 }),
   ])
 
   return (

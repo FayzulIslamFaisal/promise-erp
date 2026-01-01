@@ -22,9 +22,12 @@ const RegisterUser = async (data: RegisterPayload) => {
       throw new Error(result?.message || "Registration failed")
     }
     return result
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Register API Error:", error)
-    throw new Error(error.message || "Something went wrong")
+    if (error instanceof Error) {
+      throw new Error(error.message || "Something went wrong")
+    }
+    throw new Error("Unknown error occurred while registering user")
   }
 }
 export default RegisterUser
@@ -56,8 +59,12 @@ export const loginUser = async (data: LoginPayload) => {
     }
 
     return responseData.data;
-  } catch (error: any) {
-    console.error("Login API Error:", error.message);
-    throw error;
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("Login API Error:", error.message);
+      throw error;
+    }else{
+      throw new Error("Unknown error occurred while fetching login user");
+    }
   }
 };

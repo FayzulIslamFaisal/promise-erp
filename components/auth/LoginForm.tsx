@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { signIn } from "next-auth/react"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { Eye, EyeOff } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -20,7 +20,9 @@ export interface FormData {
 
 const LoginForm = () => {
   const [showPassword, setShowPassword] = useState(false)
-  const router = useRouter()
+  const router = useRouter();
+  const searchParams = useSearchParams()
+  const redirectPath = searchParams.get("redirect") || "/"
 
   const {
     register,
@@ -36,8 +38,8 @@ const LoginForm = () => {
     })
 
     if (res?.ok) {
-      router.push("/") 
       toast.success("Logged in successfully!")
+      router.push(redirectPath)
     } else {
       toast.error(res?.error || "Login failed!")
     }

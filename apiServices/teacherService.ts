@@ -109,7 +109,6 @@ export async function addTeacher(
 // =======================
 
 async function getTeachersCached(
-  page: number,
   token: string,
   params: Record<string, unknown> = {}
 ): Promise<TeacherResponse> {
@@ -117,7 +116,6 @@ async function getTeachersCached(
   cacheTag("teachers-list")
 
   const url = new URL(`${API_BASE}/teachers`)
-  url.searchParams.append("page", String(page))
 
   Object.entries(params).forEach(([key, value]) => {
       if (value !== undefined && value !== null) {
@@ -140,14 +138,13 @@ async function getTeachersCached(
 }
 
 export async function getTeachers(
-  page = 1,
   params: Record<string, unknown> = {}
 ): Promise<TeacherResponse> {
   const session = await getServerSession(authOptions)
   const token = session?.accessToken
   if (!token) throw new Error("No valid session or access token found.")
 
-  return getTeachersCached(page, token, params)
+  return getTeachersCached(token, params)
 }
 
 export interface TeacherSingleResponse {

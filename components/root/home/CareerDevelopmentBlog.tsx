@@ -2,7 +2,6 @@ import {
   BlogApiResponse,
   fetchPublicHomeBlog,
 } from "@/apiServices/homePageService";
-import { HomesearchParamsProps } from "@/app/(root)/page";
 import NotFoundComponent from "@/components/common/NotFoundComponent";
 import SectionTitle from "@/components/common/SectionTitle";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
@@ -14,14 +13,11 @@ import { Calendar, MoveRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
-const CareerDevelopmentBlog = async ({
-  searchParams,
-}: HomesearchParamsProps) => {
-  const queryParams = await searchParams;
-  const page = queryParams.page ? Number(queryParams.page) : 1;
+const CareerDevelopmentBlog = async () => {
+
   const params = {
-    per_page: queryParams.per_page ? queryParams.per_page : "4",
-    page: page,
+    per_page: 4,
+    page: 1,
   };
   const blogData: BlogApiResponse | null = await fetchPublicHomeBlog({
     params,

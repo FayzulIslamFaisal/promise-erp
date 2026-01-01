@@ -31,6 +31,7 @@ export default async function BatchesData({
     typeof searchParams.page === "string" ? Number(searchParams.page) : 1;
 
   const params = {
+    page,
     search:
       typeof searchParams.search === "string"
         ? searchParams.search
@@ -44,7 +45,7 @@ export default async function BatchesData({
         ? searchParams.division_id
         : undefined,
     district_id:
-        typeof searchParams.district_id === "string"
+      typeof searchParams.district_id === "string"
         ? searchParams.district_id
         : undefined,
     branch_id:
@@ -56,11 +57,11 @@ export default async function BatchesData({
         ? searchParams.course_id
         : undefined,
     is_online:
-        typeof searchParams.is_online === "string"
+      typeof searchParams.is_online === "string"
         ? searchParams.is_online
         : undefined,
     is_offline:
-        typeof searchParams.is_offline === "string"
+      typeof searchParams.is_offline === "string"
         ? searchParams.is_offline
         : undefined,
     per_page: 15
@@ -77,8 +78,8 @@ export default async function BatchesData({
     }
   }
 
-  const batches = data.data.batches;
-  const pagination = data.data.pagination;
+  const batches = data?.data?.batches;
+  const paginationData = data?.data?.pagination;
 
   if (batches.length === 0) {
     return <NotFoundComponent message="No batches found." />;
@@ -86,25 +87,27 @@ export default async function BatchesData({
 
   return (
     <>
-      <div className="rounded-md border">
+      <div className="rounded-md border overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>#</TableHead>
-              <TableHead className="text-center">Action</TableHead>
-              <TableHead>Name</TableHead>
-              <TableHead>Course</TableHead>
+              <TableHead className="w-[50px]">#</TableHead>
+              <TableHead className="text-center w-[100px]">Action</TableHead>
+              <TableHead className="min-w-[150px]">Batch Name</TableHead>
+              <TableHead className="min-w-[200px]">Course</TableHead>
               <TableHead>Branch</TableHead>
-              <TableHead>Discount Price</TableHead>
+              <TableHead className="text-right">Price</TableHead>
+              <TableHead className="text-right">Discount</TableHead>
+              <TableHead className="text-right">Final Price</TableHead>
+              <TableHead className="text-center">Enrolled</TableHead>
               <TableHead>End Date</TableHead>
-              <TableHead>Total Enrolled</TableHead>
             </TableRow>
           </TableHeader>
 
           <TableBody>
             {batches.map((batch, i) => (
               <TableRow key={batch?.id}>
-                <TableCell>{i + 1}</TableCell>
+                <TableCell>{(page - 1) * 15 + (i + 1)}</TableCell>
                 <TableCell className="text-center">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -143,18 +146,35 @@ export default async function BatchesData({
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </TableCell>
-                <TableCell>{batch.name}</TableCell>
+                <TableCell className="font-medium">{batch.name}</TableCell>
                 <TableCell>{batch.course?.title}</TableCell>
-                <TableCell>{batch.branch.name}</TableCell>
-                <TableCell>{batch.discount}</TableCell>
-                <TableCell>{batch.end_date}</TableCell>
-                <TableCell>{batch.total_enrolled}</TableCell>
+                <TableCell>{batch?.branch?.name || "N/A"}</TableCell>
+                <TableCell className="text-right">{batch.price}</TableCell>
+                <TableCell className="text-right">
+                  {batch.discount_type === "percentage"
+                    ? `${batch.discount}%`
+                    : batch.discount || "0"}
+                </TableCell>
+                <TableCell className="text-right font-semibold text-primary">
+                  {batch.after_discount}
+                </TableCell>
+                <TableCell className="text-center">
+                  <Badge variant="outline">{batch.total_enrolled || 0}</Badge>
+                </TableCell>
+                <TableCell className="whitespace-nowrap">{batch.end_date}</TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
       </div>
-      <Pagination pagination={pagination} />
+      {
+        paginationData &&  (
+          <div className="mt-4">
+            <Pagination pagination={paginationData} />
+          </div>
+        )
+      }
+
     </>
   );
 }

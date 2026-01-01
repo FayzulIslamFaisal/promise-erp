@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { CheckCircle2 } from "lucide-react";
@@ -10,15 +10,18 @@ import CourseAddForm from "./CourseAddForm";
 import ChapterLessonAddForm from "./ChapterLessonAddForm";
 import FAQSelection from "./FAQSelection";
 import FacilitiesSelection from "./FacilitiesSelection";
+import CourseLearningsAddForm from "./CourseLearningsAddForm";
+import CourseToolsAddForm from "./CourseToolsAddForm";
+import WhoCanJoinSelection from "./WhoCanJoinSelection";
+
 import { createCourse } from "@/apiServices/courseService";
 import { handleFormErrors, handleFormSuccess } from "@/lib/formErrorHandler";
 import { UseFormSetError } from "react-hook-form";
 import { ApiErrorResponse } from "@/lib/apiErrorHandler";
 
-
-// ------------------------------
+// -----------------------------------------
 // Step Header Component
-// ------------------------------
+// -----------------------------------------
 interface StepHeaderProps {
   number: number;
   title: string;
@@ -48,50 +51,27 @@ function StepHeader({ number, title, isActive, isCompleted }: StepHeaderProps) {
   );
 }
 
-// ------------------------------
+// -----------------------------------------
 // Wizard Page
-// ------------------------------
+// -----------------------------------------
 export default function CourseCreationWizard() {
   const router = useRouter();
 
   const [step, setStep] = useState<number>(1);
   const [courseId, setCourseId] = useState<number | null>(null);
+  const [ error, setError] = useState<any>(null);
+
+  console.log("courseId Step......:", courseId);
 
   const goNext = () => setStep((prev) => prev + 1);
 
-  // --------------------------------------------
-  // Step 1 — Create Course (Form Submit Handler)
-  // --------------------------------------------
-  const handleCourseSubmit = async (
-    formData: FormData,
-    setFormError: (field: string, message: string) => void,
-    resetForm: () => void
-  ) => {
-    try {
-      const res = await createCourse(formData);
-      
-      if (res.success) {
-        const newCourseId = res.data?.id;
-        if (newCourseId) {
-          setCourseId(Number(newCourseId));
-          handleFormSuccess(res.message || "Course created successfully!");
-          goNext();
-        } else {
-          handleFormErrors(
-            { success: false, message: "Course created but ID not found" },
-            setFormError as UseFormSetError<any>
-          );
-        }
-      } else {
-        handleFormErrors(res as ApiErrorResponse, setFormError as UseFormSetError<any>);
-      }
-    } catch (error) {
-      handleFormErrors(
-        { success: false, message: error instanceof Error ? error.message : "Failed to create course" },
-        setFormError as UseFormSetError<any>
-      );
+  // Redirect to courses page after completion
+  useEffect(() => {
+    if (step === 8) {
+      const timer = setTimeout(() => router.push("/lms/courses"), 1500);
+      return () => clearTimeout(timer);
     }
-  };
+  }, [step, router]);
 
   return (
     <Card className="mx-auto w-full">
@@ -101,67 +81,76 @@ export default function CourseCreationWizard() {
 
       <CardContent>
         {/* STEP 1 */}
-        <StepHeader
-          number={1}
-          title="Course"
-          isActive={step === 1}
-          isCompleted={step > 1}
-        />
-
+        <StepHeader number={1} title="Course" isActive={step === 1} isCompleted={step > 1} />
         {step === 1 && (
           <div className="mt-4">
-            <CourseAddForm title="Create Course" onSubmit={handleCourseSubmit} />
+            <CourseAddForm title="Create Course" setCourseId={setCourseId} goNext={goNext} />
           </div>
         )}
-
         <Separator className="my-6" />
 
         {/* STEP 2 */}
-        <StepHeader
-          number={2}
-          title="Chapters & Lessons"
-          isActive={step === 2}
-          isCompleted={step > 2}
-        />
-
-        {step === 2 && courseId && (
+        <StepHeader number={2} title="Chapters & Lessons" isActive={step === 2} isCompleted={step > 2} />
+        {step === 2 && courseId ? (
           <div className="mt-4">
             <ChapterLessonAddForm courseId={courseId} onSuccess={goNext} />
           </div>
-        )}
-
+        ) : step === 2 ? <p>Loading step 2...</p> : null}
         <Separator className="my-6" />
 
         {/* STEP 3 */}
-        <StepHeader
-          number={3}
-          title="FAQs"
-          isActive={step === 3}
-          isCompleted={step > 3}
-        />
-
-        {step === 3 && courseId && (
+        <StepHeader number={3} title="FAQs" isActive={step === 3} isCompleted={step > 3} />
+        {step === 3 && courseId ? (
           <div className="mt-4">
             <FAQSelection courseId={courseId} onSuccess={goNext} />
           </div>
-        )}
-
+        ) : step === 3 ? <p>Loading step 3...</p> : null}
         <Separator className="my-6" />
 
         {/* STEP 4 */}
-        <StepHeader
-          number={4}
-          title="Facilities"
-          isActive={step === 4}
-          isCompleted={step > 4}
-        />
-
-        {step === 4 && courseId && (
+        <StepHeader number={4} title="Facilities" isActive={step === 4} isCompleted={step > 4} />
+        {step === 4 && courseId ? (
           <div className="mt-4">
-            <FacilitiesSelection
+            <FacilitiesSelection courseId={courseId} onSuccess={goNext} />
+          </div>
+        ) : step === 4 ? <p>Loading step 4...</p> : null}
+        <Separator className="my-6" />
+
+        {/* STEP 5 */}
+        <StepHeader number={5} title="Course Learnings" isActive={step === 5} isCompleted={step > 5} />
+        {step === 5 && courseId ? (
+          <div className="mt-4">
+            <CourseLearningsAddForm
               courseId={courseId}
-              onSuccess={() => router.push("/lms/courses")}
+              title="Course Learnings"
+              onSuccess={goNext}
             />
+          </div>
+        ) : step === 5 ? <p>Loading step 5...</p> : null}
+        <Separator className="my-6" />
+
+        {/* STEP 6 */}
+        <StepHeader number={6} title="Course Tools" isActive={step === 6} isCompleted={step > 6} />
+        {step === 6 && courseId ? (
+          <div className="mt-4">
+            <CourseToolsAddForm courseId={courseId} onSuccess={goNext} />
+          </div>
+        ) : step === 6 ? <p>Loading step 7...</p> : null}
+        <Separator className="my-6" />
+        {/* STEP 7 */}
+        <StepHeader number={7} title="Who Can Join" isActive={step === 7} isCompleted={step > 7} />
+        {step === 7 && courseId ? (
+          <div className="mt-4">
+            <WhoCanJoinSelection courseId={courseId} onSuccess={goNext} />
+          </div>
+        ) : step === 7 ? <p>Loading step 7...</p> : null}
+        <Separator className="my-6" />
+
+        {/* STEP 8 — COMPLETE */}
+        <StepHeader number={8} title="Complete" isActive={step === 8} isCompleted={step > 7} />
+        {step === 8 && (
+          <div className="mt-4 text-green-600 font-semibold">
+            Course creation completed successfully! Redirecting...
           </div>
         )}
       </CardContent>

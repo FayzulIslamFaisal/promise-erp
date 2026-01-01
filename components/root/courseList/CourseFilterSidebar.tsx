@@ -2,7 +2,6 @@ import { Card } from "@/components/ui/card";
 import CourseFilterSection from "./CourseFilterSection";
 import ErrorComponent from "@/components/common/ErrorComponent";
 import { getPublicCoursesList } from "@/apiServices/courseListPublicService";
-import page from "@/app/(dashboard)/hr/employees/page";
 
 const CourseFilterSidebar = async ({
   searchParams,

@@ -2,17 +2,15 @@ import {
   fetchPublicOpportunities,
   OpportunityItem,
 } from "@/apiServices/homePageService";
-import { HomesearchParamsProps } from "@/app/(root)/page";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Card, CardContent } from "@/components/ui/card";
 import Image from "next/image";
 
-const GettingOpportunity = async ({ searchParams }: HomesearchParamsProps) => {
-  const queryParams = await searchParams;
-  const page = queryParams.page ? Number(queryParams.page) : 1;
+const GettingOpportunity = async () => {
+
   const params = {
-    per_page: queryParams.per_page ? queryParams.per_page : "4",
-    page: page,
+    per_page: 4,
+    page: 1,
   };
   const opportunitiesData = await fetchPublicOpportunities({ params });
   const opportunities: OpportunityItem[] = opportunitiesData?.data?.opportunities || [];

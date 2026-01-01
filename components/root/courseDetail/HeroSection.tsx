@@ -1,10 +1,11 @@
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Star, PlayCircle, Clock, Users, HeadphonesIcon, Inbox, GraduationCap } from "lucide-react";
+import { PlayCircle, Clock, Users, HeadphonesIcon, Inbox, GraduationCap } from "lucide-react";
 import { CourseDetail } from "@/apiServices/courseDetailPublicService";
 import Image from "next/image";
 import RatingStars from "@/components/common/RatingStars";
+import dynamic from "next/dynamic";
+const EnrollButton = dynamic(() => import('./EnrollButton'));
 
 const PLACEHOLDER_IMAGE = "https://placehold.co/600x400/4f46e5/ffffff/png?text=Course+Image";
 
@@ -20,8 +21,6 @@ export const HeroSection = ({ course }: HeroSectionProps) => {
   const discount = course.batch?.discount || 0;
   const hasDiscount = discount > 0 && originalPrice > price;
   const discount_percentage = course.batch?.discount_percentage || 0;
-
-  console.log("Course Hero Section:", course);
 
   return (
     <div className="grid lg:grid-cols-2 gap-12 items-center">
@@ -98,9 +97,7 @@ export const HeroSection = ({ course }: HeroSectionProps) => {
           </div>
         </div>
 
-        <Button variant="default" className="w-full">
-          Enroll Now
-        </Button>
+        <EnrollButton slug={course?.slug} />
       </div>
 
       {/* Right Column - About Course */}
@@ -108,7 +105,7 @@ export const HeroSection = ({ course }: HeroSectionProps) => {
         <Card>
           <CardContent className="p-6">
             <h2 className="text-2xl font-bold mb-4">About this Course</h2>
-              <div dangerouslySetInnerHTML={{ __html: course.description }} />
+            <div dangerouslySetInnerHTML={{ __html: course.description }} />
           </CardContent>
         </Card>
       </div>
