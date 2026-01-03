@@ -1,9 +1,10 @@
-import AppSidebar from "@/components/admin/AppSidebar";
-import { Separator } from "@/components/ui/separator";
+
+import HeaderContent, { NavLink } from "@/components/common/HeaderContent";
+import { StudentSidebar } from "@/components/student-dashboard/StudentSidebar";
 import {
+  SidebarHeader,
   SidebarInset,
   SidebarProvider,
-  SidebarTrigger,
 } from "@/components/ui/sidebar";
 
 export default function StudentDashboardLayout({
@@ -11,19 +12,26 @@ export default function StudentDashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
+
+  const studentNavLinks: NavLink[] = [
+    { name: "Home", href: "/" },
+    { name: "Courses", href: "/course", hasDropdown: true },
+    { name: "Instructors", href: "/instructors" },
+    { name: "Branch", href: "/branch" },
+    { name: "Blog", href: "/blog" },
+    { name: "Contact", href: "/contact" },
+  ];
   return (
-    <SidebarProvider>
-      <AppSidebar />
-      <SidebarInset>
-        <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
-          <SidebarTrigger className="-ml-1" />
-          <Separator
-            orientation="vertical"
-            className="mr-2 data-[orientation=vertical]:h-4"
-          />
-        </header>
-        <div className="w-full">{children}</div>
-      </SidebarInset>
-    </SidebarProvider>
+    <div className="flex flex-col min-h-screen">
+      <SidebarHeader className="w-full border-b bg-background py-3 px-4 z-50 sticky top-0">
+          <HeaderContent navLinks={studentNavLinks} />
+      </SidebarHeader>
+      <SidebarProvider>
+        <StudentSidebar />
+        <SidebarInset>
+          <div className="w-full">{children}</div>
+        </SidebarInset>
+      </SidebarProvider>
+    </div>
   );
 }

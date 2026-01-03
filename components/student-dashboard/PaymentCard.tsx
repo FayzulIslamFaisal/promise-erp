@@ -8,7 +8,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { getCourseWiseDuePayments } from "@/apiServices/studentDashboardService";
-import NotFoundComponent from "../common/NotFoundComponent";
+// import NotFoundComponent from "../common/NotFoundComponent";
 
 
 
@@ -16,7 +16,8 @@ const PaymentCard = async () => {
   const duePayments = await getCourseWiseDuePayments();
   const duePayment = duePayments?.data?.due_payments || [];
   if (duePayment.length === 0) {
-    return <NotFoundComponent message="No due payments found." />;
+    // return <NotFoundComponent message="No due payments found." />;
+    return null;
   }
 
   return (

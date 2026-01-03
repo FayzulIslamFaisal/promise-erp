@@ -7,7 +7,7 @@ import UpcomingClasses from "./UpcomingClasses";
 import WelcomeBanner from "./WelcomeBanner";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import NotFoundComponent from "../common/NotFoundComponent";
+// import NotFoundComponent from "../common/NotFoundComponent";
 
 
 const StudentDashboardWrapper = async () => {
@@ -30,14 +30,15 @@ const StudentDashboardWrapper = async () => {
       {hasCards ? (
         <DashboardStatsGrid cards={cards} />
       ) : (
-        <NotFoundComponent message="No data found" />
+        null
       )}
 
       <div className="px-4">
         {class_attendance.length > 0 ? (
           <AttendanceReportCard data={class_attendance} />
         ) : (
-          <NotFoundComponent message="No attendance data found" />
+          // <NotFoundComponent message="No attendance data found" />
+          null
         )}
       </div>
 
@@ -45,13 +46,15 @@ const StudentDashboardWrapper = async () => {
         {upcoming_classes.length > 0 ? (
           <UpcomingClasses classesData={upcoming_classes} />
         ) : (
-          <NotFoundComponent message="No upcoming classes found" />
+          // <NotFoundComponent message="No upcoming classes found" />
+          null
         )}
         {
           hasDuePayments ? (
             <DuePayments duePayments={due_payments} />
           ) : (
-            <NotFoundComponent message="No due payments found" />
+            // <NotFoundComponent message="No due payments found" />
+            null
           )
         }
       </div>

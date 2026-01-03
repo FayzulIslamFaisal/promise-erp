@@ -19,34 +19,35 @@ interface CategoriesData {
   categoriesData: CategoriesResponse;
 }
 
-const CourseCategoriesSection = ({categoriesData}: CategoriesData) => {
+const CourseCategoriesSection = ({ categoriesData }: CategoriesData) => {
   const categories = categoriesData?.data?.categories || [];
   return (
-    
-      <Carousel
-        opts={{
-          align: "start",
-          loop: true,
-        }}
-        className="w-full max-w-full relative"
-      >
-        <CarouselContent className="py-4">
-          {categories.map((course) => (
-            <CarouselItem
-              key={course.id}
-              className="basis-full sm:basis-1/2 lg:basis-1/3 xl:basis-1/4"
-            >
-              <Card className="group h-full bg-secondary-light transition-all duration-300 hover:shadow-xl hover:-translate-y-2 border-0 text-center">
-              <CardContent className="flex flex-col items-center justify-between gap-6 p-8">
-                <div className="bg-white p-4 mt-4 mx-auto rounded-full shadow-md w-[100] h-[100] flex items-center justify-center">
+
+    <Carousel
+      opts={{
+        align: "start",
+        loop: true,
+      }}
+      className="w-full max-w-full relative"
+    >
+      <CarouselContent className="py-4">
+        {categories.map((course) => (
+          <CarouselItem
+            key={course.id}
+            className="basis-full sm:basis-1/2 lg:basis-1/3 xl:basis-1/4"
+          >
+            <Card className="group h-full bg-secondary-light transition-all duration-300 hover:shadow-xl hover:-translate-y-2 border-0 text-center">
+              <CardContent className="flex flex-col items-center justify-between gap-6 px-8">
+                <div className="bg-white mt-4 rounded-full shadow-md w-25 h-25 flex items-center justify-center p-3">
                   <Image
                     src={course.image || "/images/placeholder_img.jpg"}
                     alt={course.name}
                     width={80}
                     height={80}
-                    className="object-cover rounded-full"
+                    className="rounded-full object-cover h-20 w-20"
                   />
                 </div>
+
 
                 <h3 className="text-base md:text-2xl font-semibold capitalize text-white">
                   {course.name}
@@ -54,7 +55,7 @@ const CourseCategoriesSection = ({categoriesData}: CategoriesData) => {
 
                 <div className="flex justify-center ">
                   <Button variant="outline" asChild className="text-white py-5 flex items-center gap-2 ">
-                    <Link href="/courses">
+                    <Link href={`/courses?category_id=${course.id}`}>
                       <span className="font-semibold">{course.total_course}{" "}Courses</span>
                       <div className="bg-primary text-white p-2 rounded-full inline-flex items-center justify-center">
                         <ChevronRight width={20} height={20} />
@@ -64,14 +65,14 @@ const CourseCategoriesSection = ({categoriesData}: CategoriesData) => {
                 </div>
               </CardContent>
             </Card>
-            </CarouselItem>
-          ))}
-        </CarouselContent>
+          </CarouselItem>
+        ))}
+      </CarouselContent>
 
-        {/* Arrows inside container */}
-        <CarouselPrevious className=" absolute cursor-pointer left-0 md:-left-2 top-1/2 -translate-y-1/2 bg-primary hover:bg-primary/80 text-white hover:text-white rounded-full border-none " />
-        <CarouselNext className="absolute cursor-pointer right-0 md:-right-2 top-1/2 -translate-y-1/2 bg-primary hover:bg-primary/80 text-white hover:text-white rounded-full border-none" />
-      </Carousel>
+      {/* Arrows inside container */}
+      <CarouselPrevious className=" absolute cursor-pointer left-0 md:-left-2 top-1/2 -translate-y-1/2 bg-primary hover:bg-primary/80 text-white hover:text-white rounded-full border-none " />
+      <CarouselNext className="absolute cursor-pointer right-0 md:-right-2 top-1/2 -translate-y-1/2 bg-primary hover:bg-primary/80 text-white hover:text-white rounded-full border-none" />
+    </Carousel>
   );
 };
 

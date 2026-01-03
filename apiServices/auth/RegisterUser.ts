@@ -7,7 +7,11 @@ export interface RegisterPayload {
 }
 
 const RegisterUser = async (data: RegisterPayload) => {
-    const BASE_URL = process.env.NEXT_PUBLIC_API_URL + "/auth/register";
+  const BASE_URL = process.env.NEXT_PUBLIC_API_URL + "/auth/register";
+  
+  console.log("Register API URL:", BASE_URL) // Debug log
+  console.log("Register Data:", data) // Debug log
+  
   try {
     const response = await fetch(`${BASE_URL}`, {
       method: "POST",
@@ -17,7 +21,12 @@ const RegisterUser = async (data: RegisterPayload) => {
       },
       body: JSON.stringify(data),
     })
+    
+    console.log("Register Response Status:", response.status) // Debug log
+    
     const result = await response.json()
+    console.log("Register Response Data:", result) // Debug log
+    
     if (!response.ok) {
       throw new Error(result?.message || "Registration failed")
     }

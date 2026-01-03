@@ -81,6 +81,9 @@ export interface BranchApiResponse {
 export interface HeaderBranchList {
   id: number;
   name: string;
+  address?: string | null;
+  phone?: string[] | null;
+  email?: string[] | null;
 }
 
 // Main response interface
@@ -451,6 +454,53 @@ export async function fetchAllBranches(): Promise<BranchApiResponse | null> {
   }
 }
 // Home page Teachers get API
+//Start Home page Branches get API --
+
+export async function getHomePageAllBranches(): Promise<BranchApiResponse | null> {
+  try {
+
+    const res = await fetch(`${API_BASE}/public/our-branches`);
+
+    if (!res.ok) {
+      throw new Error(
+        `fetchAllBranches API error: ${res.status} ${res.statusText}`
+      );
+    }
+
+    const data: BranchApiResponse = await res.json();
+    return data;
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("Error our branches:", error.message);
+      return null;
+    }
+    throw new Error("Unknown error occurred while our branches");
+  }
+}
+export async function getPublicBranchList(): Promise<HeaderBranchListResponse> {
+  try {
+    const res = await fetch(`${API_BASE}/public/branch-list`, {
+      cache: "no-store",
+    });
+
+    if (!res.ok) {
+      throw new Error(
+        `Branch List API failed — HTTP ${res.status} (${res.statusText})`
+      );
+    }
+
+    const data: HeaderBranchListResponse = await res.json();
+    return data;
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("Branch List API Error:", error.message);
+      throw new Error("Error fetching Branch List ");
+    }
+    throw new Error("Unknown error occurred while fetching Branch List");
+  }
+}
+//End Home page Branches get API --
+
 
 export async function fetchAllPublicTeachers(): Promise<TeacherApiResponse | null> {
   try {
@@ -696,28 +746,7 @@ export async function getPublicNewsletterSection(): Promise<getNewsletterItemRes
   }
 }
 
-export async function getPublicBranchList(): Promise<HeaderBranchListResponse> {
-  try {
-    const res = await fetch(`${API_BASE}/public/branch-list`, {
-      cache: "no-store",
-    });
 
-    if (!res.ok) {
-      throw new Error(
-        `Branch List API failed — HTTP ${res.status} (${res.statusText})`
-      );
-    }
-
-    const data: HeaderBranchListResponse = await res.json();
-    return data;
-  } catch (error: unknown) {
-    if (error instanceof Error) {
-      console.error("Branch List API Error:", error.message);
-      throw new Error("Error fetching Branch List ");
-    }
-    throw new Error("Unknown error occurred while fetching Branch List");
-  }
-}
 // Home page Course Search API
 export async function getPublicCourseSearch({
   params = {},

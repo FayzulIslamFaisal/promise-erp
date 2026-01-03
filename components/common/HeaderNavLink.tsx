@@ -5,14 +5,36 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ChevronDown, Phone } from "lucide-react";
-import { NavLink } from "./MainHeader";
+import { NavLink } from "./HeaderContent";
 import Link from "next/link";
+import { useEffect, useState } from "react";
+import { getCategories } from "@/apiServices/categoryService";
+import { Category } from "@/apiServices/categoryService";
 
 interface HeaderNavLinkProps {
   navLinks: NavLink[];
 }
 
 const HeaderNavLink = ({ navLinks }: HeaderNavLinkProps) => {
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const categoriesResponse = await getCategories();
+        setCategories(categoriesResponse.data?.categories || []);
+      } catch (error) {
+        console.error("Failed to fetch categories:", error);
+        setCategories([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCategories();
+  }, [])
+
   return (
     <div className="border-t bg-muted/30">
       <div className="container mx-auto px-4">
@@ -32,20 +54,31 @@ const HeaderNavLink = ({ navLinks }: HeaderNavLinkProps) => {
                       </Link>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent>
-                      <DropdownMenuItem asChild>
-                        <Link href="/course/web-development">
-                          Web Development
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                        <Link href="/course/data-science">Data Science</Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                        <Link href="/course/business">Business</Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                        <Link href="/course/design">Design</Link>
-                      </DropdownMenuItem>
+                      {loading ? (
+                        <DropdownMenuItem disabled>
+                          Loading categories...
+                        </DropdownMenuItem>
+                      ) : categories.length > 0 ? (
+                        categories.map((category) => (
+                          <DropdownMenuItem key={category.id}>
+                            <Link
+                              href={`/courses?category=${category.slug}`}
+                              className="w-full"
+                            >
+                              {category.name}
+                              {category.total_course && (
+                                <span className="ml-2 text-xs text-muted-foreground">
+                                  ({category.total_course})
+                                </span>
+                              )}
+                            </Link>
+                          </DropdownMenuItem>
+                        ))
+                      ) : (
+                        <DropdownMenuItem disabled>
+                          No categories found
+                        </DropdownMenuItem>
+                      )}
                     </DropdownMenuContent>
                   </DropdownMenu>
                 ) : (

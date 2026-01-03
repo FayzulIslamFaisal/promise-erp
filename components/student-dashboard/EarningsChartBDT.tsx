@@ -46,7 +46,8 @@ const EarningsChartBDT = () => {
   if (isPending) return <SectionLoadingSkeleton />;
 
   if (earningsDataBDT.length === 0)
-    return <NotFoundComponent message="Earnings Data Not Found" />;
+    // return <NotFoundComponent message="Earnings Data Not Found" />;
+    return null;
   return (
     <Card>
       <CardHeader className="pb-2">

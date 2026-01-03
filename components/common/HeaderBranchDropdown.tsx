@@ -27,7 +27,7 @@ const HeaderBranchDropdown = () => {
         try {
           const res = await getPublicBranchList();
           if (res.success) {
-            setBranchList(res?.data?.branches);
+            setBranchList(Array.isArray(res?.data?.branches) ? res.data.branches : []);
 
             // Set default selected branch from query params
             const branchParam = searchParams.get("branch_id");
@@ -56,7 +56,7 @@ const HeaderBranchDropdown = () => {
         <Button className="header-branch-filter-btn h-8 px-4 gap-2 bg-transparent hover:bg-transparent border-0">
           <span className="text-base flex items-center gap-2 text-secondary">
             <Funnel className="h-4 w-4" />{" "}
-            {selectedBranch
+            {selectedBranch && Array.isArray(branchList)
               ? branchList.find((b) => b.id === selectedBranch)?.name
               : "Branch"}
           </span>

@@ -1,10 +1,10 @@
 import SectionTitle from "@/components/common/SectionTitle";
 import OurBranches from "./OurBranches";
-import { fetchAllBranches } from "@/apiServices/homePageService";
+import { getHomePageAllBranches } from "@/apiServices/homePageService";
 
 const OurBranchesWrapper = async () => {
 
-  const branches = await fetchAllBranches();
+  const branches = await getHomePageAllBranches();
 
   console.log(branches, "branches");
 

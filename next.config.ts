@@ -7,6 +7,7 @@ const nextConfig: NextConfig = {
   generateEtags: true,
   productionBrowserSourceMaps: false, // Disable to avoid source map issues
 
+  cacheComponents: true,
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production' ? {
       exclude: ['error', 'warn'],
@@ -83,7 +84,6 @@ const nextConfig: NextConfig = {
     ];
   },
 
-  cacheComponents: true,
   logging: {
     fetches: {
       fullUrl: true,

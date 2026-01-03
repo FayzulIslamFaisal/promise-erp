@@ -1,10 +1,8 @@
-"use client"
 
-import RegisterForm from "@/components/auth/RegisterForm"
 import AuthLeftImage from "@/components/auth/AuthLeftImage"
-const Page: React.FC = () => {
+import RegisterForm from "@/components/auth/RegisterForm"
 
-
+const RegisterPage = () => {
   return (
     <section className="min-h-screen flex items-center bg-(--primary-light-color)">
       <div className="container mx-auto px-4">
@@ -18,4 +16,5 @@ const Page: React.FC = () => {
   )
 }
 
-export default Page
+export default RegisterPage
+

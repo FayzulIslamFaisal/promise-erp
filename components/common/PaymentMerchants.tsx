@@ -3,17 +3,17 @@ const PaymentMerchants = () => {
   const merchants = [
     {
       name: "bKash",
-      img: "/images/bkash.png",
+      img: "/images/bkash01.png",
       number: "01550-666800",
     },
     {
       name: "Nagad",
-      img: "/images/nagad.png",
+      img: "/images/nagad01.png",
       number: "01550-666800",
     },
     {
       name: "Rocket",
-      img: "/images/roket.png",
+      img: "/images/roket01.png",
       number: "01550-666800",
     },
   ];
@@ -32,7 +32,7 @@ const PaymentMerchants = () => {
                   src={merchant.img}
                   alt={merchant.name}
                   fill
-                  className="object-cover rounded-2xl"
+                  className="object-contain rounded-2xl"
                 />
               </div>
             </div>

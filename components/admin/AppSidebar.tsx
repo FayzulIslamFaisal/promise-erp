@@ -52,7 +52,6 @@ import NavUserManage from "./NavUserManage";
 import NavRolePermission from "./NavRolePermission";
 import NavDivision from "./NavDivision";
 import NavDistrict from "./NavDistrict";
-import NavStudentDashboard from "./NavStudentDashboard";
 
 // This is sample data.
 const data = {
@@ -927,61 +926,6 @@ const data = {
     },
   ],
 
-  navStudentDashboard: [
-    {
-      title: "Dashboard",
-      url: "/student/dashboard",
-      icon: LayoutDashboard,
-    },
-    {
-      title: "My Courses",
-      url: "/student/mycourses",
-      icon: BookOpenCheck,
-    },
-    {
-      title: "Free Class",
-      url: "/student/freeclass",
-      icon: School,
-    },
-    {
-      title: "Upcoming Courses",
-      url: "/student/upcomingcourses",
-      icon: Calendar,
-    },
-    {
-      title: "Payment",
-      url: "/student/payment",
-      icon: Banknote,
-      children: [
-        {
-          title: "Payment History",
-          url: "/student/paymenthistory",
-          icon: History,
-        },
-        {
-          title: "Due Payments",
-          url: "/student/duepayment",
-          icon: BadgeAlert,
-        },
-      ],
-    },
-    {
-      title: "My Earnings",
-      url: "/student/myearnings",
-      icon: BookMarked,
-    },
-    {
-      title: "Certificate",
-      url: "/student/certificate",
-      icon: ShieldCheck,
-    },
-    {
-      title: "Settings",
-      url: "/student/settings",
-      icon: Settings,
-    },
-  ],
-
 };
 
 export default function AppSidebar({
@@ -994,7 +938,6 @@ export default function AppSidebar({
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
-        <NavStudentDashboard items={data.navStudentDashboard} />
         <NavHr items={data.navHr} />
         <NavInventory items={data.navInventory} />
         <NavSales items={data.navSales} />

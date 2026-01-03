@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import NextAuthProvider from "@/components/next-auth/NextAuthProvider";
+import SessionProviderWrapper from "../components/next-auth/SessionProviderWrapper";
 import { Toaster } from "@/components/ui/sonner"
 import "./globals.css";
 
@@ -69,10 +69,10 @@ export default function RootLayout({
       <body
         className={`${inter.variable} antialiased`}
       >
-        <NextAuthProvider>
+        <SessionProviderWrapper>
           {children}
           <Toaster />
-        </NextAuthProvider>
+        </SessionProviderWrapper>
       </body>
     </html>
   );

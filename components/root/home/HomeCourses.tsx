@@ -47,11 +47,11 @@ const HomeCourses = ({coursesData}:HomeCoursesProps ) => {
       </Carousel>
       <div className="pt-6 flex items-center justify-center">
         <Button asChild className="cursor-pointer flex items-center gap-2" variant="secondary">
-          <Link href="/courses">
-            সব কোর্স দেখুন
-            <MoveRight className="w-5 h-5 animate-bounce" />
-          </Link>
-        </Button>
+            <Link href="#">
+               সব কোর্স দেখুন
+              <MoveRight className="w-5 h-5 animate-bounce" />
+            </Link>
+          </Button>
       </div>
     </>
   );
