@@ -13,11 +13,12 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import RatingStars from "@/components/common/RatingStars";
 import { ReviewApiResponse } from "@/apiServices/homePageService";
+import { AspectRatio } from "@/components/ui/aspect-ratio";
 
 interface StudentSuccessStoriesProps {
   reviewsData: ReviewApiResponse | null;
 }
-const StudentSuccessStories = ({reviewsData}:StudentSuccessStoriesProps ) => {
+const StudentSuccessStories = ({ reviewsData }: StudentSuccessStoriesProps) => {
   const reviews = reviewsData?.data?.reviews || [];
   return (
     <>
@@ -37,19 +38,18 @@ const StudentSuccessStories = ({reviewsData}:StudentSuccessStoriesProps ) => {
               <div className="flex flex-col items-center group">
                 {/* Image Wrapper */}
                 <div className="z-20 relative">
-                  <div className="rounded-full overflow-hidden shadow-xl transition-transform duration-500 group-hover:scale-102">
+                  <div className="rounded-full w-[150px] h-[150px] overflow-hidden shadow-xl transition-transform duration-500 group-hover:scale-102">
                     <Image
                       src={instructor.profile_image || "/images/placeholder_img.jpg"}
                       alt={instructor.name}
-                      width={150}
-                      height={150}
+                      fill
                       className=" object-cover rounded-full transition-transform duration-700 group-hover:scale-102"
                     />
                   </div>
                 </div>
 
                 {/* Card */}
-                <Card className="text-center w-full rounded-2xl shadow-md transition-all duration-500 -mt-20 pt-28 group-hover:-translate-y-2 group-hover:shadow-xl">
+                <Card className="text-center w-full rounded-2xl shadow transition-all duration-500 -mt-20 pt-28 group-hover:-translate-y-2 group-hover:shadow-md">
                   <CardContent>
                     <h3 className="text-base md:text-xl capitalize font-bold text-secondary mb-1">
                       {instructor?.name}

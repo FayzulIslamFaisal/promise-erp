@@ -24,7 +24,7 @@ const NewsfeedsArchive =  async() => {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 h-full">
           {/* Main Featured News */}
-          <Link href={newsItems[0].news_link} className="group h-full ">
+          <Link href={newsItems[0].news_link} className="group h-full " target="_blank">
             <Card className="border border-secondary/30 py-0 overflow-hidden transition-transform duration-500 hover:-translate-y-1 hover:shadow-2xl">
               <AspectRatio ratio={1 / 1} className="w-full relative">
                 <Image
@@ -42,7 +42,7 @@ const NewsfeedsArchive =  async() => {
           {/* Other News Items */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 h-full">
             {newsItems.slice(1).map((item) => (
-              <Link key={item.id} href={item.news_link} className="group">
+              <Link key={item.id} href={item.news_link} className="group" target="_blank">
                 <Card className="border border-secondary/30 py-0 overflow-hidden transition-transform duration-500 hover:-translate-y-1 hover:shadow-2xl">
                   <AspectRatio ratio={1 / 1} className="w-full relative">
                     <Image
