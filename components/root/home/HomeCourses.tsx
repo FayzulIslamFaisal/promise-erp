@@ -46,7 +46,7 @@ const HomeCourses = ({coursesData}:HomeCoursesProps ) => {
         <CarouselNext className="absolute cursor-pointer right-0 md:-right-2 top-1/2 -translate-y-1/2 bg-primary hover:bg-primary/80 text-white hover:text-white rounded-full border-none" />
       </Carousel>
       <div className="pt-6 flex items-center justify-center">
-        <Button asChild className="cursor-pointer flex items-center gap-2">
+        <Button asChild className="cursor-pointer flex items-center gap-2" variant="secondary">
           <Link href="/courses">
             সব কোর্স দেখুন
             <MoveRight className="w-5 h-5 animate-bounce" />
