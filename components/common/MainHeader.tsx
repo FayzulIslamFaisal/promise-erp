@@ -1,7 +1,6 @@
 "use client";
 
 import HeaderNavLink from "./HeaderNavLink";
-import HeaderContainer from "./HeaderContainer";
 import HeaderContent, { NavLink } from "./HeaderContent";
 
 const navLinks: NavLink[] = [
