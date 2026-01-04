@@ -35,7 +35,6 @@ const EnrollmentWrapper = ({ slug }: Props) => {
           slug,
           token
         );
-        console.log("get res enroll", res);
 
         if (res?.success) {
           setEnrollmentDetails(res);

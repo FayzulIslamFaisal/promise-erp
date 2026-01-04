@@ -1,6 +1,3 @@
-// "use server";
-import { authOptions } from "@/lib/auth";
-import { getServerSession } from "next-auth";
 
 const API_BASE =
   process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api/v1";
@@ -143,7 +140,7 @@ export async function getEnrollmentDetails(slug: string,  token: string): Promis
     const res = await fetch(
       `${API_BASE}/courses/${slug}/enrollment-details`,
       {
-        cache: "no-cache",
+       cache: "no-store",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,

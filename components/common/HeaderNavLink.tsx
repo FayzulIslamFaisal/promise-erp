@@ -1,3 +1,4 @@
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -7,19 +8,27 @@ import {
 import { ChevronDown, LogOut, Phone } from "lucide-react";
 import { AuthButtons, NavLink } from "./HeaderContent";
 import Link from "next/link";
-import { Category } from "@/apiServices/categoryService";
+import { Category, getHomeCourseCategories } from "@/apiServices/categoryService";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 
 interface HeaderNavLinkProps {
   navLinks: NavLink[];
-  categories: Category[];
   isStudentDashboard?: boolean;
 }
 
-const HeaderNavLink = async ({ navLinks, categories = [], isStudentDashboard = false }: HeaderNavLinkProps) => {
+const HeaderNavLink = async ({ navLinks, isStudentDashboard = false }: HeaderNavLinkProps) => {
   const session = await getServerSession(authOptions);
   const status = session ? "authenticated" : "unauthenticated";
+
+  // Fetch categories for dropdown
+  let categories: Category[] = [];
+  try {
+    const categoriesResponse = await getHomeCourseCategories();
+    categories = categoriesResponse.data?.categories || [];
+  } catch (error) {
+    console.error("Failed to fetch categories:", error);
+  }
   return (
     <nav className={`hidden md:flex items-center justify-between w-full`}>
       <div></div>
@@ -46,11 +55,6 @@ const HeaderNavLink = async ({ navLinks, categories = [], isStudentDashboard = f
                           className="w-full"
                         >
                           {category.name}
-                          {category.total_course && (
-                            <span className="ml-2 text-xs text-muted-foreground">
-                              ({category.total_course})
-                            </span>
-                          )}
                         </Link>
                       </DropdownMenuItem>
                     ))

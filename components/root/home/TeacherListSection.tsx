@@ -56,11 +56,11 @@ const TeacherListSection = ({ teacherData }: TeacherListSectionProps) => {
                 <Card className="text-center w-full rounded-2xl shadow-md transition-all duration-500 -mt-20 pt-28 group-hover:-translate-y-2 group-hover:shadow-xl">
                   <CardContent>
                     <h3 className="text-base md:text-xl capitalize font-bold text-secondary mb-1">
-                      {instructor?.name}
+                      {instructor?.name || "Teacher Name ---"}
                     </h3>
 
                     <p className="text-black/75 text-base font-medium mb-2">
-                      {instructor?.designation}
+                      {instructor?.designation || "Designation ---"}
                     </p>
 
                     <div className="flex items-center justify-center gap-2 text-primary mb-2 animate-fade-in">
@@ -71,7 +71,7 @@ const TeacherListSection = ({ teacherData }: TeacherListSectionProps) => {
                     </div>
 
                     <p className="text-black/75 text-base">
-                      {instructor.experience}
+                      {instructor.experience || "Experience ---"}
                     </p>
                   </CardContent>
                 </Card>

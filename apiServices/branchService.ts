@@ -178,14 +178,14 @@ export async function getBranches(
   page = 1,
   params: Record<string, unknown> = {}
 ): Promise<BranchResponse> {
+  const session = await getServerSession(authOptions);
+  const token = session?.accessToken;
+
+  if (!token) {
+    throw new Error("No valid session or access token found.");
+  }
+
   try {
-    const session = await getServerSession(authOptions);
-    const token = session?.accessToken;
-
-    if (!token) {
-      throw new Error("No valid session or access token found.");
-    }
-
     return await getBranchesCached(page, token, params);
   } catch (error) {
     console.error("Error in get branches:", error);

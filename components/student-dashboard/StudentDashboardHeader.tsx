@@ -1,8 +1,7 @@
 import HeaderNavLink from '../common/HeaderNavLink'
 import { NavLink } from '../common/HeaderContent'
-import { CategoriesResponse, getCategories } from '@/apiServices/categoryService'
 
-const StudentDashboardHeader = async () => {
+const StudentDashboardHeader = () => {
     const navLinks: NavLink[] = [
         { name: "Home", href: "/" },
         { name: "Courses", href: "/course", hasDropdown: true },
@@ -12,12 +11,9 @@ const StudentDashboardHeader = async () => {
         { name: "Contact", href: "/contact" },
     ]
 
-    const categoriesResponse: CategoriesResponse = await getCategories();
-    const categories = categoriesResponse.data?.categories || [];
-
     return (
         <div className="w-full">
-            <HeaderNavLink navLinks={navLinks} categories={categories} isStudentDashboard={true} />
+            <HeaderNavLink navLinks={navLinks} isStudentDashboard={true} />
         </div>
     );
 };

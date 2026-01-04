@@ -79,7 +79,6 @@ const EnrollPaymentMethod = ({
           payment_type: 0, // 0 = full payment
           partial_payment_amount: 0,
         }, token);
-        console.log("res enroll submit ", res);
 
         if (res.success) {
           toast.success(res?.data?.message || "Enrollment successful");
