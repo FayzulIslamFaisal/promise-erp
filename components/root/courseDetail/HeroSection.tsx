@@ -41,30 +41,30 @@ export const HeroSection = ({ course }: HeroSectionProps) => {
         </div>
 
         <div className="flex gap-3 mb-6 flex-wrap">
-          {course.batch?.start_date && (
+          {course.batch?.start_date ? (
             <Badge variant="secondary" className="py-2 px-6">
               <PlayCircle className="w-4 h-4 mr-1" />
               Starts: {new Date(course.batch.start_date).toLocaleDateString()}
             </Badge>
-          )}
-          {course.total_seats && (
+          ) : null}
+          {course.total_seats ? (
             <Badge variant="secondary" className="py-2 px-6">
               <HeadphonesIcon className="w-4 h-4 mr-1" />
               {course.total_seats} total seats
             </Badge>
-          )}
-          {course.total_enrolled && (
+          ) : null}
+          {course.total_enrolled ? (
             <Badge variant="secondary" className="py-2 px-6">
               <Users className="w-4 h-4 mr-1" />
               {course.total_enrolled} total enrolled
             </Badge>
-          )}
-          {course.total_live_class && (
+          ) : null}
+          {course.total_live_class ? (
             <Badge variant="secondary" className="py-2 px-6">
               <Clock className="w-4 h-4 mr-1" />
               {course.total_live_class} total live classes
             </Badge>
-          )}
+          ) : null}
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
@@ -72,7 +72,7 @@ export const HeroSection = ({ course }: HeroSectionProps) => {
             <Card key={facility.id} className="p-0" >
               <CardContent className="p-4 flex items-start gap-3">
                 {facility.image ?
-                  <Image src={facility.image} alt={facility.title} width={40} height={40} /> :
+                  <Image src={facility.image} alt={facility.title} width={20} height={20} className="object-contain w-10 h-10" /> :
                   <PlayCircle className="w-5 h-5 text-primary mt-1 shrink-0" />
                 }
                 <div>
@@ -84,11 +84,11 @@ export const HeroSection = ({ course }: HeroSectionProps) => {
         </div>
 
         <div>
-          {hasDiscount && (
+          {hasDiscount ? (
             <Badge className="mb-3">
               {discount_percentage}% OFF
             </Badge>
-          )}
+          ) : null}
           <div className="flex items-center gap-5 mb-4">
             <span className="text-3xl font-bold text-primary">{price} ৳</span>
             {hasDiscount && (

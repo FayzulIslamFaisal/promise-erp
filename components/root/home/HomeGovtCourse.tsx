@@ -5,8 +5,11 @@ import { AspectRatio } from "@radix-ui/react-aspect-ratio";
 import Link from "next/link";
 import { MoveRight } from "lucide-react";
 import { getPublicGovtCourseSection, GovtCourseResponse } from "@/apiServices/homePageService";
+import { cacheTag } from "next/cache";
 
 export default async function HomeGovtCourse() {
+  "use cache";
+  cacheTag("public-govt-course");
   const govtCourseData:GovtCourseResponse = await getPublicGovtCourseSection();
   const govtCourseInfo = govtCourseData?.data || {};
 

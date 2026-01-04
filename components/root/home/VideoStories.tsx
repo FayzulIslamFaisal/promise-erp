@@ -3,11 +3,13 @@ import {
   SuccessStoryItem,
 } from "@/apiServices/homePageService";
 import SectionTitle from "@/components/common/SectionTitle";
+import { cacheTag } from "next/cache";
 import dynamic from "next/dynamic";
 const VideoStoriesCard = dynamic(() => import("./VideoStoriesCard"));
 
 const VideoStories = async () => {
-
+  "use cache";
+  cacheTag("public-video-galleries");
   const storyData = await fetchPublicVideoGalleries();
   const stories: SuccessStoryItem[] = storyData?.data?.video_galleries || [];
 

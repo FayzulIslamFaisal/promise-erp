@@ -1,11 +1,15 @@
 
 import HeaderContent, { NavLink } from "@/components/common/HeaderContent";
+import StudentDashboardHeader from "@/components/student-dashboard/StudentDashboardHeader";
 import { StudentSidebar } from "@/components/student-dashboard/StudentSidebar";
 import {
   SidebarHeader,
   SidebarInset,
   SidebarProvider,
+  SidebarTrigger,
 } from "@/components/ui/sidebar";
+import { Separator } from "@radix-ui/react-separator";
+import { Suspense } from "react";
 
 export default function StudentDashboardLayout({
   children,
@@ -23,13 +27,20 @@ export default function StudentDashboardLayout({
   ];
   return (
     <div className="flex flex-col min-h-screen">
-      <SidebarHeader className="w-full border-b bg-background py-3 px-4 z-50 sticky top-0">
-          <HeaderContent navLinks={studentNavLinks} />
-      </SidebarHeader>
       <SidebarProvider>
         <StudentSidebar />
         <SidebarInset>
-          <div className="w-full">{children}</div>
+          <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
+            <SidebarTrigger className="-ml-1" />
+            <Separator
+              orientation="vertical"
+              className="mr-2 data-[orientation=vertical]:h-4"
+            />
+            <Suspense fallback={<div>Loading...</div>}>
+              <StudentDashboardHeader />
+            </Suspense>
+          </header>
+          <div className="w-full h-screen-16 overflow-y-auto">{children}</div>
         </SidebarInset>
       </SidebarProvider>
     </div>

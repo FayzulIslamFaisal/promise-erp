@@ -54,7 +54,7 @@ const getDashboardUrl = (role: string | string[] | null | undefined) => {
 };
 
 /* ================= AUTH BUTTONS ================= */
-const AuthButtons = ({
+export const AuthButtons = ({
   status,
   isAuthenticated,
   userName,

@@ -3,8 +3,11 @@ import { Card } from "@/components/ui/card";
 import { getLatestCountDown} from "@/apiServices/homePageService";
 import Image from "next/image";
 import ErrorComponent from "@/components/common/ErrorComponent";
+import { cacheTag } from "next/cache";
 
 const HighlightsSection = async () => {
+  "use cache";
+  cacheTag("count-down-list");
   const imageBaseUrl = process.env.baseURL || '';
   let stats = [];
   try {

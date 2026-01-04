@@ -20,6 +20,7 @@ interface CategoriesData {
 }
 
 const CourseCategoriesSection = ({ categoriesData }: CategoriesData) => {
+  
   const categories = categoriesData?.data?.categories || [];
   return (
 

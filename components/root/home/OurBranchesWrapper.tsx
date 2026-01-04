@@ -1,12 +1,12 @@
 import SectionTitle from "@/components/common/SectionTitle";
 import OurBranches from "./OurBranches";
 import { getHomePageAllBranches } from "@/apiServices/homePageService";
+import { cacheTag } from "next/cache";
 
 const OurBranchesWrapper = async () => {
-
+  "use cache";
+  cacheTag("public-branches");
   const branches = await getHomePageAllBranches();
-
-  console.log(branches, "branches");
 
   return (
     <section className="py-8 md:py-14">

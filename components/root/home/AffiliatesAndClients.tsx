@@ -5,8 +5,12 @@ import {
   fetchHomeAffiliatePartners,
   PartnersApiResponse,
 } from "@/apiServices/homePageService";
+import { cacheTag } from "next/cache";
 
 export default async function AffiliatesClientsPage() {
+
+  "use cache";
+  cacheTag("affiliates-clients");
   const affiliatesData: PartnersApiResponse =
     await fetchHomeAffiliatePartners();
   const affiliates = affiliatesData?.data?.partners?.affiliate || [];

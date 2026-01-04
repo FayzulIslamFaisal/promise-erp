@@ -1,9 +1,11 @@
 import SectionTitle from "@/components/common/SectionTitle";
 import TeacherListSection from "./TeacherListSection";
 import { fetchAllPublicTeachers } from "@/apiServices/homePageService";
+import { cacheTag } from "next/cache";
 
 const TeacherListWrapper = async () => {
-
+  "use cache";
+  cacheTag("public-teachers");
   const teacherData = await fetchAllPublicTeachers();
 
   return (

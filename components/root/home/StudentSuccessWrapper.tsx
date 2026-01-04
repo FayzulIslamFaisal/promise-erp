@@ -2,10 +2,12 @@ import SectionTitle from "@/components/common/SectionTitle";
 import StudentSuccessStories from "./StudentSuccessStories";
 import { fetchPublicFeaturedReviews } from "@/apiServices/homePageService";
 import Image from "next/image";
+import { cacheTag } from "next/cache";
 
 const StudentSuccessWrapper = async () => {
 
-
+  "use cache";
+  cacheTag("public-reviews");
   const reviewsData = await fetchPublicFeaturedReviews();
   return (
     <section className="py-8 md:py-14 min-h-[600px] relative">

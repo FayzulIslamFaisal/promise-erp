@@ -3,7 +3,9 @@
 import {
     Sidebar,
     SidebarContent,
+    SidebarFooter,
     SidebarHeader,
+    SidebarRail,
 } from "@/components/ui/sidebar";
 import NavStudentDashboard from "./NavStudentDashboard";
 import {
@@ -16,9 +18,14 @@ import {
     Clock,
     GraduationCap,
     DollarSign,
-    Calendar
+    Calendar,
+    LogOut
 } from "lucide-react";
-import HeaderContent, { NavLink } from "../common/HeaderContent";
+import Image from "next/image";
+
+import { Button } from "../ui/button";
+import { signOut } from "next-auth/react";
+import Link from "next/link";
 
 const studentNavItems = [
     {
@@ -87,10 +94,29 @@ const studentNavItems = [
 export function StudentSidebar() {
     return (
         <Sidebar collapsible="icon">
-            <SidebarHeader className="h-18"></SidebarHeader>
+            <SidebarHeader>
+                <Link href="/" className="p-2">
+                    <Image
+                        src="/images/logo.svg"
+                        alt="Logo"
+                        width={200}
+                        height={36}
+                    />
+                </Link>
+            </SidebarHeader>
             <SidebarContent>
                 <NavStudentDashboard items={studentNavItems} />
             </SidebarContent>
+            <SidebarFooter>
+                <div className="flex items-center gap-2">
+                    <Image src="/avatar.png" alt="avatar" width={32} height={32} className="w-8 h-8 rounded-full" />
+                    <span className="text-sm font-medium">John Doe</span>
+                    <Button variant="outline" size="icon">
+                        <LogOut className="w-4 h-4" onClick={() => signOut({ callbackUrl: "/" })} />
+                    </Button>
+                </div>
+            </SidebarFooter>
+            <SidebarRail />
         </Sidebar>
     );
 }

@@ -1,8 +1,11 @@
 import { CategoriesResponse, getHomeCourseCategories } from "@/apiServices/categoryService";
 import CourseCategoriesSection from "./CourseCategoriesSection";
 import SectionTitle from "@/components/common/SectionTitle";
+import { cacheTag } from "next/cache";
 
 const CourseCategoriesWrapper = async () => {
+  "use cache";
+  cacheTag("categories-list");
   
   const categoriesData:CategoriesResponse = await getHomeCourseCategories();
 

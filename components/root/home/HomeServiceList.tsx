@@ -2,8 +2,11 @@ import { Card } from "@/components/ui/card";
 import SectionTitle from "@/components/common/SectionTitle";
 import Image from "next/image";
 import { fetchPublicCompanyServices } from "@/apiServices/homePageService";
+import { cacheTag } from "next/cache";
 
 const HomeServiceList = async () => {
+  "use cache";
+  cacheTag("public-services");
   const servicesData = await fetchPublicCompanyServices();
   const services = servicesData?.data?.services || [];
   return (

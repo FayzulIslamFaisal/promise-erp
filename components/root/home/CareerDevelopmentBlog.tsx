@@ -10,11 +10,13 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
 import { Calendar, MoveRight } from "lucide-react";
+import { cacheTag } from "next/cache";
 import Image from "next/image";
 import Link from "next/link";
 
 const CareerDevelopmentBlog = async () => {
-
+  "use cache";
+  cacheTag("public-blog");
   const blogData: BlogApiResponse | null = await fetchPublicHomeBlog();
   const blogPosts = blogData?.data?.blogs || [];
   return (

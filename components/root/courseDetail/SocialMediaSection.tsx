@@ -10,21 +10,21 @@ export default function SocialMediaSection() {
       title: "Join Our",
       bold: "Community on Facebook",
       btn: "Click Here to Join",
-      link: "#",
+      link: "https://www.facebook.com/elaeltd.official",
     },
     {
       icon: "/social-media/linkedin.svg",
       title: "Join Our",
       bold: "Community on LinkedIn",
       btn: "Click Here to Join",
-      link: "#",
+      link: "https://www.linkedin.com/company/e-learning-and-earning-ltd",
     },
     {
       icon: "/social-media/youtube.svg",
       title: "Visit Our",
       bold: "Youtube Channel",
       btn: "Click Here to Visit",
-      link: "#",
+      link: "https://www.youtube.com/@elaeltd.official",
     },
   ];
 

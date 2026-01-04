@@ -4,10 +4,12 @@ import {
 } from "@/apiServices/homePageService";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Card, CardContent } from "@/components/ui/card";
+import { cacheTag } from "next/cache";
 import Image from "next/image";
 
 const GettingOpportunity = async () => {
-
+  "use cache";
+  cacheTag("public-opportunity");
   const opportunitiesData = await fetchPublicOpportunities();
   const opportunities: OpportunityItem[] = opportunitiesData?.data?.opportunities || [];
 

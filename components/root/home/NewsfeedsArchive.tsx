@@ -5,12 +5,14 @@ import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { MoveRight } from "lucide-react";
+import { cacheTag } from "next/cache";
 import Image from "next/image";
 import Link from "next/link";
 
 
 const NewsfeedsArchive =  async() => {
-
+  "use cache";
+  cacheTag("public-news-feeds");
   const newsData = await fetchPublicNewsFeeds();
   const newsItems : NewsFeedItem[] = newsData?.data?.news_feeds || [];
   return (
