@@ -1,10 +1,15 @@
-"use server";
-import { cacheTag } from "next/cache";
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api/v1";
+const API_BASE =
+  process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api/v1";
 
 // --- Interfaces ---
-export interface Category { id: number; name: string; }
-export interface Branch { id: number; name: string; }
+export interface Category {
+  id: number;
+  name: string;
+}
+export interface Branch {
+  id: number;
+  name: string;
+}
 export interface Batch {
   price: number;
   discount: number;
@@ -35,11 +40,26 @@ export interface Course {
   branches?: Branch[];
   batch?: Batch;
 }
-export interface CourseTypeFilter { id: number; name: string; }
-export interface LevelFilter { id: string; name: string; }
-export interface BudgetScaleFilter { id: string; label: string; }
-export interface PriceRange { min: number; max: number; }
-export interface CourseTracks { id: number; name: string; }
+export interface CourseTypeFilter {
+  id: number;
+  name: string;
+}
+export interface LevelFilter {
+  id: string;
+  name: string;
+}
+export interface BudgetScaleFilter {
+  id: string;
+  label: string;
+}
+export interface PriceRange {
+  min: number;
+  max: number;
+}
+export interface CourseTracks {
+  id: number;
+  name: string;
+}
 export interface Filters {
   search?: string;
   course_types?: CourseTypeFilter[];
@@ -78,29 +98,26 @@ export interface GetPublicCoursesParams {
 export async function getPublicCoursesList({
   params = {},
 }: GetPublicCoursesParams): Promise<ApiResponse> {
-  "use cache";
-  cacheTag("courses-list");
-  try {
-    const urlParams = new URLSearchParams();
-    Object.entries(params).forEach(([key, value]) => {
-      if (value !== undefined && value !== null) {
-        urlParams.append(key, String(value));
-      }
-    });
+  const urlParams = new URLSearchParams();
+  Object.entries(params).forEach(([key, value]) => {
+    if (value !== undefined && value !== null) {
+      urlParams.append(key, String(value));
+    }
+  });
 
-    const queryString = urlParams.toString();
+  const queryString = urlParams.toString();
+  try {
     const res = await fetch(`${API_BASE}/public/courses?${queryString}`, {
-      headers: { "Content-Type": "application/json", },
+      headers: { "Content-Type": "application/json" },
     });
 
     const data: ApiResponse = await res.json();
     return data;
-  } catch (error) {
-    console.error("Error in getPublicCoursesList:", error);
-    throw new Error(
-      error instanceof Error
-        ? error.message
-        : "Unknown error occurred while fetching public courses list"
-    );
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("getPublicCoursesList Error:", error.message);
+      throw error;
+    }
+    throw new Error("An unexpected error occurred.");
   }
 }

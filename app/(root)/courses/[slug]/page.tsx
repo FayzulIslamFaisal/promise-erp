@@ -1,4 +1,3 @@
-import { cacheLife } from "next/cache";
 import CourseDetailsWrapper from "@/components/root/courseDetail/CourseDetailsWrapper";
 import { getPublicCoursesList } from "@/apiServices/courseListPublicService";
 import {

@@ -1,9 +1,6 @@
-
-import HeaderContent, { NavLink } from "@/components/common/HeaderContent";
 import StudentDashboardHeader from "@/components/student-dashboard/StudentDashboardHeader";
 import { StudentSidebar } from "@/components/student-dashboard/StudentSidebar";
 import {
-  SidebarHeader,
   SidebarInset,
   SidebarProvider,
   SidebarTrigger,
@@ -17,14 +14,6 @@ export default function StudentDashboardLayout({
   children: React.ReactNode;
 }) {
 
-  const studentNavLinks: NavLink[] = [
-    { name: "Home", href: "/" },
-    { name: "Courses", href: "/course", hasDropdown: true },
-    { name: "Instructors", href: "/instructors" },
-    { name: "Branch", href: "/branch" },
-    { name: "Blog", href: "/blog" },
-    { name: "Contact", href: "/contact" },
-  ];
   return (
     <div className="flex flex-col min-h-screen">
       <SidebarProvider>

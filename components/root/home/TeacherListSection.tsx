@@ -60,7 +60,7 @@ const TeacherListSection = ({ teacherData }: TeacherListSectionProps) => {
                     </h3>
 
                     <p className="text-black/75 text-base font-medium mb-2">
-                      {instructor?.designation || "Designation ---"}
+                      {instructor?.designation ?? "Designation ---"}
                     </p>
 
                     <div className="flex items-center justify-center gap-2 text-primary mb-2 animate-fade-in">
