@@ -30,8 +30,6 @@ export interface District {
   name: string;
 }
 
-
-
 export interface Pagination {
   current_page: number;
   last_page: number;
@@ -47,11 +45,9 @@ export interface Pagination {
 export default async function BranchesData({
   searchParams,
 }: {
-  searchParams?:
-    | Promise<{ [key: string]: string | undefined }>
-    | { [key: string]: string | undefined }
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
-  const params = await searchParams; 
+  const params = await searchParams;
   const page = Number(params?.page) || 1;
 
   let data;
@@ -151,4 +147,3 @@ export default async function BranchesData({
     </>
   );
 }
-

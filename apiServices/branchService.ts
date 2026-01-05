@@ -1,13 +1,13 @@
-"use server"
+"use server";
 
-import { authOptions } from "@/lib/auth"
-import { getServerSession } from "next-auth"
-import { cacheTag, updateTag } from "next/cache"
-import { District } from "@/apiServices/districtService"
-import { handleApiError, processApiResponse } from "@/lib/apiErrorHandler"
+import { authOptions } from "@/lib/auth";
+import { getServerSession } from "next-auth";
+import { cacheTag, updateTag } from "next/cache";
+import { District } from "@/apiServices/districtService";
+import { handleApiError, processApiResponse } from "@/lib/apiErrorHandler";
 
 const API_BASE =
-  process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api/v1"
+  process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api/v1";
 
 /* ===============================
    Interfaces
@@ -38,59 +38,59 @@ export interface Branch {
 }
 
 export interface BranchCreate {
-  name: string
-  district_id: number
-  address?: string | null
-  phone?: string[] | null
-  email?: string[] | null
-  google_map?: string | null
-  social_links?: SocialLink[] | null
+  name: string;
+  district_id: number;
+  address?: string | null;
+  phone?: string[] | null;
+  email?: string[] | null;
+  google_map?: string | null;
+  social_links?: SocialLink[] | null;
 }
 
 export interface Pagination {
-  current_page: number
-  last_page: number
-  per_page: number
-  total: number
-  from?: number
-  to?: number
-  has_more_pages?: boolean
+  current_page: number;
+  last_page: number;
+  per_page: number;
+  total: number;
+  from?: number;
+  to?: number;
+  has_more_pages?: boolean;
 }
 
 export interface BranchResponse {
-  success: boolean
-  message: string
+  success: boolean;
+  message: string;
   data: {
-    branches: Branch[]
-    pagination: Pagination
-  }
+    branches: Branch[];
+    pagination: Pagination;
+  };
 }
 
 export interface BranchSingleResponse {
-  success: boolean
-  message: string
-  data: Branch
+  success: boolean;
+  message: string;
+  data: Branch;
 }
 
 export interface BranchResponseType {
-  success: boolean
-  message?: string
-  errors?: Record<string, string[] | string>
-  data?: Branch
-  code?: number
+  success: boolean;
+  message?: string;
+  errors?: Record<string, string[] | string>;
+  data?: Branch;
+  code?: number;
 }
 
 /* ===============================
    Helper – Get Auth Token
 ================================== */
 async function getAuthToken(): Promise<string> {
-  const session = await getServerSession(authOptions)
+  const session = await getServerSession(authOptions);
 
   if (!session?.accessToken) {
-    throw new Error("No valid session or access token found.")
+    throw new Error("No valid session or access token found.");
   }
 
-  return session.accessToken
+  return session.accessToken;
 }
 
 /* ===============================
@@ -100,7 +100,7 @@ export async function addBranch(
   branch: BranchCreate
 ): Promise<BranchResponseType> {
   try {
-    const token = await getAuthToken()
+    const token = await getAuthToken();
 
     const res = await fetch(`${API_BASE}/branches`, {
       method: "POST",
@@ -109,24 +109,24 @@ export async function addBranch(
         "Content-Type": "application/json",
       },
       body: JSON.stringify(branch),
-    })
+    });
 
-    const result = await processApiResponse(res, "Failed to add branch.")
+    const result = await processApiResponse(res, "Failed to add branch.");
 
     if (!result.success) {
-      return result
+      return result;
     }
 
-    updateTag("branches-list")
+    updateTag("branches-list");
 
     return {
       success: true,
       message: result.message || "Branch added successfully.",
       data: result.data,
       code: result.code,
-    }
+    };
   } catch (error) {
-    return await handleApiError(error, "Failed to add branch.")
+    return await handleApiError(error, "Failed to add branch.");
   }
 }
 
@@ -139,30 +139,26 @@ export async function getBranchesCached(
   token: string,
   params: Record<string, unknown> = {}
 ): Promise<BranchResponse> {
-  "use cache";
-  cacheTag("branches-list");
+  const urlParams = new URLSearchParams();
+  urlParams.append("page", page.toString());
 
-  try {
-    const urlParams = new URLSearchParams();
-    urlParams.append("page", page.toString());
-
-    for (const key in params) {
-      if (
-        params[key] !== undefined &&
-        params[key] !== null &&
-        params.hasOwnProperty(key)
-      ) {
-        urlParams.append(key, params[key].toString());
-      }
+  for (const key in params) {
+    if (
+      params[key] !== undefined &&
+      params[key] !== null &&
+      params.hasOwnProperty(key)
+    ) {
+      urlParams.append(key, params[key].toString());
     }
-
+  }
+  try {
     const res = await fetch(`${API_BASE}/branches?${urlParams.toString()}`, {
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
     });
-    
+
     return await res.json();
   } catch (error) {
     console.error("Error in getBranchesCached:", error);
@@ -198,25 +194,21 @@ export async function getBranches(
 /* ===============================
   Get Single Branch by ID
 ================================== */
-export async function getBranchById(
-  id: string
-): Promise<BranchSingleResponse> {
-  const token = await getAuthToken()
+export async function getBranchById(id: string): Promise<BranchSingleResponse> {
+  const token = await getAuthToken();
 
   const res = await fetch(`${API_BASE}/branches/${id}`, {
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
     },
-  })
+  });
 
   if (!res.ok) {
-    throw new Error(`Failed to fetch branch: ${res.statusText}`)
+    throw new Error(`Failed to fetch branch: ${res.statusText}`);
   }
- 
 
-
-  return res.json()
+  return res.json();
 }
 
 /* ===============================
@@ -267,18 +259,23 @@ export async function updateBranch(
   }
 }
 
-
 /* ===============================
   Delete Branch
 ================================== */
 
-export async function deleteBranch(id: number): Promise<{ success: boolean; message: string; code?: number }> {
+export async function deleteBranch(
+  id: number
+): Promise<{ success: boolean; message: string; code?: number }> {
   try {
-    const session = await getServerSession(authOptions)
-    const token = session?.accessToken
+    const session = await getServerSession(authOptions);
+    const token = session?.accessToken;
 
     if (!token) {
-      return { success: false, message: "No valid session or access token found.", code: 401 }
+      return {
+        success: false,
+        message: "No valid session or access token found.",
+        code: 401,
+      };
     }
 
     const res = await fetch(`${API_BASE}/branches/${id}`, {
@@ -286,18 +283,26 @@ export async function deleteBranch(id: number): Promise<{ success: boolean; mess
       headers: {
         Authorization: `Bearer ${token}`,
       },
-    })
+    });
 
-    const result = await processApiResponse(res, "Failed to delete branch")
-    
+    const result = await processApiResponse(res, "Failed to delete branch");
+
     if (!result.success) {
-      return { success: false, message: result.message, code: result.code }
+      return { success: false, message: result.message, code: result.code };
     }
 
-    updateTag("branches-list")
-    return { success: true, message: result.message || "Branch deleted successfully", code: result.code }
+    updateTag("branches-list");
+    return {
+      success: true,
+      message: result.message || "Branch deleted successfully",
+      code: result.code,
+    };
   } catch (error) {
-    const errorResult = await handleApiError(error, "Failed to delete branch")
-    return { success: false, message: errorResult.message, code: errorResult.code }
+    const errorResult = await handleApiError(error, "Failed to delete branch");
+    return {
+      success: false,
+      message: errorResult.message,
+      code: errorResult.code,
+    };
   }
 }

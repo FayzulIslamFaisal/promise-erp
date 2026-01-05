@@ -99,7 +99,6 @@ export interface FreeSeminar {
   image?: string | null;
 }
 
-
 export interface FreeSeminarsData {
   total_free_seminars: number;
   free_seminars: FreeSeminar[];
@@ -119,24 +118,23 @@ export async function getFreeSeminars({
 }: {
   params?: Record<string, unknown>;
 }): Promise<FreeSeminarsApiResponse> {
-  try {
-    const session = await getServerSession(authOptions);
-    const token = session?.accessToken;
+  const session = await getServerSession(authOptions);
+  const token = session?.accessToken;
 
-    if (!token) {
-      throw new Error("Unauthorized: Access token not found");
+  if (!token) {
+    throw new Error("Unauthorized: Access token not found");
+  }
+
+  const urlParams = new URLSearchParams();
+
+  Object.entries(params).forEach(([key, value]) => {
+    if (value !== undefined && value !== null) {
+      urlParams.append(key, String(value));
     }
+  });
 
-    const urlParams = new URLSearchParams();
-
-    Object.entries(params).forEach(([key, value]) => {
-      if (value !== undefined && value !== null) {
-        urlParams.append(key, String(value));
-      }
-    });
-
-    const queryString = urlParams.toString();
-
+  const queryString = urlParams.toString();
+  try {
     const res = await fetch(
       `${API_BASE}/student-panel/free-seminars?${queryString}`,
       {
@@ -208,23 +206,20 @@ export async function getUpcomingCourses({
 }: {
   params?: Record<string, unknown>;
 }): Promise<UpcomingCoursesApiResponse> {
-  try {
-    const session = await getServerSession(authOptions);
-    const token = session?.accessToken;
+  const session = await getServerSession(authOptions);
+  const token = session?.accessToken;
 
-    if (!token) {
-      throw new Error("Unauthorized: Access token not found");
+  if (!token) {
+    throw new Error("Unauthorized: Access token not found");
+  }
+  const urlParams = new URLSearchParams();
+  Object.entries(params).forEach(([key, value]) => {
+    if (value !== undefined && value !== null) {
+      urlParams.append(key, String(value));
     }
-
-    const urlParams = new URLSearchParams();
-
-    Object.entries(params).forEach(([key, value]) => {
-      if (value !== undefined && value !== null) {
-        urlParams.append(key, String(value));
-      }
-    });
-
-    const queryString = urlParams.toString();
+  });
+  const queryString = urlParams.toString();
+  try {
     const res = await fetch(
       `${API_BASE}/student-panel/upcoming-courses?${queryString}`,
       {
@@ -280,14 +275,13 @@ export interface StEarningStateResponse {
 }
 
 export async function getStudentEarningState(): Promise<StEarningStateResponse> {
+  const session = await getServerSession(authOptions);
+  const accessToken = session?.accessToken;
+
+  if (!accessToken) {
+    throw new Error("Unauthorized: No access token found");
+  }
   try {
-    const session = await getServerSession(authOptions);
-    const accessToken = session?.accessToken;
-
-    if (!accessToken) {
-      throw new Error("Unauthorized: No access token found");
-    }
-
     const res = await fetch(`${API_BASE}/student-earnings/earning-cards`, {
       headers: {
         "Content-Type": "application/json",
@@ -335,14 +329,13 @@ export interface EarningsChartApiResponse {
 }
 
 export async function getStudentEarningUsdChart(): Promise<EarningsChartApiResponse> {
+  const session = await getServerSession(authOptions);
+  const accessToken = session?.accessToken;
+
+  if (!accessToken) {
+    throw new Error("Unauthorized: No access token found");
+  }
   try {
-    const session = await getServerSession(authOptions);
-    const accessToken = session?.accessToken;
-
-    if (!accessToken) {
-      throw new Error("Unauthorized: No access token found");
-    }
-
     const res = await fetch(`${API_BASE}/student-earnings/usd-chart`, {
       headers: {
         "Content-Type": "application/json",
@@ -370,14 +363,13 @@ export async function getStudentEarningUsdChart(): Promise<EarningsChartApiRespo
 
 // Start get Earning Bdt Charts
 export async function getStudentEarningBdtChart(): Promise<EarningsChartApiResponse> {
+  const session = await getServerSession(authOptions);
+  const accessToken = session?.accessToken;
+
+  if (!accessToken) {
+    throw new Error("Unauthorized: No access token found");
+  }
   try {
-    const session = await getServerSession(authOptions);
-    const accessToken = session?.accessToken;
-
-    if (!accessToken) {
-      throw new Error("Unauthorized: No access token found");
-    }
-
     const res = await fetch(`${API_BASE}/student-earnings/bdt-chart`, {
       headers: {
         "Content-Type": "application/json",
@@ -432,24 +424,20 @@ export async function getStudentEarningList({
 }: {
   params?: Record<string, unknown>;
 }): Promise<StudentEarningsApiResponse> {
-  try {
-    const session = await getServerSession(authOptions);
-    const token = session?.accessToken;
-
-    if (!token) {
-      throw new Error("Unauthorized: Access token not found");
+  const session = await getServerSession(authOptions);
+  const token = session?.accessToken;
+  if (!token) {
+    throw new Error("Unauthorized: Access token not found");
+  }
+  const urlParams = new URLSearchParams();
+  Object.entries(params).forEach(([key, value]) => {
+    if (value !== undefined && value !== null && value !== "") {
+      urlParams.append(key, String(value));
     }
+  });
 
-    const urlParams = new URLSearchParams();
-
-    Object.entries(params).forEach(([key, value]) => {
-      if (value !== undefined && value !== null && value !== "") {
-        urlParams.append(key, String(value));
-      }
-    });
-
-    const queryString = urlParams.toString();
-
+  const queryString = urlParams.toString();
+  try {
     const res = await fetch(`${API_BASE}/student-earnings?${queryString}`, {
       method: "GET",
       headers: {
@@ -482,10 +470,12 @@ export interface DeleteStudentEarningResponse {
   success: boolean;
   message: string;
   code: number;
-  data?: null; 
+  data?: null;
 }
 
-export async function deleteStudentEarning(id: number): Promise<DeleteStudentEarningResponse> {
+export async function deleteStudentEarning(
+  id: number
+): Promise<DeleteStudentEarningResponse> {
   const session = await getServerSession(authOptions);
   const token = session?.accessToken;
   if (!token) {
@@ -494,25 +484,28 @@ export async function deleteStudentEarning(id: number): Promise<DeleteStudentEar
 
   try {
     const response = await fetch(`${API_BASE}/student-earnings/${id}`, {
-      method: 'DELETE',
-      headers: { 
+      method: "DELETE",
+      headers: {
         Authorization: `Bearer ${token}`,
       },
     });
 
     if (!response.ok) {
-      throw new Error(`Failed to delete student earning ${response.status} (${response.statusText})`);
+      throw new Error(
+        `Failed to delete student earning ${response.status} (${response.statusText})`
+      );
     }
-  
+
     const data: DeleteStudentEarningResponse = await response.json();
     return data;
-
   } catch (error: unknown) {
     console.error("deleteStudentEarning Error:", error);
     if (error instanceof Error) {
       throw error;
     } else {
-      throw new Error("An unknown error occurred while deleting student earning");
+      throw new Error(
+        "An unknown error occurred while deleting student earning"
+      );
     }
   }
 }
@@ -552,24 +545,23 @@ export async function getStudentPaymentHistories({
 }: {
   params?: Record<string, unknown>;
 }): Promise<StudentPaymentHistoryApiResponse> {
-  try {
-    const session = await getServerSession(authOptions);
-    const token = session?.accessToken;
+  const session = await getServerSession(authOptions);
+  const token = session?.accessToken;
 
-    if (!token) {
-      throw new Error("Unauthorized: Access token not found");
+  if (!token) {
+    throw new Error("Unauthorized: Access token not found");
+  }
+
+  const urlParams = new URLSearchParams();
+
+  Object.entries(params).forEach(([key, value]) => {
+    if (value !== undefined && value !== null && value !== "") {
+      urlParams.append(key, String(value));
     }
+  });
 
-    const urlParams = new URLSearchParams();
-
-    Object.entries(params).forEach(([key, value]) => {
-      if (value !== undefined && value !== null && value !== "") {
-        urlParams.append(key, String(value));
-      }
-    });
-
-    const queryString = urlParams.toString();
-
+  const queryString = urlParams.toString();
+  try {
     const res = await fetch(
       `${API_BASE}/student-panel/payment-histories?${queryString}`,
       {
@@ -594,13 +586,10 @@ export async function getStudentPaymentHistories({
       console.error("getStudentPaymentHistories Error:", error.message);
       throw error;
     }
-    throw new Error(
-      "Unknown error occurred while fetching payment histories"
-    );
+    throw new Error("Unknown error occurred while fetching payment histories");
   }
 }
 // End get Student Payment Histories
-
 
 // Start get Course Wise Due Payments
 export interface CourseWiseDuePayment {
@@ -623,14 +612,13 @@ export interface CourseWiseDuePaymentsApiResponse {
 }
 
 export async function getCourseWiseDuePayments(): Promise<CourseWiseDuePaymentsApiResponse> {
+  const session = await getServerSession(authOptions);
+  const token = session?.accessToken;
+
+  if (!token) {
+    throw new Error("Unauthorized: Access token not found");
+  }
   try {
-    const session = await getServerSession(authOptions);
-    const token = session?.accessToken;
-
-    if (!token) {
-      throw new Error("Unauthorized: Access token not found");
-    }
-
     const res = await fetch(
       `${API_BASE}/student-panel/course-wise-due-payments`,
       {
@@ -662,7 +650,6 @@ export async function getCourseWiseDuePayments(): Promise<CourseWiseDuePaymentsA
   }
 }
 // End get Course Wise Due Payments
-
 
 // Start get Student My Courses
 export interface StudentCourseInfo {
@@ -704,24 +691,22 @@ export async function getStudentMyCourses({
 }: {
   params?: Record<string, unknown>;
 }): Promise<StudentMyCoursesResponse> {
-  try {
-    const session = await getServerSession(authOptions);
-    const token = session?.accessToken;
+  const session = await getServerSession(authOptions);
+  const token = session?.accessToken;
 
-    if (!token) {
-      throw new Error("Unauthorized: Access token not found");
+  if (!token) {
+    throw new Error("Unauthorized: Access token not found");
+  }
+  const urlParams = new URLSearchParams();
+
+  Object.entries(params).forEach(([key, value]) => {
+    if (value !== undefined && value !== null && value !== "") {
+      urlParams.append(key, String(value));
     }
+  });
 
-    const urlParams = new URLSearchParams();
-
-    Object.entries(params).forEach(([key, value]) => {
-      if (value !== undefined && value !== null && value !== "") {
-        urlParams.append(key, String(value));
-      }
-    });
-
-    const queryString = urlParams.toString();
-
+  const queryString = urlParams.toString();
+  try {
     const res = await fetch(
       `${API_BASE}/student-panel/my-courses?${queryString}`,
       {
@@ -746,14 +731,11 @@ export async function getStudentMyCourses({
       console.error("getStudentMyCourses Error:", error.message);
       throw error;
     }
-    throw new Error(
-      "Unknown error occurred while fetching student my courses"
-    );
+    throw new Error("Unknown error occurred while fetching student my courses");
   }
 }
 
 // End get Student My Courses
-
 
 // Start get Free Seminar by Slug
 export interface FreeSeminar {
@@ -777,7 +759,7 @@ export interface FreeSeminar {
 export interface SeminarBranch {
   id: number;
   name: string;
-} 
+}
 export interface Instructor {
   id: number;
   name: string;
@@ -814,7 +796,7 @@ export async function getFreeSeminarBySlug(
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
-        }
+        },
       }
     );
 
