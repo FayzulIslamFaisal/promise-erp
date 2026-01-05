@@ -50,7 +50,7 @@ const GroupsData = async ({
   const pagination = results?.data?.pagination;
   
   if (!groups.length) {
-    return <NotFoundComponent message="No groups found." />;
+    return <NotFoundComponent message={results?.message} title="Group List" />;
   }
   
 

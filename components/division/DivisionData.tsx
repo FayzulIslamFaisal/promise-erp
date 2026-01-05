@@ -23,6 +23,7 @@ const DivisionData = async ({
   const resolvedSearchParams = await searchParams;
   const page = typeof resolvedSearchParams.page === "string" ? Number(resolvedSearchParams.page) : 1;
   const params = {
+    page,
     search:
       typeof resolvedSearchParams.search === "string"
         ? resolvedSearchParams.search
@@ -35,7 +36,7 @@ const DivisionData = async ({
 
   let data;
   try {
-    data = await getDivisions( page, params );
+    data = await getDivisions( params );
   } catch (error: unknown) {
     if (error instanceof Error) {
       return <ErrorComponent message={error.message} />;
@@ -47,7 +48,7 @@ const DivisionData = async ({
   const divisions = data?.data?.divisions || [];
 
   if (!divisions.length) {
-    return <NotFoundComponent message="No divisions found." />;
+    return <NotFoundComponent message={data?.message} title="Division List" />;
   }
 
   return (

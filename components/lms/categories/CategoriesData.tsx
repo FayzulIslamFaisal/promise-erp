@@ -57,7 +57,7 @@ const CategoriesData = async ({
   const categories = results?.data?.categories || [];
   const paginationData = results?.data?.pagination;
   if (!categories.length) {
-    return <NotFoundComponent message="No categories found." />;
+    return <NotFoundComponent message={results?.message} title="Category List" />;
   }
   
 

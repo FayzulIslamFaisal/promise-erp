@@ -25,7 +25,7 @@ const DistrictData = async ({
   const resolvedSearchParams = await searchParams;
   let page = typeof resolvedSearchParams.page === "string" ? Number(resolvedSearchParams.page) : 1;
   const params = {
-    page: page,
+    page,
     search:
       typeof resolvedSearchParams.search === "string"
         ? resolvedSearchParams.search
@@ -52,7 +52,7 @@ const DistrictData = async ({
 
 
   if (!districts.length) {
-    return <NotFoundComponent message="No districts found." />;
+    return <NotFoundComponent message={results?.message} title="District List" />;
   }
 
 

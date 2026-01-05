@@ -13,7 +13,7 @@ const StatsAddWrapper = () => {
   useEffect(() => {
     startTransition(async () => {
       try {
-        const res:BranchResponse = await getBranches();
+        const res:BranchResponse = await getBranches({ per_page: 100 });
         setBranches(res?.data?.branches ?? []);
       } catch (error) {
         console.error("Failed to load branches", error);

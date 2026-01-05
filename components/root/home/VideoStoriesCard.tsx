@@ -15,11 +15,13 @@ interface VideostoriesProps {
 
 const VideoStoriesCard = ({ stories }: VideostoriesProps) => {
   const [selectedVideo, setSelectedVideo] = useState<number | null>(null);
+  if (stories.length === 0) {
+    return <NotFoundComponent message="No Videos Found" />;
+  }
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-      {stories && stories.length > 0 ? (
-        stories.map((video) => {
+        {stories.map((video) => {
           const isPlaying = selectedVideo === video.id;
 
           return (
@@ -64,9 +66,7 @@ const VideoStoriesCard = ({ stories }: VideostoriesProps) => {
             </div>
           );
         })
-      ) : (
-        <NotFoundComponent message="No Videos Found" />
-      )}
+      }
     </div>
   );
 };

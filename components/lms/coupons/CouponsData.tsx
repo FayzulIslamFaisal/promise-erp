@@ -43,8 +43,8 @@ const CouponsData = async ({
   const coupons = results?.data?.coupons || [];
   const pagination = results?.data?.pagination;
 
-  if (coupons.length === 0) {
-    return <NotFoundComponent message="No coupons found." />;
+  if (!coupons.length) {
+    return <NotFoundComponent message={results?.message} title="Coupon List" />;
   }
 
   return (

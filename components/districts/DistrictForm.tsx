@@ -64,7 +64,7 @@ export default function DistrictForm({ title, onSubmit, district }: DistrictForm
     async function loadDivisions() {
       try {
         setIsLoading(true);
-        const res: DivisionSuccessResponse = await getDivisions();
+        const res: DivisionSuccessResponse = await getDivisions({per_page: 999});
         if (res.success) {
           setDivisions(res.data?.divisions || []); 
         }

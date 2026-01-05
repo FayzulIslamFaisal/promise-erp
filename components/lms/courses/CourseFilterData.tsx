@@ -5,9 +5,9 @@ import CourseFilter from "./CourseFilter"
 
 export default async function CourseFilterData() {
   const [divisionsRes, branchesRes, categoriesRes] = await Promise.all([
-    getDivisions(),
-    getBranches(),
-    getCategories(),
+    getDivisions({ per_page: 100 }),
+    getBranches({ per_page: 100 }),
+    getCategories({ per_page: 100 }),
   ])
   return (
     <CourseFilter

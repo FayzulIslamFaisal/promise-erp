@@ -68,7 +68,7 @@ const HeroSectionData = async ({
   const pagination = results?.data?.pagination;
 
   if (!heroSections.length) {
-    return <NotFoundComponent message="No hero sections found." />;
+    return <NotFoundComponent message={results?.message} title="Hero Section List" />;
   }
 
   return (

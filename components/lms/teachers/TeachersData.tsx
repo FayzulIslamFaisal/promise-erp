@@ -73,7 +73,7 @@ export default async function TeachersData({
   const pagination = data.data.pagination;
 
   if (teachers.length === 0) {
-    return <NotFoundComponent message="No teachers found." />;
+    return <NotFoundComponent message={data?.message} title="Teacher List" />;
   }
 
   return (

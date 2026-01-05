@@ -61,7 +61,7 @@ const VideoGalleryData = async ({
     const pagination = results?.data?.pagination;
 
     if (!videoGalleries.length) {
-        return <NotFoundComponent message="No video galleries found." />;
+        return <NotFoundComponent message={results?.message} title="Video Gallery List" />;
     }
 
     const getYouTubeThumbnail = (url: string | null | undefined) => {

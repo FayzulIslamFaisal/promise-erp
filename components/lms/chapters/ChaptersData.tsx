@@ -86,7 +86,7 @@ export default async function ChaptersData({
     const pagination = data?.data?.pagination;
 
     if (!chapters.length) {
-        return <NotFoundComponent message="No chapters found." />;
+        return <NotFoundComponent message={data?.message} title="Chapter List" />;
     }
 
     return (

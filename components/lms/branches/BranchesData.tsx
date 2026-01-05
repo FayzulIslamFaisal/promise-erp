@@ -48,11 +48,11 @@ export default async function BranchesData({
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
   const params = await searchParams;
-  const page = Number(params?.page) || 1;
-
+  const page = Number(params.page) || 1;
+  
   let data;
   try {
-    data = await getBranches(page, params);
+    data = await getBranches(params);
   } catch (error: unknown) {
     if (error instanceof Error) {
       return <ErrorComponent message={error.message} />;
@@ -65,7 +65,7 @@ export default async function BranchesData({
   const pagination: Pagination = data?.data?.pagination ?? {};
 
   if (branches.length === 0) {
-    return <NotFoundComponent message="No branches found." />;
+    return <NotFoundComponent message={data?.message} title="Branch List" />;
   }
   return (
     <>
@@ -89,7 +89,7 @@ export default async function BranchesData({
           <TableBody>
             {branches.map((branch: Branch, i: number) => (
               <TableRow key={branch.id}>
-                <TableCell>{((page - 1) * 15 + (i + 1))}</TableCell>
+                <TableCell>{i + 1}</TableCell>
 
                 <TableCell className="text-center">
                   <DropdownMenu>

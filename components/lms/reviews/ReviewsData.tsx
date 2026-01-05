@@ -61,7 +61,7 @@ const ReviewsData = async ({
   const pagination = results?.data?.pagination;
 
   if (!reviews.length) {
-    return <NotFoundComponent message="No reviews found." />;
+    return <NotFoundComponent message={results?.message} title="Review List" />;
   }
 
   return (

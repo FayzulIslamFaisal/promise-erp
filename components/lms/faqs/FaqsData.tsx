@@ -65,7 +65,7 @@ export default async function FaqsData({
     const pagination = data?.data?.pagination;
 
     if (!faqs.length) {
-        return <NotFoundComponent message="No FAQs found." />;
+        return <NotFoundComponent message={data?.message} title="FAQ List" />;
     }
 
     return (

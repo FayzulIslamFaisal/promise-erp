@@ -16,7 +16,7 @@ const CouponAddPage = () => {
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        const res = await getCourses();
+        const res = await getCourses({per_page: 999});
         if (res?.data?.courses) {
           setCourses(res.data.courses);
         }

@@ -24,16 +24,12 @@ const UpcomingCourseWrapper = async ({
   const courses = upcomingCourses?.data?.courses || [];
   const categories = upcomingCourses?.data?.categories || [];
 
+  if (courses.length === 0) {
+    return <NotFoundComponent message={upcomingCourses?.message} title="Upcoming Course List" />;
+  }
+
   return (
     <>
-      <div className="px-4">
-        {categories.length === 0 ? (
-          <NotFoundComponent message="Category Data Not Found" />
-        ) : (
-          <UpcomingCategoryCarousel categories={categories} />
-        )}
-      </div>
-
       {/* Cards */}
       <div className="py-6 px-4">
         {courses.length === 0 ? (

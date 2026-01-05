@@ -6,11 +6,11 @@ import { getBatches } from "@/apiServices/batchService";
 import GroupFilter from "./GroupFilter";
 
 export default async function GroupFilterData() {
-  const divisions = await getDivisions().then(res => res.data?.divisions || []);
-  const districts = await getDistricts().then(res => res.data?.districts || []);
-  const branches = await getBranches().then(res => res.data?.branches || []);
-  const courses = await getCourses().then(res => res.data?.courses || []);
-  const batches = await getBatches().then(res => res.data?.batches || []);
+  const divisions = await getDivisions({per_page: 999}).then(res => res.data?.divisions || []);
+  const districts = await getDistricts({per_page: 999}).then(res => res.data?.districts || []);
+  const branches = await getBranches({per_page: 999}).then(res => res.data?.branches || []);
+  const courses = await getCourses({per_page: 999}).then(res => res.data?.courses || []);
+  const batches = await getBatches({per_page: 999}).then(res => res.data?.batches || []);
 
   return (
     <GroupFilter 

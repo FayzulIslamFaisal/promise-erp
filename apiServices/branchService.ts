@@ -125,12 +125,10 @@ export async function addBranch(
 ================================== */
 
 export async function getBranchesCached(
-  page = 1,
   token: string,
   params: Record<string, unknown> = {}
 ): Promise<BranchResponse> {
   const urlParams = new URLSearchParams();
-  urlParams.append("page", page.toString());
 
   for (const key in params) {
     if (
@@ -161,7 +159,6 @@ export async function getBranchesCached(
 }
 
 export async function getBranches(
-  page = 1,
   params: Record<string, unknown> = {}
 ): Promise<BranchResponse> {
   const session = await getServerSession(authOptions);
@@ -172,7 +169,7 @@ export async function getBranches(
   }
 
   try {
-    return await getBranchesCached(page, token, params);
+    return await getBranchesCached(token, params);
   } catch (error) {
     console.error("Error in get branches:", error);
     throw new Error(

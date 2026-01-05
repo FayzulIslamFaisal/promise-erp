@@ -66,7 +66,7 @@ const WhoCanJoinData = async ({
   
 
   if (!joins.length) {
-    return <NotFoundComponent message="No join options found." />;
+    return <NotFoundComponent message={results?.message} title="Join Option List" />;
   }
 
   return (

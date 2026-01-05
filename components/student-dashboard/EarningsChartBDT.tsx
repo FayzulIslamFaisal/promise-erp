@@ -9,7 +9,6 @@ import {
 } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import SectionLoadingSkeleton from "../common/SectionLoadingSkeleton";
-import NotFoundComponent from "../common/NotFoundComponent";
 import {
   EarningsChartItem,
   getStudentEarningBdtChart,
@@ -46,7 +45,6 @@ const EarningsChartBDT = () => {
   if (isPending) return <SectionLoadingSkeleton />;
 
   if (earningsDataBDT.length === 0)
-    // return <NotFoundComponent message="Earnings Data Not Found" />;
     return null;
   return (
     <Card>

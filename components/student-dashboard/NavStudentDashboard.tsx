@@ -1,5 +1,6 @@
 "use client"
 import { ChevronRight, type LucideIcon } from "lucide-react"
+import { usePathname } from "next/navigation"
 import {
   Collapsible,
   CollapsibleContent,
@@ -32,19 +33,23 @@ const NavStudentDashboard = ({
     }[]
   }[]
 }) => {
+  const pathname = usePathname() || ''
+
   return (
     <SidebarGroup>
       <SidebarGroupLabel>Student Dashboard</SidebarGroupLabel>
       <SidebarMenu>
         {items.map((item) => {
           const { title, url, icon: Icon, children } = item
+          const isActive = pathname === url || pathname?.startsWith(url + "/")
+          const hasActiveChild = children?.some(child => pathname === child.url || pathname?.startsWith(child.url + "/"))
           
           if (children && children.length > 0) {
             return (
-              <Collapsible key={title} asChild defaultOpen={item.isActive}>
+              <Collapsible key={title} asChild defaultOpen={isActive || hasActiveChild}>
                 <SidebarMenuItem>
                   <CollapsibleTrigger asChild>
-                    <SidebarMenuButton>
+                    <SidebarMenuButton isActive={isActive || hasActiveChild}>
                       {Icon && <Icon />}
                       <span>{title}</span>
                       <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]:rotate-90" />
@@ -52,16 +57,19 @@ const NavStudentDashboard = ({
                   </CollapsibleTrigger>
                   <CollapsibleContent>
                     <SidebarMenuSub>
-                      {children.map((child) => (
-                        <SidebarMenuSubItem key={child.title}>
-                          <SidebarMenuSubButton asChild>
-                            <Link href={child.url} className="flex items-center gap-2">
-                              {child.icon && <child.icon className="w-4 h-4" />}
-                              <span>{child.title}</span>
-                            </Link>
-                          </SidebarMenuSubButton>
-                        </SidebarMenuSubItem>
-                      ))}
+                      {children.map((child) => {
+                        const isChildActive = pathname === child.url || pathname?.startsWith(child.url + "/")
+                        return (
+                          <SidebarMenuSubItem key={child.title}>
+                            <SidebarMenuSubButton asChild isActive={isChildActive}>
+                              <Link href={child.url} className="flex items-center gap-2">
+                                {child.icon && <child.icon className="w-4 h-4" />}
+                                <span>{child.title}</span>
+                              </Link>
+                            </SidebarMenuSubButton>
+                          </SidebarMenuSubItem>
+                        )
+                      })}
                     </SidebarMenuSub>
                   </CollapsibleContent>
                 </SidebarMenuItem>
@@ -71,7 +79,7 @@ const NavStudentDashboard = ({
 
           return (
             <SidebarMenuItem key={title}>
-              <SidebarMenuButton asChild>
+              <SidebarMenuButton asChild isActive={isActive}>
                 <Link href={url} className="flex items-center gap-2">
                   {Icon && <Icon />}
                   <span>{title}</span>

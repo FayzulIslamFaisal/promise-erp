@@ -32,20 +32,18 @@ export default async function CoursesData({
   const page = typeof resolvedSearchParams.page === "string" ? Number(resolvedSearchParams.page) : 1;
 
   const params = {
+    page,
     search: typeof resolvedSearchParams.search === "string" ? resolvedSearchParams.search : undefined,
     sort_order: typeof resolvedSearchParams.sort_order === "string" ? resolvedSearchParams.sort_order : undefined,
     // level: typeof resolvedSearchParams.level === "string" ? resolvedSearchParams.level : undefined,
     division_id: typeof resolvedSearchParams.division_id === "string" ? resolvedSearchParams.division_id : undefined,
     branch_id: typeof resolvedSearchParams.branch_id === "string" ? resolvedSearchParams.branch_id : undefined,
     category_id: typeof resolvedSearchParams.category_id === "string" ? resolvedSearchParams.category_id : undefined,
-    page: page,
   };
 
   let data;
   try {
-    console.log("Fetching courses with params:", params);
     data = await getCourses(params);
-    console.log("Courses Data:", data);
   } catch (error: unknown) {
     if (error instanceof Error) {
       return <ErrorComponent message={error.message} />;
@@ -58,7 +56,7 @@ export default async function CoursesData({
   const pagination = data.data.pagination;
 
   if (courses.length === 0) {
-    return <NotFoundComponent message="No courses found." />;
+    return <NotFoundComponent message={data?.message} title="Course List" />;
   }
 
   return (

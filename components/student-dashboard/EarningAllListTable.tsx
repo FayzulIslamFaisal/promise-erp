@@ -88,7 +88,7 @@ const EarningAllListTable = () => {
     return <TableSkeleton columns={9} rows={15} className="mt-4" />;
   }
   if (earnings.length === 0 && !isPending) {
-    return <NotFoundComponent message="No Earning Data Found" />;
+    return <NotFoundComponent message={earningsData?.message || "No Earning Data Found"} title="Earning List" />;
   }
 
   return (

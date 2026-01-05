@@ -49,7 +49,7 @@ const CourseListWrapper = async ({
   const courses = results?.data?.courses || [];
 
   if (!courses.length) {
-    return <NotFoundComponent message="No Course Projects Found." />;
+    return <NotFoundComponent message={results?.message} title="Course List" />;
   }
 
   return (

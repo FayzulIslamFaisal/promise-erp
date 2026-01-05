@@ -82,7 +82,7 @@ export default async function StudentsData({
   const pagination = data.data.pagination;
 
   if (students.length === 0) {
-    return <NotFoundComponent message="No students found." />;
+    return <NotFoundComponent message={data?.message} title="Student List" />;
   }
 
   return (

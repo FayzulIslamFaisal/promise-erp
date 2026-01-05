@@ -5,9 +5,9 @@ import StudentFilter from "./StudentFilter"
 
 export default async function StudentFilterData() {
   const [divisionsRes, branchesRes, coursesRes] = await Promise.all([
-    getDivisions(),
-    getBranches(),
-    getCourses(),
+    getDivisions({ per_page: 999 }),
+    getBranches({ per_page: 999 }),
+    getCourses({ per_page: 999 }),
   ])
 
   return (

@@ -5,9 +5,9 @@ import ChapterFilter from "./ChapterFilter"
 
 export default async function ChapterFilterData() {
   const [branchesRes, coursesRes, batchesRes] = await Promise.all([
-    getBranches(),
-    getCourses(),
-    getBatches(),
+    getBranches({ per_page: 999 }),
+    getCourses({ per_page: 999 }),
+    getBatches({ per_page: 999 }),
   ])
 
   return (

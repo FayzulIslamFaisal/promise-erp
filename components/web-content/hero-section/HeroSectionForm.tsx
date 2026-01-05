@@ -76,7 +76,7 @@ export default function HeroSectionForm({ title, onSubmit, heroSection }: HeroSe
   };
 
   useEffect(() => {
-    getBranches(1, { per_page: 100 }).then((res) => {
+    getBranches({ per_page: 100 }).then((res) => {
       if (res.success) {
         setBranches(res.data.branches);
       }

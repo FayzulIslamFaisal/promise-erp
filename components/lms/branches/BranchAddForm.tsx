@@ -92,7 +92,7 @@ export default function BranchForm({
   useEffect(() => {
     const fetchDistricts = async () => {
       try {
-        const res = await getDistricts();
+        const res = await getDistricts({per_page: 999});
         if (res.success) setDistricts(res.data.districts || res.data);
       } catch (error) {
         console.error("Failed to fetch districts:", error);

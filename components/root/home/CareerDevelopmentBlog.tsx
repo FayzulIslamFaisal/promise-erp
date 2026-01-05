@@ -62,7 +62,7 @@ const CareerDevelopmentBlog = async () => {
               </Card>
             ))
           ) : (
-            <NotFoundComponent message="No Blogs Found" />
+            <NotFoundComponent message={blogData?.message || "No Blogs Found"} title="Blog List" />
           )}
         </div>
         <div className="flex justify-center mt-8">

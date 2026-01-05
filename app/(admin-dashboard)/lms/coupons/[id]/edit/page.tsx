@@ -23,7 +23,7 @@ export default function EditCouponPage() {
         try {
           const [couponRes, coursesRes] = await Promise.all([
             getCouponById(Number(id)),
-            getCourses(),
+            getCourses({per_page: 999}),
           ]);
 
           if (couponRes?.success && couponRes?.data) {

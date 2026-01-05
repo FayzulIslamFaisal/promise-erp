@@ -161,21 +161,6 @@ const data = {
         },
       ],
     },
-    {
-      title: "Branch Management",
-      url: "",
-      icon: HouseIcon,
-      items: [
-        {
-          title: "Add Branch",
-          url: "#",
-        },
-        {
-          title: "Branch List",
-          url: "/lms/branches",
-        },
-      ],
-    },
 
     {
       title: "Enrollments & Payments",

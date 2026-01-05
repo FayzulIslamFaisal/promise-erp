@@ -82,7 +82,7 @@ export default async function BatchesData({
   const paginationData = data?.data?.pagination;
 
   if (batches.length === 0) {
-    return <NotFoundComponent message="No batches found." />;
+    return <NotFoundComponent message={data?.message} title="Batch List" />;
   }
 
   return (

@@ -13,6 +13,10 @@ const VideoStories = async () => {
   const storyData = await fetchPublicVideoGalleries();
   const stories: SuccessStoryItem[] = storyData?.data?.video_galleries || [];
 
+  if (stories.length === 0) {
+    return;
+  }
+
   return (
     <section className="bg-white py-8 md:py-14">
       <div className="container mx-auto px-4">

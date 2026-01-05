@@ -46,7 +46,7 @@ const AssignBranchesButton: React.FC<AssignBranchesButtonProps> = ({
     setLoading(true);
     setError(null);
     try {
-      const response = await getBranches(1, { per_page: 9999 });
+      const response = await getBranches({ per_page: 9999 });
       if (response.success) {
         setBranches(response.data.branches);
       } else {

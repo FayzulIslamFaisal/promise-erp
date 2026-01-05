@@ -93,7 +93,7 @@ export default function GroupForm({ title, onSubmit, group }: GroupFormProps) {
     async function loadDivisions() {
       try {
         setIsLoading(true);
-        const res = await getDivisions();
+        const res = await getDivisions({ per_page: 100 });
         if (res.success) {
           setDivisions(res.data?.divisions || []); 
         }
@@ -125,7 +125,7 @@ export default function GroupForm({ title, onSubmit, group }: GroupFormProps) {
     async function loadBranches() {
       if (!districtId) return;
       try {
-        const res = await getBranches(1, { district_id: districtId });
+        const res = await getBranches({ district_id: districtId });
         if (res.success) {
           setBranches(res.data?.branches || []);
         }
@@ -139,7 +139,7 @@ export default function GroupForm({ title, onSubmit, group }: GroupFormProps) {
   useEffect(() => {
     async function loadCourses() {
       try {
-        const res = await getCourses();
+        const res = await getCourses({ per_page: 100 });
         if (res.success) {
           setCourses(res.data?.courses || []);
         }

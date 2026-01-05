@@ -15,7 +15,6 @@ import {
 import { useEffect, useState, useTransition } from "react";
 import { toast } from "sonner";
 import SectionLoadingSkeleton from "../common/SectionLoadingSkeleton";
-// import NotFoundComponent from "../common/NotFoundComponent";
 
 const EarningsChartUSD = () => {
   const [earningsDataUSD, setEarningsDataUSD] = useState<EarningsChartItem[]>([]);
@@ -44,7 +43,6 @@ const EarningsChartUSD = () => {
   if (isPending) return <SectionLoadingSkeleton />;
 
   if (earningsDataUSD.length === 0)
-    // return <NotFoundComponent message="Earnings Data Not Found" />;
     return null;
 
   return (

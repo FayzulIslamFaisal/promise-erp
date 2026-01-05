@@ -2,7 +2,7 @@ import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { getStudentPaymentHistories } from "@/apiServices/studentDashboardService";
-// import NotFoundComponent from "../common/NotFoundComponent";
+import NotFoundComponent from "../common/NotFoundComponent";
 
 export const PaymentHistoryCard = async () => {
   const params: Record<string, unknown> = {
@@ -12,10 +12,8 @@ export const PaymentHistoryCard = async () => {
 
   const payment = await getStudentPaymentHistories({ params });
   const histories = payment?.data?.payment_histories ?? [];
-
   if (histories.length === 0) {
-    // return <NotFoundComponent message="No payment history found." />;
-    return null;
+    return <NotFoundComponent message={payment?.message} title="Payment history" />;
   }
 
   return (

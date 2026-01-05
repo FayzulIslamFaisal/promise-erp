@@ -59,7 +59,6 @@ export type DivisionResponseType = DivisionSuccessResponse | DivisionErrorRespon
 // =======================
 
 export async function getDivisionsCached(
-  page = 1,
   token: string,
   params: Record<string, unknown> = {}
 ): Promise<DivisionSuccessResponse> {
@@ -68,7 +67,6 @@ export async function getDivisionsCached(
 
   try {
     const urlParams = new URLSearchParams()
-    urlParams.append("page", page.toString())
 
     for (const key in params) {
       if (params[key] !== undefined && params[key] !== null && params.hasOwnProperty(key)) {
@@ -91,20 +89,17 @@ export async function getDivisionsCached(
 }
 
 export async function getDivisions(
-  page = 1,
   params: Record<string, unknown> = {}
 ): Promise<DivisionSuccessResponse> {
   try {
     const session = await getServerSession(authOptions)
     const token = session?.accessToken
     
-    
-
     if (!token) {
       throw new Error("No valid session or access token found.")
     }
 
-    return await getDivisionsCached(page, token, params)
+    return await getDivisionsCached(token, params)
   } catch (error) {
     console.error("Error in getDivisions:", error)
     throw new Error(error instanceof Error ? error.message : "Failed to get divisions")
