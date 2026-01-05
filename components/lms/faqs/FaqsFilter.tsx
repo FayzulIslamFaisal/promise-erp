@@ -45,6 +45,7 @@ export default function FaqsFilter() {
       if (value) params.set(key, String(value));
       else params.delete(key);
     });
+    params.set("page", "1")
 
     const timer = setTimeout(() => {
       router.replace(`${pathname}?${params.toString()}`);

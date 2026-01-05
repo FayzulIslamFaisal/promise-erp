@@ -66,7 +66,7 @@ export default function StudentFilter({
         params.delete(key)
       }
     })
-
+    params.set("page", "1")
     const timer = setTimeout(() => {
       router.replace(`${pathname}?${params.toString()}`)
     }, 500)
@@ -243,7 +243,7 @@ export default function StudentFilter({
                 <SelectItem value="true">Yes</SelectItem>
                 <SelectItem value="false">No</SelectItem>
               </SelectContent>
-            </Select> 
+            </Select>
           )}
         />
       </div>

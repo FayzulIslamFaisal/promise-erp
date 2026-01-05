@@ -60,7 +60,7 @@ export default function CourseFilter({
         params.delete(key)
       }
     })
-
+    params.set("page", "1")
     const timer = setTimeout(() => {
       router.replace(`${pathname}?${params.toString()}`)
     }, 500)
@@ -129,7 +129,7 @@ export default function CourseFilter({
           )}
         />
 
-       
+
 
         {/* Division */}
         <Controller

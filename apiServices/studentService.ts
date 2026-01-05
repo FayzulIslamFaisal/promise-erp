@@ -107,15 +107,14 @@ export async function addStudent(
 
 // Get students
 export async function getStudentsCached(
-  page = 1,
-  token: string,
+token: string,
   params: Record<string, unknown> = {}
 ): Promise<StudentResponse> {
   "use cache"
   cacheTag("students-list")
 
   const urlParams = new URLSearchParams()
-  urlParams.append("page", page.toString())
+ 
 
   for (const key in params) {
     if (params.hasOwnProperty(key) && params[key] !== undefined && params[key] !== null) {
@@ -139,7 +138,6 @@ export async function getStudentsCached(
 }
 
 export async function getStudents(
-  page = 1,
   params: Record<string, unknown> = {}
 ): Promise<StudentResponse> {
   const session = await getServerSession(authOptions)
@@ -148,7 +146,7 @@ export async function getStudents(
   if (!token) {
     throw new Error("No valid session or access token found.")
   }
-  return getStudentsCached(page, token, params)
+  return getStudentsCached(token, params)
 }
 
 export interface StudentSingleResponse {
@@ -158,7 +156,7 @@ export interface StudentSingleResponse {
 }
 
 // =======================
-// 🔹 Get Student By ID
+// Get Student By ID
 // =======================
 
 export async function getStudentById(id: string): Promise<StudentSingleResponse> {
@@ -181,7 +179,7 @@ export async function getStudentById(id: string): Promise<StudentSingleResponse>
 }
 
 // =======================
-// 🔹 Update Student
+// Update Student
 // =======================
 
 export async function updateStudent(
@@ -229,7 +227,7 @@ export async function updateStudent(
 }
 
 // =======================
-// 🔹 Delete Student
+//  Delete Student
 // =======================
 export interface MutationResponse {
   success: boolean;

@@ -1,19 +1,27 @@
-import { getFacilityById } from "@/apiServices/facilitiesService";
-import FacilitiesForm from "@/components/lms/facilities/FacilitiesForm";
+import { getFacilityById, Facility } from '@/apiServices/facilitiesService'
+import FacilitiesForm from '@/components/lms/facilities/FacilitiesForm'
+import { notFound } from 'next/navigation'
 
-export default async function EditFacilityPage({ params }: { params: { id: string } }) {
-  const { id } = await params;
-  const facilityId = Number(id);
+interface PageProps {
+  params: Promise<{
+    id: string
+  }>
+}
+export default async function EditFacilityPage({ params }: PageProps) {
+  const { id } = await params  
 
-  try {
-    const facilityRes = await getFacilityById(facilityId);
+  const response = await getFacilityById(Number(id))
 
-    const facility = facilityRes?.facility ?? null;
-
-    if (!facility) return <div>No Facility found.</div>;
-
-    return <FacilitiesForm title="Edit Facility" facility={facility} />;
-  } catch (error: any) {
-    return <div>Error: {error?.message || "Something went wrong."}</div>;
+  if (!response?.data) {
+    notFound()
   }
+
+  const facility: Facility = response.data
+
+  return (
+    <FacilitiesForm
+      title="Edit Facility"
+      facility={facility}
+    />
+  )
 }

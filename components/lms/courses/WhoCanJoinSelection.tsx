@@ -73,7 +73,7 @@ export default function WhoCanJoinSelection({
                     status: "1",
                 };
 
-                const response = await getJoins(1, queryParams);
+                const response = await getJoins(queryParams);
 
                 if (response?.data?.joins) {
                     setJoins(response.data.joins);

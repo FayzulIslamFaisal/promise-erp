@@ -6,6 +6,7 @@ import { getServerSession } from "next-auth";
 
 import { cacheTag, updateTag } from "next/cache";
 import { handleApiError, processApiResponse } from "@/lib/apiErrorHandler";
+import { PaginationType } from "./studentService";
 
 const API_BASE =
   process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api/v1";
@@ -34,15 +35,6 @@ export interface Review {
   is_featured: number;
 }
 
-export interface ReviewPagination {
-  current_page: number;
-  last_page: number;
-  per_page: number;
-  total: number;
-  from: number;
-  to: number;
-  has_more_pages: boolean;
-}
 
 export interface ReviewsResponse {
   success: boolean;
@@ -51,7 +43,7 @@ export interface ReviewsResponse {
   data: {
     total_reviews: number;
     reviews: Review[];
-    pagination: ReviewPagination;
+    pagination: PaginationType;
   };
   errors?: Record<string, string[]>;
 }
@@ -81,7 +73,6 @@ export interface UpdateReviewRequest extends CreateReviewRequest {}
 // =======================
 
 export async function getReviewsCached(
-  page = 1,
   token: string,
   params: Record<string, unknown> = {}
 ): Promise<ReviewsResponse> {
@@ -90,7 +81,6 @@ export async function getReviewsCached(
 
   try {
     const urlParams = new URLSearchParams();
-    urlParams.append("page", page.toString());
 
     for (const key in params) {
       if (
@@ -111,7 +101,7 @@ export async function getReviewsCached(
 
     const data: ReviewsResponse = await res.json();
     return data;
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("Error in getReviewsCached:", error);
     throw new Error(
       error instanceof Error
@@ -126,7 +116,6 @@ export async function getReviewsCached(
 // =======================
 
 export async function getReviews(
-  page = 1,
   params: Record<string, unknown> = {}
 ): Promise<ReviewsResponse> {
   try {
@@ -135,8 +124,8 @@ export async function getReviews(
 
     if (!token) throw new Error("No valid session or access token found.");
 
-    return await getReviewsCached(page, token, params);
-  } catch (error) {
+    return await getReviewsCached(token, params);
+  } catch (error: unknown) {
     console.error("Error in getReviews:", error);
     throw new Error(
       error instanceof Error ? error.message : "Failed to get Reviews"
@@ -167,7 +156,7 @@ export async function getReviewById(
 
     const data: SingleReviewResponse = await res.json();
     return data;
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("Error in getReviewById:", error);
     throw new Error(
       error instanceof Error
@@ -223,7 +212,7 @@ export async function createReview(
       data: result.data,
       code: result.code,
     };
-  } catch (error) {
+  } catch (error: unknown) {
     const errorResult = await handleApiError(error, "Failed to create review");
     return {
       success: false,
@@ -277,7 +266,7 @@ export async function updateReview(
       data: result.data,
       code: result.code,
     };
-  } catch (error) {
+  } catch (error: unknown) {
     const errorResult = await handleApiError(
       error,
       "Failed to update review"
@@ -330,7 +319,7 @@ export async function deleteReview(
       data: result.data,
       code: result.code,
     };
-  } catch (error) {
+  } catch (error: unknown) {
     const errorResult = await handleApiError(
       error,
       "Failed to delete review"

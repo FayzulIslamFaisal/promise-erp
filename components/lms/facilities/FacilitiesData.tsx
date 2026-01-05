@@ -1,152 +1,140 @@
-import { getFacilities } from "@/apiServices/facilitiesService";
+
 import ErrorComponent from "@/components/common/ErrorComponent";
 import NotFoundComponent from "@/components/common/NotFoundComponent";
-import { Badge } from "@/components/ui/badge";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+
 import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "@/components/ui/table";
-
+import { Badge } from "@/components/ui/badge";
 import { Pencil } from "lucide-react";
 import Link from "next/link";
-import Pagination from "@/components/common/Pagination";
-import DeleteFacilityButton from "@/components/lms/facilities/DeleteButton";
+import { Facility, getFacilities } from "@/apiServices/facilitiesService";
+import DeleteButton from "./DeleteButton";
 import Image from "next/image";
+import Pagination from "@/components/common/Pagination";
 
-type SearchParams = Record<string, string | string[] | undefined>;
 
-export default async function FacilitiesData({
-    searchParams,
+const FacilitiesData = async ({
+  searchParams,
 }: {
-    searchParams: Promise<SearchParams>;
-}) {
-    const paramsObj = await searchParams;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+})=> {
+  const resolvedSearchParams = await searchParams;
+  const page = typeof resolvedSearchParams.page === "string" ? Number(resolvedSearchParams.page) : 1;
+  const params = {
+    page,
+    search:
+      typeof resolvedSearchParams.search === "string"
+        ? resolvedSearchParams.search
+        : undefined,
+    sort_order:
+      typeof resolvedSearchParams.sort_order === "string"
+        ? resolvedSearchParams.sort_order
+        : undefined,
+    status:
+      typeof resolvedSearchParams.status === "string"
+        ? resolvedSearchParams.status
+        : undefined,
+  };
 
-    const params = {
-        search: typeof paramsObj.search === "string" ? paramsObj.search : undefined,
-        sort: typeof paramsObj.sort === "string"  ? paramsObj.sort : "desc",
-        status: typeof paramsObj.status === "string" ? Number(paramsObj.status) : undefined,
-        page : typeof paramsObj.page === "string" ? Number(paramsObj.page) : 1,
-        per_page: 15,
-    };
-
-    let data;
-
-    try {
-        data = await getFacilities(params);
-    } catch (error: any) {
-        return (
-            <ErrorComponent
-                message={error?.message ?? "Failed to load Facilities"}
-            />
-        );
+  let results;
+  try {
+    results = await getFacilities(params);
+    console.log(results)
+    
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      return <ErrorComponent message={error.message} />;
+    } else {
+      return <ErrorComponent message="An unexpected error occurred." />;
     }
+  }
 
-    const facilities = data?.data?.facilities ?? [];
-    const pagination = data?.data?.pagination;
+  const facilities = results?.data?.facilities || [];
+  const paginationData = results?.data?.pagination;
+  if (!facilities.length) {
+    return <NotFoundComponent message="No facilities found." />;
+  }
+  
 
-    if (!facilities.length) {
-        return <NotFoundComponent message="No facilities found." />;
-    }
+  return (
+    <div className="rounded-md border">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead className="text-center">Sl</TableHead>
+            <TableHead className="text-center">Action</TableHead>
+            <TableHead className="text-center">Image</TableHead>
+            <TableHead className="text-center">Title</TableHead>
+            <TableHead className="text-center">Status</TableHead>
+          </TableRow>
+        </TableHeader>
 
-    return (
-        <>
-            <div className="rounded-md border">
-                <Table>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead>#</TableHead>
-                            <TableHead className="text-center">Action</TableHead>
-                            <TableHead>Image</TableHead>
-                            <TableHead>Title</TableHead>
-                            <TableHead>Status</TableHead>
-                        </TableRow>
-                    </TableHeader>
+        <TableBody>
+          {facilities.map((facility: Facility , index: number) => (
+            <TableRow key={facility?.id}>
+              <TableCell className="text-center">{(page-1) * 15 + (index + 1)}</TableCell>
+              <TableCell className="text-center">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Badge
+                        variant="default"
+                        role="button"
+                        tabIndex={0}
+                        className="cursor-pointer select-none"
+                      >
+                        Action
+                      </Badge>
+                    </DropdownMenuTrigger>
 
-                    <TableBody>
-                        {facilities.map((item: any, index: number) => (
-                            <TableRow key={item.id}>
-                                <TableCell>{index + 1}</TableCell>
-
-                                {/* ACTION DROPDOWN */}
-                                <TableCell className="text-center">
-                                    <DropdownMenu>
-                                        <DropdownMenuTrigger asChild>
-                                            <Badge
-                                                variant="default"
-                                                className="cursor-pointer"
-                                            >
-                                                Action
-                                            </Badge>
-                                        </DropdownMenuTrigger>
-
-                                        <DropdownMenuContent align="center">
-                                            <DropdownMenuItem asChild>
-                                                <Link
-                                                    href={`/lms/facilities/${item.id}/edit`}
-                                                    className="flex items-center"
-                                                >
-                                                    <Pencil className="mr-2 h-4 w-4" />
-                                                    Manage
-                                                </Link>
-                                            </DropdownMenuItem>
-
-                                            <DropdownMenuItem asChild>
-                                                <DeleteFacilityButton
-                                                    id={item.id}
-                                                />
-                                            </DropdownMenuItem>
-                                        </DropdownMenuContent>
-                                    </DropdownMenu>
-                                </TableCell>
-
-                                {/* IMAGE */}
-                                <TableCell className="font-medium">
-                                    <Image
-                                        src={
-                                            item.image ||
-                                            "/images/placeholder.png"
-                                        }
-                                        alt={item.title}
-                                        width={40}
-                                        height={40}
-                                        className="object-cover rounded-md border"
-                                    />
-                                </TableCell>
-
-                                {/* TITLE */}
-                                <TableCell>{item.title}</TableCell>
-
-                                {/* STATUS */}
-                                <TableCell>
-                                    {item.status === 1 ? (
-                                        <Badge className="bg-green-600">
-                                            Active
-                                        </Badge>
-                                    ) : (
-                                        <Badge variant="destructive">
-                                            Inactive
-                                        </Badge>
-                                    )}
-                                </TableCell>
-                            </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
-            </div>
-
-            <Pagination pagination={pagination} />
-        </>
-    );
+                    <DropdownMenuContent align="center">
+                      <DropdownMenuItem asChild>
+                        <Link
+                          href={`/lms/facilities/${facility?.id}/edit`}
+                          className="flex items-center cursor-pointer"
+                        >
+                          <Pencil className="mr-2 h-4 w-4" />
+                          Manage
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <DeleteButton id={facility?.id} />
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+              </TableCell>
+              <TableCell className="font-medium flex items-center justify-center">
+                <Image
+                  src={facility.image || "/images/placeholder.png"}
+                  alt={facility?.title}
+                  width={40}
+                  height={40}
+                  className="object-cover"
+                />
+              </TableCell>
+              <TableCell className="font-medium text-center">{facility?.title}</TableCell>
+              <TableCell className="text-center">
+                <Badge variant={facility.status === 1 ? "outline" : "destructive"}>
+                  {facility.status === 1 ? "Active" : "Inactive"}
+                </Badge>
+              </TableCell>
+              
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+ 
+      {paginationData && (
+        <div className="mt-4">
+          <Pagination pagination={paginationData} />
+        </div>
+      )}
+    </div>
+    
+  );
 }
+export default FacilitiesData;

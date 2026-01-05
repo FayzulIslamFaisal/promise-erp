@@ -15,13 +15,12 @@ import Link from "next/link";
 
 import { getReviews, Review } from "@/apiServices/reviewService";
 import DeleteButton from "./DeleteButton";
+import Pagination from "@/components/common/Pagination";
 
 const ReviewsData = async ({
   searchParams,
 }: {
-  searchParams:
-    | Promise<{ [key: string]: string | string[] | undefined }>
-    | { [key: string]: string | string[] | undefined };
+ searchParams: { [key: string]: string | string[] | undefined };
 }) => {
 
   const resolvedSearchParams = await searchParams;
@@ -32,6 +31,7 @@ const ReviewsData = async ({
       : 1;
 
   const params = {
+    page,
     search:
       typeof resolvedSearchParams?.search === "string"
         ? resolvedSearchParams.search
@@ -48,7 +48,7 @@ const ReviewsData = async ({
 
   let results;
   try {
-    results = await getReviews(page, params);
+    results = await getReviews( params);
   } catch (error: unknown) {
     if (error instanceof Error) {
       return <ErrorComponent message={error.message} />;
@@ -58,6 +58,7 @@ const ReviewsData = async ({
   }
 
   const reviews: Review[] = results?.data?.reviews || [];
+  const pagination = results?.data?.pagination;
 
   if (!reviews.length) {
     return <NotFoundComponent message="No reviews found." />;
@@ -83,7 +84,7 @@ const ReviewsData = async ({
         <TableBody>
           {reviews.map((review: Review, index: number) => (
             <TableRow key={review.id}>
-              <TableCell>{index + 1}</TableCell>
+              <TableCell>{(page - 1) * 15 + (index + 1)}</TableCell>
 
               {/* ACTION */}
               <TableCell>
@@ -162,7 +163,11 @@ const ReviewsData = async ({
           ))}
         </TableBody>
       </Table>
+       {pagination && (
+              <Pagination pagination={pagination} />
+            )}
     </div>
+    
   );
 };
 

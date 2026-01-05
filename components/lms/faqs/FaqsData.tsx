@@ -1,4 +1,4 @@
-import { getFaqs } from "@/apiServices/faqsService";
+import { getFaqs, Faq, FaqsResponse } from "@/apiServices/faqsService";
 import ErrorComponent from "@/components/common/ErrorComponent";
 import NotFoundComponent from "@/components/common/NotFoundComponent";
 import { Badge } from "@/components/ui/badge";
@@ -49,20 +49,19 @@ export default async function FaqsData({
         page,
     };
 
-    let data;
+    let data: FaqsResponse;
 
     try {
         data = await getFaqs(params);
-    } catch (error: any) {
+    } catch (error: unknown) {
         return (
             <ErrorComponent
-                message={error?.message ?? "Failed to load FAQs"}
+                message={error instanceof Error ? error.message : "Failed to load FAQs"}
             />
         );
     }
 
     const faqs = data?.data?.faq_sections ?? [];
-    console.log("FAQs Data:", data);
     const pagination = data?.data?.pagination;
 
     if (!faqs.length) {
@@ -84,10 +83,9 @@ export default async function FaqsData({
                     </TableHeader>
 
                     <TableBody>
-                        {faqs.map((faq: any, index: number) => (
+                        {faqs.map((faq: Faq, index: number) => (
                             <TableRow key={faq.id}>
-                                <TableCell>{index + 1}</TableCell>
-
+                                <TableCell>{(page - 1) * 15 + (index + 1)}</TableCell>
                                 <TableCell className="text-center">
                                     <DropdownMenu>
                                         <DropdownMenuTrigger asChild>
@@ -113,7 +111,6 @@ export default async function FaqsData({
                                         </DropdownMenuContent>
                                     </DropdownMenu>
                                 </TableCell>
-
                                 <TableCell>{faq?.question}</TableCell>
                                 <TableCell>{faq?.answer}</TableCell>
 
@@ -129,8 +126,12 @@ export default async function FaqsData({
                     </TableBody>
                 </Table>
             </div>
+            {pagination && (
+                <div className="mt-4">
+                    <Pagination pagination={pagination} />
+                </div>
+            )}
 
-            <Pagination pagination={pagination} />
         </>
     );
 }

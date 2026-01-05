@@ -5,6 +5,7 @@ import { authOptions } from "@/lib/auth";
 import { getServerSession } from "next-auth";
 import { cacheTag, updateTag } from "next/cache";
 import { handleApiError, processApiResponse } from "@/lib/apiErrorHandler";
+import { PaginationType } from "./studentService";
 
 const API_BASE =
   process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api/v1";
@@ -19,15 +20,7 @@ export interface JoinType {
   status: number;
 }
 
-export interface Pagination {
-  current_page: number;
-  last_page: number;
-  per_page: number;
-  total: number;
-  from: number;
-  to: number;
-  has_more_pages: boolean;
-}
+
 
 export interface JoinsResponse {
   success: boolean;
@@ -36,7 +29,7 @@ export interface JoinsResponse {
   data: {
     total_joins: number;
     joins: JoinType[];
-    pagination: Pagination;
+    pagination: PaginationType;
   };
   errors?: Record<string, string[]>;
 }
@@ -54,7 +47,6 @@ export interface SingleJoinResponse {
 // =======================
 
 export async function getJoinsCached(
-  page = 1,
   token: string,
   params: Record<string, unknown> = {}
 ): Promise<JoinsResponse> {
@@ -63,7 +55,6 @@ export async function getJoinsCached(
 
   try {
     const urlParams = new URLSearchParams();
-    urlParams.append("page", page.toString());
 
     for (const key in params) {
       if (
@@ -83,7 +74,7 @@ export async function getJoinsCached(
     });
 
     return await res.json();
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("Error in getJoinsCached:", error);
     throw new Error(
       error instanceof Error
@@ -98,7 +89,6 @@ export async function getJoinsCached(
 // =======================
 
 export async function getJoins(
-  page = 1,
   params: Record<string, unknown> = {}
 ): Promise<JoinsResponse> {
   try {
@@ -107,8 +97,8 @@ export async function getJoins(
 
     if (!token) throw new Error("No valid session or access token found.");
 
-    return await getJoinsCached(page, token, params);
-  } catch (error) {
+    return await getJoinsCached(token, params);
+  } catch (error : unknown) {
     console.error("Error in getJoins:", error);
     throw new Error(
       error instanceof Error ? error.message : "Failed to get joins"

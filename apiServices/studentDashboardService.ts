@@ -2,7 +2,7 @@
 "use server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { Pagination } from "./teacherService";
+import {  PaginationType } from "./studentService";
 const API_BASE =
   process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api/v1";
 
@@ -102,7 +102,7 @@ export interface FreeSeminar {
 export interface FreeSeminarsData {
   total_free_seminars: number;
   free_seminars: FreeSeminar[];
-  pagination: Pagination;
+  pagination: PaginationType;
 }
 
 export interface FreeSeminarsApiResponse {
@@ -192,7 +192,7 @@ export interface CourseCategory {
 export interface UpcomingCoursesData {
   categories: CourseCategory[];
   courses: UpcomingCourse[];
-  pagination: Pagination;
+  pagination: PaginationType;
 }
 export interface UpcomingCoursesApiResponse {
   success: boolean;
@@ -410,7 +410,7 @@ export interface StudentEarningItem {
 export interface StudentEarningsData {
   total_earnings: number;
   earnings: StudentEarningItem[];
-  pagination: Pagination;
+  pagination: PaginationType;
 }
 
 export interface StudentEarningsApiResponse {
@@ -529,7 +529,7 @@ export interface PaymentHistoryItem {
 }
 export interface PaymentHistoryItemData {
   payment_histories: PaymentHistoryItem[];
-  pagination: Pagination;
+  pagination: PaginationType;
 }
 
 export interface StudentPaymentHistoryApiResponse {
@@ -676,7 +676,7 @@ export interface StudentMyCourse {
 }
 export interface StudentMyCoursesData {
   courses: StudentMyCourse[];
-  pagination: Pagination;
+  pagination: PaginationType;
 }
 export interface StudentMyCoursesResponse {
   success: boolean;

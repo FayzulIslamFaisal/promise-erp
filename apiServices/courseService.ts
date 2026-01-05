@@ -8,6 +8,7 @@ import { handleApiError, processApiResponse } from "@/lib/apiErrorHandler";
 import { Facility } from "./facilitiesService";
 import { JoinType } from "./joinService";
 import { Faq } from "./faqsService";
+import { PaginationType } from "./studentService";
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api/v1";
 
 export interface Batch {
@@ -21,12 +22,7 @@ export interface Batch {
   is_offline: boolean;
 }
 
-export interface Pagination {
-  current_page: number;
-  last_page: number;
-  per_page: number;
-  total: number;
-}
+
 
 export interface Course {
   id: number;
@@ -67,7 +63,7 @@ export interface CourseResponse {
   code: number;
   data: {
     courses: Course[];
-    pagination: Pagination;
+    pagination: PaginationType;
   };
   errors?: Record<string, string[]>;
 }
@@ -101,7 +97,7 @@ export interface CourseLearningResponse {
   code: number;
   data?: {
     course_learnings: CourseLearningResponseData[];
-    pagination: Pagination;
+    pagination: PaginationType;
   };
   errors?: Record<string, string[] | string>;
 }
@@ -122,7 +118,7 @@ export interface CourseToolResponse {
   data?: {
     total_tools?: number;
     course_tools: CourseTool[];
-    pagination?: Pagination;
+    pagination?: PaginationType;
   };
   errors?: Record<string, string[] | string>;
 }
@@ -193,23 +189,20 @@ export interface ChapterLessonResponse {
 }
 
 async function getCoursesCached(
-  page: number,
   token: string,
   params: Record<string, unknown> = {}
 ): Promise<CourseResponse> {
   "use cache";
   cacheTag("courses-list");
   try {
-    const url = new URL(`${API_BASE}/courses`);
     const urlParams = new URLSearchParams();
-    urlParams.append("page", String(page));
     Object.entries(params).forEach(([key, value]) => {
       if (value !== undefined && value !== null) {
         urlParams.append(key, String(value));
       }
     });
 
-    const res = await fetch(url.toString(), {
+    const res = await fetch(`${API_BASE}/courses?${urlParams.toString()}`, {
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
@@ -233,12 +226,12 @@ async function getCoursesCached(
 // =======================
 // Get Courses (Paginated)
 // =======================
-export async function getCourses(page = 1, params: Record<string, unknown> = {}): Promise<CourseResponse> {
+export async function getCourses(params: Record<string, unknown> = {}): Promise<CourseResponse> {
   const session = await getServerSession(authOptions);
   const token = session?.accessToken;
   if (!token) throw new Error("No valid session or access token found.");
 
-  return getCoursesCached(page, token, params);
+  return getCoursesCached(token, params);
 }
 
 // =======================

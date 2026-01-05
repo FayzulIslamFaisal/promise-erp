@@ -110,7 +110,7 @@ export default function GroupForm({ title, onSubmit, group }: GroupFormProps) {
     async function loadDistricts() {
       if (!divisionId) return;
       try {
-        const res = await getDistricts(1, { division_id: divisionId });
+        const res = await getDistricts({ division_id: divisionId });
         if (res.success) {
           setDistricts(res.data?.districts || []);
         }

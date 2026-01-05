@@ -46,12 +46,16 @@ export default function CouponFilter({ courses }: CouponFilterProps) {
       }
     });
 
+    if (params.has("page")) {
+      params.set("page", "1");
+    }
+
     const timer = setTimeout(() => {
       router.replace(`${pathname}?${params.toString()}`);
     }, 500);
 
     return () => clearTimeout(timer);
-  }, [JSON.stringify(watchedValues), router, pathname]);
+  }, [watchedValues.search, watchedValues.status, watchedValues.sort_order, watchedValues.course_id, router, pathname]);
 
   const handleReset = () => {
     reset({
@@ -64,7 +68,7 @@ export default function CouponFilter({ courses }: CouponFilterProps) {
   };
 
   const hasActiveFilters = Object.values(watchedValues).some(
-    (value) => value && value !== "" && value !== false
+    (value) => value && value !== ""
   );
 
   return (
@@ -78,7 +82,7 @@ export default function CouponFilter({ courses }: CouponFilterProps) {
             variant="outline"
             size="sm"
             onClick={handleReset}
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 cursor-pointer"
           >
             <FilterX className="h-4 w-4" />
             Clear Filters
@@ -103,7 +107,7 @@ export default function CouponFilter({ courses }: CouponFilterProps) {
           control={control}
           render={({ field }) => (
             <Select onValueChange={field.onChange} value={field.value}>
-              <SelectTrigger className="w-full">
+              <SelectTrigger className="w-full cursor-pointer">
                 <SelectValue placeholder="Sort Order" />
               </SelectTrigger>
               <SelectContent>
@@ -120,14 +124,12 @@ export default function CouponFilter({ courses }: CouponFilterProps) {
           control={control}
           render={({ field }) => (
             <Select onValueChange={field.onChange} value={field.value}>
-              <SelectTrigger className="w-full">
+              <SelectTrigger className="w-full cursor-pointer">
                 <SelectValue placeholder="Status" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="1">Active</SelectItem>
-                <SelectItem value="2">Inactive</SelectItem>
-                <SelectItem value="3">Expired</SelectItem>
-                <SelectItem value="4">Limit Over</SelectItem>
+                <SelectItem value="0">Inactive</SelectItem>
               </SelectContent>
             </Select>
           )}
@@ -139,7 +141,7 @@ export default function CouponFilter({ courses }: CouponFilterProps) {
           control={control}
           render={({ field }) => (
             <Select onValueChange={field.onChange} value={field.value}>
-              <SelectTrigger className="w-full">
+              <SelectTrigger className="w-full cursor-pointer">
                 <SelectValue placeholder="Course" />
               </SelectTrigger>
               <SelectContent>
@@ -156,3 +158,4 @@ export default function CouponFilter({ courses }: CouponFilterProps) {
     </div>
   );
 }
+

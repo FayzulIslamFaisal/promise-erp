@@ -32,18 +32,32 @@ const DistrictFilter = () => {
   });
 
   const watchedValues = watch();
-  useEffect(() => {
+useEffect(() => {
   const handler = setTimeout(() => {
     const params = new URLSearchParams(searchParams.toString());
-    params.delete("page");
+
+    let filterChanged = false;
 
     Object.entries(watchedValues).forEach(([key, value]) => {
+      const currentValue = searchParams.get(key);
+
       if (value && value !== "") {
         params.set(key, String(value));
+        if (currentValue !== String(value)) {
+          filterChanged = true;
+        }
       } else {
+        if (currentValue) {
+          filterChanged = true;
+        }
         params.delete(key);
       }
     });
+
+    //  filter change হলে page = 1
+    if (filterChanged) {
+      params.set("page", "1");
+    }
 
     const newUrl = `${pathname}?${params.toString()}`;
 
@@ -54,6 +68,7 @@ const DistrictFilter = () => {
 
   return () => clearTimeout(handler);
 }, [watchedValues, pathname]);
+
 
   const handleReset = () => {
     reset({
@@ -115,6 +130,10 @@ const DistrictFilter = () => {
   );
 };
 
+
+
+ 
+  
 export default DistrictFilter;
 
 

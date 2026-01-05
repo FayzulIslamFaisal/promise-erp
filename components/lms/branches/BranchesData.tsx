@@ -89,7 +89,7 @@ export default async function BranchesData({
           <TableBody>
             {branches.map((branch: Branch, i: number) => (
               <TableRow key={branch.id}>
-                <TableCell>{i + 1}</TableCell>
+                <TableCell>{((page - 1) * 15 + (i + 1))}</TableCell>
 
                 <TableCell className="text-center">
                   <DropdownMenu>

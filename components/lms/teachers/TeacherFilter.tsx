@@ -66,7 +66,7 @@ export default function TeacherFilter({
         params.delete(key)
       }
     })
-
+    params.set("page", "1")
     const timer = setTimeout(() => {
       router.replace(`${pathname}?${params.toString()}`)
     }, 500)

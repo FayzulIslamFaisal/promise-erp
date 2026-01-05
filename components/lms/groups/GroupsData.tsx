@@ -14,6 +14,7 @@ import { Eye, Pencil } from "lucide-react";
 import Link from "next/link";
 import { Group, getGroups } from "@/apiServices/groupService";
 import DeleteButton from "./DeleteButton";
+import Pagination from "@/components/common/Pagination";
 
 
 const GroupsData = async ({
@@ -46,6 +47,7 @@ const GroupsData = async ({
   }
 
   const groups = results?.data?.groups || [];
+  const pagination = results?.data?.pagination;
   
   if (!groups.length) {
     return <NotFoundComponent message="No groups found." />;
@@ -71,7 +73,7 @@ const GroupsData = async ({
         <TableBody>
           {groups.map((group: Group , index: number) => (
             <TableRow key={group?.id}>
-              <TableCell>{index + 1}</TableCell>
+              <TableCell>{(page-1) * 15 + (index + 1)}</TableCell>
               <TableCell className="text-center">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -120,7 +122,14 @@ const GroupsData = async ({
           ))}
         </TableBody>
       </Table>
+    
+    {pagination && (
+      <div className="mt-4">
+        <Pagination pagination={pagination} />
+      </div>
+    )}
     </div>
-  );
+  );  
+  
 }
 export default GroupsData;

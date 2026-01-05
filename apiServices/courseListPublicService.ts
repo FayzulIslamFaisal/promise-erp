@@ -1,5 +1,6 @@
-const API_BASE =
-  process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api/v1";
+
+import { PaginationType } from "./studentService";
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api/v1";
 
 // --- Interfaces ---
 export interface Category {
@@ -69,15 +70,7 @@ export interface Filters {
   budget_scale?: BudgetScaleFilter[];
   course_track?: CourseTracks[];
 }
-export interface Pagination {
-  current_page: number;
-  last_page: number;
-  per_page: number;
-  total: number;
-  from: number;
-  to: number;
-  has_more_pages: boolean;
-}
+
 export interface ApiResponse {
   success: boolean;
   message: string;
@@ -87,7 +80,7 @@ export interface ApiResponse {
     section_subtitle?: string | null;
     courses: Course[];
     filters: Filters;
-    pagination: Pagination;
+    pagination: PaginationType;
   };
 }
 export interface GetPublicCoursesParams {

@@ -1,7 +1,7 @@
 import { getFaqById } from "@/apiServices/faqsService";
 import FaqsForm from "@/components/lms/faqs/FaqsForm";
 
-export default async function EditFaqPage({ params }: { params: { id: string } }) {
+export default async function EditFaqPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const faqId = Number(id);
 
@@ -19,7 +19,7 @@ export default async function EditFaqPage({ params }: { params: { id: string } }
         faq={faq}
       />
     );
-  } catch (error: any) {
-    return <div>Error: {error?.message || "Something went wrong."}</div>;
+  } catch (error: unknown) {
+    return <div>Error: {error instanceof Error ? error.message : "Something went wrong."}</div>;
   }
 }

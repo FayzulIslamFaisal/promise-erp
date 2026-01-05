@@ -3,12 +3,13 @@ import { authOptions } from "@/lib/auth"
 import { getServerSession } from "next-auth"
 import { cacheTag, updateTag } from 'next/cache'
 import { handleApiError, processApiResponse } from "@/lib/apiErrorHandler"
+import { PaginationType } from "./studentService"
 
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api/v1"
 
 // =======================
-// 🔹 Interfaces
+//  Interfaces
 // =======================
 
 export interface Teacher {
@@ -37,19 +38,14 @@ export interface Teacher {
   }
 }
 
-export interface Pagination {
-  current_page: number
-  last_page: number
-  per_page: number
-  total: number
-}
+
 
 export interface TeacherResponse {
   success: boolean
   message: string
   data: {
-    teachers: Teacher[]
-    pagination: Pagination
+    teachers: Teacher[];
+    pagination: PaginationType;
   }
 }
 export interface TeacherResponseType {
@@ -105,7 +101,7 @@ export async function addTeacher(
 }
 
 // =======================
-// 🔹 Get Teachers
+//  Get Teachers
 // =======================
 
 async function getTeachersCached(
@@ -153,7 +149,7 @@ export interface TeacherSingleResponse {
 }
 
 // =======================
-// 🔹 Get Teacher By ID
+//  Get Teacher By ID
 // =======================
 
 export async function getTeacherById(id: string): Promise<TeacherSingleResponse> {
@@ -176,7 +172,7 @@ export async function getTeacherById(id: string): Promise<TeacherSingleResponse>
 }
 
 // =======================
-// 🔹 Update Teacher
+//  Update Teacher
 // =======================
 
 export async function updateTeacher(
@@ -224,7 +220,7 @@ export async function updateTeacher(
 }
 
 // =======================
-// 🔹 Delete Teacher
+// Delete Teacher
 // =======================
 export async function deleteTeacher(id: number): Promise<{ success: boolean; message?: string; code?: number }> {
   try {

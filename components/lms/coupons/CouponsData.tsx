@@ -13,109 +13,117 @@ import Link from "next/link";
 import { CouponItem, getCoupons } from "@/apiServices/couponsService";
 import DeleteButton from "./DeleteButton";
 import Pagination from "@/components/common/Pagination";
-import page from "@/app/(admin-dashboard)/hr/employees/page";
 
 const CouponsData = async ({
   searchParams,
 }: {
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+  searchParams: { [key: string]: string | string[] | undefined };
 }) => {
-  const resolvedSearchParams = await searchParams;
+  const page = typeof searchParams.page === "string" ? parseInt(searchParams.page) : 1;
 
-  const params: Record<string, unknown> = {};
-
-  if (resolvedSearchParams.page) params.page = typeof resolvedSearchParams.page === "string" ? parseInt(resolvedSearchParams.page, 10) : 1;
-  if (resolvedSearchParams.search) params.search = resolvedSearchParams.search;
-  if (resolvedSearchParams.sort_order) params.sort_order = resolvedSearchParams.sort_order;
-  if (resolvedSearchParams.status) params.status = resolvedSearchParams.status;
-  if (resolvedSearchParams.course_id) params.course_id = resolvedSearchParams.course_id;
+  const params: Record<string, unknown> = {
+    page,
+    search: typeof searchParams.search === "string" ? searchParams.search : undefined,
+    sort_order: typeof searchParams.sort_order === "string" ? searchParams.sort_order : "desc",
+    status: typeof searchParams.status === "string" ? searchParams.status : undefined,
+    course_id: typeof searchParams.course_id === "string" ? searchParams.course_id : undefined,
+  };
 
   let results;
   try {
     results = await getCoupons(params);
   } catch (error: unknown) {
-    return <ErrorComponent message={error instanceof Error ? error.message : "An unexpected error occurred."} />;
+    if (error instanceof Error) {
+      return <ErrorComponent message={error.message} />;
+    } else {
+      return <ErrorComponent message="An unexpected error occurred while loading coupons." />;
+    }
   }
 
   const coupons = results?.data?.coupons || [];
+  const pagination = results?.data?.pagination;
 
-  if (!coupons.length) {
+  if (coupons.length === 0) {
     return <NotFoundComponent message="No coupons found." />;
   }
 
   return (
-    <div className="rounded-xl border bg-card overflow-hidden shadow-sm">
-      <Table>
-        <TableHeader className="bg-muted/50">
-          <TableRow>
-            <TableHead className="w-[50px] font-bold">Sl</TableHead>
-            <TableHead className="font-bold">Action</TableHead>
-            <TableHead className="font-bold">Title</TableHead>
-            <TableHead className="font-bold">Code</TableHead>
-            <TableHead className="font-bold">Discount</TableHead>
-            <TableHead className="font-bold">Used/Limit</TableHead>
-            <TableHead className="font-bold">Status</TableHead>
-          </TableRow>
-        </TableHeader>
-
-        <TableBody>
-          {coupons.map((coupon: CouponItem, index: number) => (
-            <TableRow key={coupon.id} className="hover:bg-muted/30 transition-colors">
-              <TableCell className="font-medium">{index + 1}</TableCell>
-              <TableCell>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Badge
-                      variant="default"
-                      className="cursor-pointer select-none px-3 py-1 hover:bg-primary/90"
-                    >
-                      Action
-                    </Badge>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="start" className="w-40">
-                    <DropdownMenuItem asChild>
-                      <Link
-                        href={`/lms/coupons/${coupon.id}/edit`}
-                        className="flex items-center cursor-pointer py-2"
-                      >
-                        <Pencil className="mr-2 h-4 w-4 text-blue-500" />
-                        Manage
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <DeleteButton id={coupon.id} />
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </TableCell>
-              <TableCell className="font-semibold">{coupon.title}</TableCell>
-              <TableCell>
-                <code className="bg-muted px-2 py-1 rounded text-xs font-mono">
-                  {coupon.coupon_code}
-                </code>
-              </TableCell>
-              <TableCell>
-                <span className="text-green-600 font-bold">{coupon.discount_percentage}%</span>
-              </TableCell>
-              <TableCell className="text-muted-foreground whitespace-nowrap">
-                {coupon.used_count} / {coupon.usage_limit}
-              </TableCell>
-              <TableCell>
-                <Badge variant={coupon.status === 1 ? "outline" : "destructive"} className="rounded-full">
-                  {coupon.status === 1 ? "Active" : "Inactive"}
-                </Badge>
-              </TableCell>
+    <>
+      <div className="rounded-xl border bg-card overflow-hidden shadow-sm overflow-x-auto">
+        <Table>
+          <TableHeader className="bg-muted/50">
+            <TableRow>
+              <TableHead className="w-[50px] font-bold">#</TableHead>
+              <TableHead className="w-[100px] text-center font-bold">Action</TableHead>
+              <TableHead className="min-w-[150px] font-bold">Title</TableHead>
+              <TableHead className="font-bold">Code</TableHead>
+              <TableHead className="font-bold text-center">Discount</TableHead>
+              <TableHead className="font-bold text-center">Used/Limit</TableHead>
+              <TableHead className="font-bold text-center">Status</TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </TableHeader>
 
-      {results?.data?.pagination && (
-        <div className="p-4 border-t bg-muted/20">
-          <Pagination pagination={results.data.pagination} />
+          <TableBody>
+            {coupons.map((coupon: CouponItem, index: number) => (
+              <TableRow key={`coupon-${coupon.id || index}`}>
+                <TableCell className="font-medium">{(page - 1) * 15 + (index + 1)}</TableCell>
+                <TableCell className="text-center">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Badge
+                        variant="default"
+                        role="button"
+                        tabIndex={0}
+                        className="cursor-pointer select-none px-3 py-1 hover:bg-primary/90"
+                      >
+                        Action
+                      </Badge>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="center" className="w-40">
+                      <DropdownMenuItem asChild>
+                        <Link
+                          href={`/lms/coupons/${coupon.id}/edit`}
+                          className="flex items-center cursor-pointer py-2"
+                        >
+                          <Pencil className="mr-2 h-4 w-4" />
+                          Manage
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <DeleteButton id={coupon.id} />
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </TableCell>
+                <TableCell className="font-semibold">{coupon.title}</TableCell>
+                <TableCell>
+                  <code className="bg-muted px-2 py-1 rounded text-xs font-mono">
+                    {coupon.coupon_code}
+                  </code>
+                </TableCell>
+                <TableCell className="text-center">
+                  <span className="text-green-600 font-bold">{coupon.discount_percentage}%</span>
+                </TableCell>
+                <TableCell className="text-center text-muted-foreground whitespace-nowrap">
+                  {coupon.used_count} / {coupon.usage_limit}
+                </TableCell>
+                <TableCell className="text-center">
+                  <Badge variant={coupon.status === 1 ? "outline" : "destructive"} className="rounded-full">
+                    {coupon.status === 1 ? "Active" : "Inactive"}
+                  </Badge>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+
+      {pagination && (
+        <div className="mt-4">
+          <Pagination pagination={pagination} />
         </div>
       )}
-    </div>
+    </>
   );
 };
 

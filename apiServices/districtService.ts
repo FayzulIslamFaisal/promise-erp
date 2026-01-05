@@ -3,6 +3,7 @@ import { authOptions } from "@/lib/auth";
 import { getServerSession } from "next-auth";
 import { cacheTag, updateTag } from "next/cache";
 import { handleApiError, processApiResponse } from "@/lib/apiErrorHandler";
+import { PaginationType } from "./studentService";
 
 const API_BASE =
   process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api/v1";
@@ -21,22 +22,13 @@ export interface District {
   branches: Branch[];
 }
 
-// Pagination type
-export interface Pagination {
-  current_page: number;
-  last_page: number;
-  per_page: number;
-  total: number;
-  from: number;
-  to: number;
-  has_more_pages: boolean;
-}
+
 
 // Main data object
 export interface DistrictData {
   total_districts: number;
   districts: District[];
-  pagination: Pagination;
+  pagination: PaginationType;
 }
 
 // API Response type
@@ -67,7 +59,6 @@ export interface DistrictSingleResponse {
 // =======================
 
 export async function getDistrictsCached(
-  page = 1,
   token: string,
   params: Record<string, unknown> = {}
 ): Promise<DistrictResponse> {
@@ -76,7 +67,6 @@ export async function getDistrictsCached(
 
   try {
     const urlParams = new URLSearchParams();
-    urlParams.append("page", page.toString());
 
     for (const key in params) {
       if (
@@ -107,7 +97,6 @@ export async function getDistrictsCached(
 }
 
 export async function getDistricts(
-  page = 1,
   params: Record<string, unknown> = {}
 ): Promise<DistrictResponse> {
   try {
@@ -118,7 +107,7 @@ export async function getDistricts(
       throw new Error("No valid session or access token found.");
     }
 
-    return await getDistrictsCached(page, token, params);
+    return await getDistrictsCached(token, params);
   } catch (error) {
     console.error("Error in get districts:", error);
     throw new Error(

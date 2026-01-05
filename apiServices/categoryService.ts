@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth";
 import { getServerSession } from "next-auth";
 import { cacheTag, updateTag } from "next/cache";
 import { handleApiError, processApiResponse } from "@/lib/apiErrorHandler";
+import { PaginationType } from "./studentService";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api/v1";
 
@@ -16,15 +17,7 @@ export interface Category {
   total_course?: number | string;
 }
 
-export interface Pagination {
-  current_page: number;
-  last_page: number;
-  per_page: number;
-  total: number;
-  from: number;
-  to: number;
-  has_more_pages: boolean;
-}
+
 
 export interface CategoriesResponse {
   success: boolean;
@@ -35,7 +28,7 @@ export interface CategoriesResponse {
     section_subtitle?: string;
     section_title?: string;
     categories?: Category[];
-    pagination?: Pagination;
+    pagination?: PaginationType;
   };
   errors?: Record<string, string[]>;
 }
@@ -66,7 +59,6 @@ export interface UpdateCategoryRequest {
 // =======================
 
 export async function getCategoriesCached(
-  page = 1,
   token: string,
   params: Record<string, unknown> = {}
 ): Promise<CategoriesResponse> {
@@ -75,8 +67,6 @@ export async function getCategoriesCached(
 
   try {
     const urlParams = new URLSearchParams();
-    urlParams.append("page", page.toString());
-
     for (const key in params) {
       if (
         params[key] !== undefined &&
@@ -95,18 +85,17 @@ export async function getCategoriesCached(
     });
     const data: CategoriesResponse = await res.json();
      return data;
-  } catch (error) {
-    console.error("Error in getCategoriesCached:", error);
-    throw new Error(
-      error instanceof Error
-        ? error.message
-        : "Unknown error occurred while fetching Categories"
-    );
+  } catch (error:unknown) {
+    if (error instanceof Error) {
+      console.error("Error in getCategoriesCached:", error.message);
+      throw new Error("Error fetching categories");
+    } else {
+      throw new Error("Error fetching categories");
+    }
   }
 }
 
 export async function getCategories(
-  page = 1,
   params: Record<string, unknown> = {}
 ): Promise<CategoriesResponse> {
   try {
@@ -117,7 +106,7 @@ export async function getCategories(
       throw new Error("No valid session or access token found.");
     }
 
-    return await getCategoriesCached(page, token, params);
+    return await getCategoriesCached(token, params);
   } catch (error: unknown) {
     if (error instanceof Error) {
       console.error("Categories API Error:", error.message);
@@ -149,13 +138,13 @@ export async function getCategoryById(
     const data: SingleCategoryResponse = await res.json();
     return data;
 
-  } catch (error) {
-    console.error("Error in getCategoryById:", error);
-    throw new Error(
-      error instanceof Error
-        ? error.message
-        : "Unknown error occurred while fetching Category by ID"
-    );
+  } catch (error:unknown) {
+    if (error instanceof Error) {
+      console.error("Error in getCategoryById:", error.message);
+      throw new Error("Error fetching category by ID");
+    } else {
+      throw new Error("Error fetching category by ID");
+    }
   }
 }
 
@@ -197,13 +186,13 @@ export async function createCategory(categoryData:FormData): Promise<SingleCateg
       data: result.data,
       code: result.code,
     };
-  } catch (error) {
-    const errorResult = await handleApiError(error, "Failed to create category");
-    return {
-      success: false,
-      message: errorResult.message,
-      code: errorResult.code,
-    };
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("Error in createCategory:", error.message);
+      throw new Error("Error creating category");
+    } else {
+      throw new Error("Error creating category");
+    }
   }
 }
 
@@ -247,13 +236,13 @@ export async function updateCategory(id: number, formData: FormData): Promise<Si
       data: result.data,
       code: result.code,
     };
-  } catch (error) {
-    const errorResult = await handleApiError(error, "Failed to update category");
-    return {
-      success: false,
-      message: errorResult.message,
-      code: errorResult.code,
-    };
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("Error in updateCategory:", error.message);
+      throw new Error("Error updating category");
+    } else {
+      throw new Error("Error updating category");
+    }
   }
 }
 
@@ -294,13 +283,13 @@ export async function deleteCategory(id: number): Promise<SingleCategoryResponse
       data: result.data,
       code: result.code,
     };
-  } catch (error) {
-    const errorResult = await handleApiError(error, "Failed to delete category");
-    return {
-      success: false,
-      message: errorResult.message,
-      code: errorResult.code,
-    };
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("Error in deleteCategory:", error.message);
+      throw new Error("Error deleting category");
+    } else {
+      throw new Error("Error deleting category");
+    }
   }
 }
 

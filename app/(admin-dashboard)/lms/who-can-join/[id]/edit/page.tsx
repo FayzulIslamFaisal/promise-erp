@@ -1,7 +1,7 @@
 import { getJoinById } from "@/apiServices/joinService";
 import JoinForm from "@/components/lms/who-can-join/JoinForm";
 
-export default async function EditJoinPage({ params }: { params: { id: string } }) {
+export default async function EditJoinPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const joinId = Number(id);
 
@@ -17,7 +17,7 @@ export default async function EditJoinPage({ params }: { params: { id: string } 
         join={join}
       />
     );
-  } catch (error: any) {
-    return <div>Error: {error?.message || "Something went wrong."}</div>;
+  } catch (error: unknown) {
+    return <div>Error: {error instanceof Error ? error.message : "Something went wrong."}</div>;
   }
 }

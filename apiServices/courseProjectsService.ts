@@ -2,6 +2,7 @@
 import { authOptions } from "@/lib/auth";
 import { getServerSession } from "next-auth";
 import { cacheTag, updateTag } from "next/cache";
+import { PaginationType } from "./studentService";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api/v1";
 
@@ -18,15 +19,7 @@ interface Branch {
   name: string;
   district_id: number;
 }
-export interface Pagination {
-  total: number;
-  current_page: number;
-  per_page: number;
-  last_page: number;
-  from: number;
-  to: number;
-  has_more_pages: boolean;
-}
+
 export interface CourseProject {
   id: number;
   uuid: string;
@@ -45,7 +38,7 @@ export interface CourseProjectsResponse {
   code: number;
   data: {
     course_projects: CourseProject[];
-    pagination: Pagination;
+    pagination: PaginationType;
   };
   errors?: Record<string, string[]>;
 }

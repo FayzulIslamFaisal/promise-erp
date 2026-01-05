@@ -106,7 +106,7 @@ export default function CategoryForm({ title, onSubmit, category }: CategoryForm
         {/* Name */}
         <div>
           <label className="block text-sm font-medium mb-1">Category Name</label>
-          <Input placeholder="Enter category name" {...register("name", { required: "Name is required" })} />
+          <Input placeholder="Enter category name" {...register("name")} />
           {errors.name && <p className="text-sm text-red-500 mt-1">{errors.name.message}</p>}
         </div>
 

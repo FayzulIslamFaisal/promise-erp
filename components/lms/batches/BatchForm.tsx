@@ -132,7 +132,7 @@ export default function BatchForm({ title, onSubmit, batch }: BatchFormProps) {
         setIsLoading(true);
         const [branchesRes, coursesRes] = await Promise.all([
           getBranches(1, { per_page: 1000 }),
-          getCourses(1, { per_page: 1000 }),
+          getCourses({ per_page: 1000 }),
         ]);
         if (branchesRes.success) {
           setBranches(branchesRes.data?.branches || []);

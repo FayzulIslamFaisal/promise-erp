@@ -20,16 +20,17 @@ import {
 import { Pencil } from "lucide-react";
 import Link from "next/link";
 import DeleteButton from "./DeleteButton";
-import page from "@/app/(admin-dashboard)/hr/employees/page";
 
 export default async function TeachersData({
   searchParams,
 }: {
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }> | { [key: string]: string | string[] | undefined };
+  searchParams: { [key: string]: string | string[] | undefined };
 }) {
   const resolvedSearchParams = await searchParams;
+  const page = typeof searchParams.page === "string" ? Number(searchParams.page) : 1;
 
   const params = {
+    page,
     search:
       typeof resolvedSearchParams.search === "string" ? resolvedSearchParams.search : undefined,
     sort_order:
@@ -54,7 +55,7 @@ export default async function TeachersData({
       typeof resolvedSearchParams.course_id === "string"
         ? resolvedSearchParams.course_id
         : undefined,
-    page: typeof resolvedSearchParams.page === "string" ? Number(resolvedSearchParams.page) : 1,
+    per_page: 15
   };
 
   let data;
@@ -95,9 +96,9 @@ export default async function TeachersData({
           <TableBody>
             {teachers.map((teacher, i) => (
               <TableRow key={teacher.id}>
-                <TableCell>{i + 1}</TableCell>
+                <TableCell>{(page - 1) * 15 + (i + 1)}</TableCell>
 
-                {/* 🔹 Action Dropdown */}
+                {/*  Action Dropdown */}
                 <TableCell className="text-center">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -161,7 +162,13 @@ export default async function TeachersData({
           </TableBody>
         </Table>
       </div>
-      <Pagination pagination={pagination} />
+      {
+        pagination && (
+          <div className="mt-4">
+            <Pagination pagination={pagination} />
+          </div>
+        )
+      }
     </>
   );
 }

@@ -201,7 +201,7 @@ export default function CourseAddForm({
               <Input
                 id="title"
                 placeholder="e.g. Master React & Next.js"
-                {...register("title", { required: "Title is required" })}
+                {...register("title")}
               />
               {errors.title && <p className="text-red-500 text-sm">{errors.title.message}</p>}
             </div>

@@ -27,9 +27,7 @@ import Pagination from "@/components/common/Pagination";
 const WhoCanJoinData = async ({
   searchParams,
 }: {
-  searchParams:
-    | Promise<{ [key: string]: string | string[] | undefined }>
-    | { [key: string]: string | string[] | undefined };
+  searchParams: { [key: string]: string | string[] | undefined };
 }) => {
   const resolvedSearchParams = await searchParams;
 
@@ -39,6 +37,7 @@ const WhoCanJoinData = async ({
       : 1;
 
   const params = {
+    page,
     search:
       typeof resolvedSearchParams.search === "string"
         ? resolvedSearchParams.search
@@ -47,12 +46,13 @@ const WhoCanJoinData = async ({
       typeof resolvedSearchParams.status === "string"
         ? resolvedSearchParams.status
         : undefined,
+        
   };
 
   let results;
 
   try {
-    results = await getJoins(page, params);
+    results = await getJoins(params);
   } catch (error: unknown) {
     if (error instanceof Error) {
       return <ErrorComponent message={error.message} />;
@@ -62,6 +62,8 @@ const WhoCanJoinData = async ({
   }
 
   const joins = results?.data?.joins || [];
+  const pagination = results?.data?.pagination;
+  
 
   if (!joins.length) {
     return <NotFoundComponent message="No join options found." />;
@@ -82,7 +84,7 @@ const WhoCanJoinData = async ({
         <TableBody>
           {joins.map((join: JoinType, index: number) => (
             <TableRow key={join?.id}>
-              <TableCell>{index + 1}</TableCell>
+              <TableCell>{(page - 1) * 15 + (index + 1) }</TableCell>
 
               <TableCell>
                 <DropdownMenu>
@@ -128,8 +130,8 @@ const WhoCanJoinData = async ({
       </Table>
 
       {/* Pagination Added */}
-      {results?.data?.pagination && (
-        <Pagination pagination={results.data.pagination} />
+      {pagination && (
+        <Pagination pagination={pagination} />
       )}
     </div>
   );

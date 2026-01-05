@@ -3,6 +3,7 @@
 import { authOptions } from "@/lib/auth";
 import { getServerSession } from "next-auth";
 import { cacheTag, updateTag } from "next/cache";
+import { PaginationType } from "./studentService";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api/v1";
 
@@ -17,15 +18,6 @@ export interface Faq {
   status: number;
 }
 
-export interface FaqPagination {
-  current_page: number;
-  last_page: number;
-  per_page: number;
-  total: number;
-  from: number;
-  to: number;
-  has_more_pages: boolean;
-}
 
 export interface FaqsResponse {
   success: boolean;
@@ -34,7 +26,7 @@ export interface FaqsResponse {
   data: {
     total_faq_sections: number;
     faq_sections: Faq[];
-    pagination: FaqPagination;
+    pagination: PaginationType;
   };
   errors?: Record<string, string[]>;
 }

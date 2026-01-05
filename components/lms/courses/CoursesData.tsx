@@ -38,12 +38,13 @@ export default async function CoursesData({
     division_id: typeof resolvedSearchParams.division_id === "string" ? resolvedSearchParams.division_id : undefined,
     branch_id: typeof resolvedSearchParams.branch_id === "string" ? resolvedSearchParams.branch_id : undefined,
     category_id: typeof resolvedSearchParams.category_id === "string" ? resolvedSearchParams.category_id : undefined,
+    page: page,
   };
 
   let data;
   try {
-    console.log("Fetching courses with params:", params, "and page:", page);
-    data = await getCourses(page, params);
+    console.log("Fetching courses with params:", params);
+    data = await getCourses(params);
     console.log("Courses Data:", data);
   } catch (error: unknown) {
     if (error instanceof Error) {
@@ -81,7 +82,7 @@ export default async function CoursesData({
           <TableBody>
             {courses.map((course, index) => (
               <TableRow key={course.id}>
-                <TableCell className="text-center">{index + 1}</TableCell>
+                <TableCell className="text-center">{(page - 1) * 15 + (index + 1)}</TableCell>
 
                 {/* Action Dropdown */}
                 <TableCell className="text-center">
@@ -122,7 +123,7 @@ export default async function CoursesData({
                   </DropdownMenu>
                 </TableCell>
 
-                {/* 🔹 Course Info */}
+                {/*  Course Info */}
                 <TableCell>
                   <div className="flex items-center gap-3">
                     <div className="relative w-10 h-10 overflow-hidden rounded-md border">
@@ -182,7 +183,12 @@ export default async function CoursesData({
           </TableBody>
         </Table>
       </div>
-      <Pagination pagination={pagination} />
+      
+      {pagination && (
+        <div className="mt-4">
+          <Pagination pagination={pagination} />
+        </div>
+      )}
     </>
   );
 }

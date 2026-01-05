@@ -1,122 +1,124 @@
 "use client";
 
-import { useForm, Controller } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
   Select,
-  SelectTrigger,
-  SelectValue,
   SelectContent,
   SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
-
+import { useEffect, useState } from "react";
+import { createFacility, Facility, updateFacility } from "@/apiServices/facilitiesService";
+import { Camera } from "lucide-react";
+import Image from "next/image";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import Image from "next/image";
-import { Camera } from "lucide-react";
 
-import {
-  createFacility,
-  updateFacility,
-  Facility,
-  SingleFacilityResponse,
-} from "@/apiServices/facilitiesService";
-
-type FormValues = {
-  title: string;
-  status: string;
-  image?: any; // Can be FileList or File or null
-};
-
-export default function FacilitiesForm({
-  title,
-  facility,
-}: {
+interface FacilitiesFormProps {
   title: string;
   facility?: Facility;
-}) {
-  const router = useRouter();
-  const [preview, setPreview] = useState<string | null>(facility?.image || null);
+}
 
+interface FormValues {
+  title: string;
+  status: string;
+  image?: FileList;
+}
+
+export default function FacilitiesForm({ title, facility }: FacilitiesFormProps) {
+  const [previewImage, setPreviewImage] = useState<string | null>(facility?.image || null);
+  const router = useRouter();
   const {
     register,
     handleSubmit,
+    setError,
     control,
     reset,
-    setError,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm<FormValues>({
     defaultValues: {
       title: facility?.title || "",
-      status: facility?.status?.toString() || "1",
-      image: null,
+      status: facility?.status.toString() || "1",
+      image: undefined,
     },
   });
 
-  // ========= Reset if editing =========
+  const imageFile = watch("image");
+
   useEffect(() => {
-    if (!facility) return;
-
-    reset({
-      title: facility.title,
-      status: facility.status?.toString(),
-      image: null,
-    });
-
-    setPreview(facility.image || null);
+    if (facility) {
+      reset({
+        title: facility.title,
+        status: facility.status.toString(),
+      });
+      if (facility.image) setPreviewImage(facility.image);
+    }
   }, [facility, reset]);
 
-  const setFormError = (field: string, msg: string) => {
-    setError(field as keyof FormValues, {
-      type: "server",
-      message: msg,
-    });
-  };
+  useEffect(() => {
+    if (imageFile && imageFile.length > 0) {
+      const file = imageFile[0];
+      if (file.type.startsWith("image/")) {
+        const reader = new FileReader();
+        reader.onload = (e) => setPreviewImage(e.target?.result as string);
+        reader.readAsDataURL(file);
+      }
+    }
+  }, [imageFile]);
 
-  // ========= Submit Handler =========
+
   const submitHandler = async (values: FormValues) => {
-    let res: SingleFacilityResponse;
+    const formData = new FormData();
+    formData.append("title", values.title.trim());
+    formData.append("status", values.status);
 
-    // Extract file from FileList if present
-    const imageFile = values.image?.[0] instanceof File ? values.image[0] : null;
+    if (values.image && values.image.length > 0) {
+      formData.append("image", values.image[0]);
+    }
+    console.log("formData===", formData)
 
     try {
+      let res
       if (facility) {
-        res = await updateFacility(facility.id, {
-          title: values.title,
-          status: Number(values.status),
-          image: imageFile,
-        });
+        res = await updateFacility(Number(facility.id), formData);
       } else {
-        res = await createFacility({
-          title: values.title,
-          status: Number(values.status),
-          image: imageFile,
-        });
+        res = await createFacility(formData);
       }
 
-      // Check for validation errors
-      if (res.errors) {
-        Object.entries(res.errors).forEach(([field, messages]) => {
-          setFormError(field, messages[0]);
-        });
-        return;
-      }
-
-      // Check for success (either facility object exists or just a success message without errors)
-      if (res.facility || res.message) {
-        toast.success(res.message || "Saved successfully");
-        router.refresh();
+      if (res.success) {
+        toast.success(res.message || "Facility added successfully!");
+        reset();
         router.push("/lms/facilities");
-        return;
+      } else {
+        if (res.errors) {
+          toast.error(res.message || "Failed to add facility");
+          Object.entries(res.errors).forEach(([field, messages]) => {
+            const errorMessage = Array.isArray(messages) ? messages[0] : messages;
+            setError(field as keyof FormValues, { type: "server", message: errorMessage as string });
+          });
+        } else {
+          toast.error(res.message || "Failed to add facility");
+        }
       }
-
-      toast.error(res.message || "Something went wrong");
-    } catch (err) {
-      toast.error("Server error occurred");
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        toast.error(error.message);
+      }else {
+        toast.error("An unexpected error occurred.");
+      }
+      console.error(error);
     }
+
+  };
+
+  const handleImageRemove = () => {
+    setPreviewImage(null);
+    const fileInput = document.getElementById("image") as HTMLInputElement;
+    if (fileInput) fileInput.value = "";
   };
 
   return (
@@ -126,112 +128,80 @@ export default function FacilitiesForm({
       <form onSubmit={handleSubmit(submitHandler)} className="space-y-5">
         {/* Title */}
         <div>
-          <label className="block text-sm font-medium mb-1">Title</label>
+          <label className="block text-sm font-medium mb-1">Facility Title</label>
           <Input placeholder="Enter facility title" {...register("title")} />
-          {errors.title && (
-            <p className="text-red-500 text-sm">{errors.title.message}</p>
-          )}
-        </div>
-
-        {/* Image Upload */}
-        <div>
-          <label className="block text-sm font-medium mb-1">Image</label>
-
-          <div className="space-y-3">
-            {preview ? (
-              <div className="relative">
-                <Image
-                  src={preview}
-                  alt="Preview"
-                  width={120}
-                  height={120}
-                  className="rounded-lg border object-cover"
-                />
-
-                <Button
-                  type="button"
-                  variant="destructive"
-                  size="sm"
-                  className="absolute top-2 right-2"
-                  onClick={() => {
-                    setPreview(null);
-                    reset((prev) => ({ ...prev, image: null }));
-                  }}
-                >
-                  Remove
-                </Button>
-              </div>
-            ) : (
-              <div className="border-2 border-dashed rounded-lg p-6 text-center">
-                <Input
-                  id="image"
-                  type="file"
-                  className="hidden"
-                  accept="image/*"
-                  {...register("image", {
-                    onChange: (e) => {
-                      const file = e.target.files?.[0];
-                      if (file) {
-                        setPreview(URL.createObjectURL(file));
-                      }
-                    },
-                  })}
-                />
-
-                <label htmlFor="image" className="cursor-pointer block">
-                  <div className="flex flex-col items-center gap-2">
-                    <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center">
-                      <Camera className="w-6 h-6 text-gray-500" />
-                    </div>
-                    <p className="text-sm font-medium text-gray-900">
-                      Click to upload image
-                    </p>
-                  </div>
-                </label>
-              </div>
-            )}
-
-            {errors.image && (
-              <p className="text-sm text-red-500">{(errors.image as any).message}</p>
-            )}
-          </div>
+          {errors.title && <p className="text-sm text-red-500 mt-1">{errors?.title?.message}</p>}
         </div>
 
         {/* Status */}
-        <Controller
-          name="status"
-          control={control}
-          render={({ field }) => (
-            <div>
-              <label className="block text-sm font-medium mb-1">Status</label>
-
+        <div>
+          <label className="block text-sm font-medium mb-1">Status</label>
+          <Controller
+            name="status"
+            control={control}
+            render={({ field }) => (
               <Select value={field.value} onValueChange={field.onChange}>
                 <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select status" />
+                  <SelectValue placeholder="Select Status" />
                 </SelectTrigger>
-
                 <SelectContent>
                   <SelectItem value="1">Active</SelectItem>
                   <SelectItem value="0">Inactive</SelectItem>
                 </SelectContent>
               </Select>
+            )}
+          />
+          {errors.status && <p className="text-sm text-red-500 mt-1">{errors.status.message}</p>}
+        </div>
 
-              {errors.status && (
-                <p className="text-red-500 text-sm">{errors.status.message}</p>
-              )}
-            </div>
-          )}
-        />
+        {/* Image */}
+        <div>
+          <label className="block text-sm font-medium mb-1">Facility Image</label>
+          <div className="space-y-3">
+            {previewImage ? (
+              <div className="relative">
+                <div className="rounded-lg border-2 border-dashed">
+                  <Image
+                    src={previewImage}
+                    alt="Facility preview"
+                    width={100}
+                    height={100}
+                    className="object-cover rounded-2xl"
+                  />
+                </div>
+                <Button
+                  type="button"
+                  variant="destructive"
+                  size="sm"
+                  className="absolute top-2 right-2 cursor-pointer"
+                  onClick={handleImageRemove}
+                >
+                  Remove
+                </Button>
+              </div>
+            ) : (
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                <Input id="image" type="file" accept="image/*" className="hidden" {...register("image")} />
+                <label htmlFor="image" className="cursor-pointer block">
+                  <div className="flex flex-col items-center justify-center gap-2">
+                    <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center">
+                      <Camera className="w-6 h-6 text-gray-500" />
+                    </div>
+                    <p className="text-sm font-medium text-gray-900">Click to upload image</p>
+                  </div>
+                </label>
+              </div>
+            )}
+            {errors.image && <p className="text-sm text-red-500 mt-1">{errors.image.message}</p>}
+          </div>
+        </div>
 
-        {/* Submit Button */}
-        <Button type="submit" disabled={isSubmitting} className="w-full">
-          {isSubmitting
-            ? "Submitting..."
-            : facility
-              ? "Update Facility"
-              : "Add Facility"}
+        <Button type="submit" disabled={isSubmitting} className="w-full cursor-pointer">
+          {isSubmitting ? "Submitting..." : facility ? "Update Facility" : "Add Facility"}
         </Button>
       </form>
     </div>
   );
 }
+
+

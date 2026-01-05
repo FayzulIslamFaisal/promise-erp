@@ -21,7 +21,6 @@ import Link from "next/link";
 import DeleteButton from "./DeleteButton";
 import { Avatar, AvatarImage } from "@radix-ui/react-avatar";
 import Pagination from "@/components/common/Pagination";
-import ExportData from "./ExportData";
 
 export default async function StudentsData({
   searchParams,
@@ -33,6 +32,7 @@ export default async function StudentsData({
     typeof resolvedSearchParams.page === "string" ? Number(resolvedSearchParams.page) : 1;
 
   const params = {
+    page,
     search:
       typeof resolvedSearchParams.search === "string"
         ? resolvedSearchParams.search
@@ -69,7 +69,7 @@ export default async function StudentsData({
 
   let data;
   try {
-    data = await getStudents(page, params);
+    data = await getStudents(params);
   } catch (error: unknown) {
     if (error instanceof Error) {
       return <ErrorComponent message={error.message} />;
@@ -87,9 +87,7 @@ export default async function StudentsData({
 
   return (
     <>
-      {/* <div className="flex justify-end mb-4">
-        <ExportData data={students} />
-      </div> */}
+
       <div className="rounded-md border">
         <Table>
           <TableHeader>
@@ -109,7 +107,7 @@ export default async function StudentsData({
           <TableBody>
             {students.map((student, i) => (
               <TableRow key={student?.id}>
-                <TableCell>{i + 1}</TableCell>
+                <TableCell>{(page - 1) * 15 + (i + 1)}</TableCell>
                 <TableCell className="text-center">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -223,7 +221,14 @@ export default async function StudentsData({
           </TableBody>
         </Table>
       </div>
-      <Pagination pagination={pagination} />
+      {
+        pagination && (
+          <div className="mt-4">
+            <Pagination pagination={pagination} />
+          </div>
+        )
+      }
+
     </>
   );
 }

@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth";
 import { getServerSession } from "next-auth";
 import { cacheTag, updateTag } from "next/cache";
 import { handleApiError, processApiResponse } from "@/lib/apiErrorHandler";
+import { PaginationType } from "./studentService";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api/v1";
 
@@ -14,15 +15,7 @@ export interface CourseCategory {
   status: number;
 }
 
-export interface Pagination {
-  current_page: number;
-  last_page: number;
-  per_page: number;
-  total: number;
-  from: number;
-  to: number;
-  has_more_pages: boolean;
-}
+
 
 export interface CourseCategoriesResponse {
   success: boolean;
@@ -31,7 +24,7 @@ export interface CourseCategoriesResponse {
   data: {
     total_categories: number;
     categories: CourseCategory[];
-    pagination: Pagination;
+    pagination: PaginationType;
   };
 }
 

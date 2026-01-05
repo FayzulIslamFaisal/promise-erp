@@ -15,16 +15,19 @@ import Link from "next/link";
 import { Category, getCategories } from "@/apiServices/categoryService";
 import DeleteButton from "./DeleteButton";
 import Image from "next/image";
+import Pagination from "@/components/common/Pagination";
 
 
 const CategoriesData = async ({
+
   searchParams,
 }: {
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }> | { [key: string]: string | string[] | undefined };
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 })=> {
   const resolvedSearchParams = await searchParams;
   const page = typeof resolvedSearchParams.page === "string" ? Number(resolvedSearchParams.page) : 1;
   const params = {
+    page,
     search:
       typeof resolvedSearchParams.search === "string"
         ? resolvedSearchParams.search
@@ -41,7 +44,7 @@ const CategoriesData = async ({
 
   let results;
   try {
-    results = await getCategories( page, params );
+    results = await getCategories(params);
     
   } catch (error: unknown) {
     if (error instanceof Error) {
@@ -52,7 +55,7 @@ const CategoriesData = async ({
   }
 
   const categories = results?.data?.categories || [];
-  
+  const paginationData = results?.data?.pagination;
   if (!categories.length) {
     return <NotFoundComponent message="No categories found." />;
   }
@@ -74,7 +77,7 @@ const CategoriesData = async ({
         <TableBody>
           {categories.map((category: Category , index: number) => (
             <TableRow key={category?.id}>
-              <TableCell>{index + 1}</TableCell>
+              <TableCell>{(page-1) * 15 + (index + 1)}</TableCell>
               <TableCell>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -124,7 +127,14 @@ const CategoriesData = async ({
           ))}
         </TableBody>
       </Table>
+ 
+      {paginationData && (
+        <div className="mt-4">
+          <Pagination pagination={paginationData} />
+        </div>
+      )}
     </div>
+    
   );
 }
 export default CategoriesData;

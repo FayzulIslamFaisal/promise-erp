@@ -6,17 +6,18 @@ import { Suspense } from "react";
 import CouponFilterData from "@/components/lms/coupons/CouponFilterData";
 import CouponsData from "@/components/lms/coupons/CouponsData";
 
-const CouponsPage = ({
+const CouponsPage = async ({
   searchParams,
 }: {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) => {
+  const params = await searchParams;
+
   return (
     <div className="mx-auto space-y-6">
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold tracking-tight ">Coupons</h1>
-          
         </div>
         <Button asChild size="lg" className="rounded-xl shadow-md transition-all hover:shadow-lg active:scale-[0.98]">
           <Link href="/lms/coupons/add">
@@ -31,10 +32,11 @@ const CouponsPage = ({
       </Suspense>
 
       <Suspense fallback={<TableSkeleton columns={7} rows={8} />}>
-        <CouponsData searchParams={searchParams} />
+        <CouponsData searchParams={params} />
       </Suspense>
     </div>
   );
 };
+
 
 export default CouponsPage;

@@ -3,239 +3,288 @@
 import { authOptions } from "@/lib/auth";
 import { getServerSession } from "next-auth";
 import { cacheTag, updateTag } from "next/cache";
+import { PaginationType } from "./studentService";
+import { handleApiError, processApiResponse } from "@/lib/apiErrorHandler";
 
-// Base API URL
 const API_BASE =
   process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api/v1";
 
-// ==============================
+// =======================
 // Interfaces
-// ==============================
+// =======================
 
 export interface Facility {
   id: number;
   uuid: string;
   title: string;
   status: number;
-  image: string | null;
+  image?: string | null;
 }
 
-export interface FacilityPagination {
-  current_page: number;
-  last_page: number;
-  per_page: number;
-  total: number;
-  from: number;
-  to: number;
-  has_more_pages: boolean;
-}
-
-export interface FacilityListResponse {
+export interface FacilitiesResponse {
+  success: boolean;
+  message: string;
+  code: number;
   data: {
     total_facilities: number;
-    facilities: Facility[];
-    pagination: FacilityPagination;
+    facilities?: Facility[];
+    pagination?: PaginationType;
   };
-}
-
-export interface SingleFacilityResponse {
-  facility?: Facility;
-  message?: string;
   errors?: Record<string, string[]>;
 }
 
-export interface FacilityFormData {
-  title: string;
-  image?: File | null;
-  status: number;
+export interface SingleFacilityResponse {
+  success: boolean;
+  message: string;
+  code?: number;
+  data?: Facility | null;
+  errors?: Record<string, string[] | string>;
 }
 
-// ==============================
-// VALIDATE USER SESSION
-// ==============================
-
-async function requireSessionToken() {
-  const session = await getServerSession(authOptions);
-  const token = session?.accessToken;
-
-  if (!token) {
-    throw new Error("No valid access token found");
-  }
-
-  return token;
-}
-
-// ==============================
-// GET Facilities (cached)
-// ==============================
+// =======================
+// Get Facilities (Cached)
+// =======================
 
 export async function getFacilitiesCached(
   token: string,
   params: Record<string, unknown> = {}
-): Promise<FacilityListResponse> {
+): Promise<FacilitiesResponse> {
   "use cache";
   cacheTag("facilities-list");
 
-  const urlParams = new URLSearchParams();
+  try {
+    const urlParams = new URLSearchParams();
 
-  Object.entries(params).forEach(([key, value]) => {
-    if (value !== undefined && value !== null && value !== "") {
-      urlParams.append(key, String(value));
+    for (const key in params) {
+      if (params[key] !== undefined && params[key] !== null) {
+        urlParams.append(key, String(params[key]));
+      }
     }
-  });
 
-  const res = await fetch(
-    `${API_BASE}/course-facilities?${urlParams.toString()}`,
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+    const res = await fetch(
+      `${API_BASE}/course-facilities?${urlParams.toString()}`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    const data: FacilitiesResponse = await res.json();
+    return data;
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("Error in getFacilitiesCached:", error.message);
+      throw new Error("Error fetching facilities");
+    } else {
+      throw new Error("Error fetching facilities");
     }
-  );
-
-
-  if (!res.ok) {
-    throw new Error("Failed to fetch facilities");
   }
-
-  return await res.json();
 }
 
 export async function getFacilities(
   params: Record<string, unknown> = {}
-) {
-  const token = await requireSessionToken();
-  return await getFacilitiesCached(token, params);
-}
+): Promise<FacilitiesResponse> {
+  try {
+    const session = await getServerSession(authOptions);
+    const token = session?.accessToken;
 
-// ==============================
-// GET Facility by ID
-// ==============================
+    if (!token) {
+      throw new Error("No valid session or access token found.");
+    }
+
+    return await getFacilitiesCached(token, params);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("Categories API Error:", error.message)
+      throw new Error("Error fetching facilities");
+    } else {
+      throw new Error("Error fetching facilities");
+    }
+  }
+}
+// =======================
+// Get Facility By ID
+// =======================
 
 export async function getFacilityById(
   id: number
 ): Promise<SingleFacilityResponse> {
-  const token = await requireSessionToken();
+  try {
+    const session = await getServerSession(authOptions);
+    const token = session?.accessToken;
+    if (!token) throw new Error("No valid session or access token found.");
 
-  const res = await fetch(`${API_BASE}/course-facilities/${id}`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+    const res = await fetch(`${API_BASE}/course-facilities/${id}`, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
 
-  if (!res.ok) {
-    throw new Error("Failed to fetch facility");
+    const data: SingleFacilityResponse = await res.json();
+    return data;
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("Error in getFacilityById:", error.message);
+      throw new Error("Error fetching facility");
+    } else {
+      throw new Error("Error fetching facility");
+    } 
   }
-
-  return await res.json();
 }
 
-// ==============================
-// CREATE Facility
-// ==============================
+// =======================
+// Create Facility
+// =======================
 
 export async function createFacility(
-  data: FacilityFormData
+  formData: FormData
 ): Promise<SingleFacilityResponse> {
-  const token = await requireSessionToken();
+  try {
+    const session = await getServerSession(authOptions);
+    const token = session?.accessToken;
 
-  const formData = new FormData();
-  formData.append("title", data.title);
-  formData.append("status", String(data.status));
+    if (!token) {
+      return { success: false, message: "No valid session or access token found.", code: 401 };
+    }
 
-  if (data.image instanceof File) {
-    formData.append("image", data.image);
-  }
+    const res = await fetch(`${API_BASE}/course-facilities`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData,
+    });
 
-  const res = await fetch(`${API_BASE}/course-facilities`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    body: formData,
-  });
+    const result = await processApiResponse(res, "Failed to create facility");
 
-  const responseData = await res.json();
+    if (!result.success) {
+      return {
+        success: false,
+        message: result.message,
+        errors: result.errors,
+        code: result.code,
+      };
+    }
 
-  if (!res.ok) {
+    updateTag("facilities-list");
     return {
-      message: responseData.message || "Failed to create facility",
-      errors: responseData.errors,
+      success: true,
+      message: result.message || "Facility created successfully",
+      data: result.data,
+      code: result.code,
     };
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("Error in createFacility:", error.message);
+      throw new Error("Error creating facility");
+    } else {
+      throw new Error("Error creating facility");
+    }
   }
-
-  updateTag("facilities-list");
-
-  return responseData;
 }
 
-// ==============================
-// UPDATE Facility
-// ==============================
+// =======================
+// Update Facility
+// =======================
 
 export async function updateFacility(
   id: number,
-  data: FacilityFormData
+  formData: FormData
 ): Promise<SingleFacilityResponse> {
-  const token = await requireSessionToken();
+  try {
+    const session = await getServerSession(authOptions);
+    const token = session?.accessToken;
 
-  const formData = new FormData();
-  formData.append("title", data.title);
-  formData.append("status", String(data.status));
+    if (!token) {
+      return { success: false, message: "No valid session or access token found.", code: 401 };
+    }
 
-  if (data.image instanceof File) {
-    formData.append("image", data.image);
-  }
+    formData.append("_method", "PUT");
 
-  formData.append("_method", "PUT");
+    const res = await fetch(`${API_BASE}/course-facilities/${id}`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData,
+    });
 
-  const res = await fetch(`${API_BASE}/course-facilities/${id}`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    body: formData,
-  });
+    const result = await processApiResponse(res, "Failed to update facility");
 
-  const responseData = await res.json();
+    if (!result.success) {
+      return {
+        success: false,
+        message: result.message,
+        errors: result.errors,
+        code: result.code,
+      };
+    }
 
-  if (!res.ok) {
+    updateTag("facilities-list");
     return {
-      message: responseData.message || "Failed to update facility",
-      errors: responseData.errors,
+      success: true,
+      message: result.message || "Facility updated successfully",
+      data: result.data,
+      code: result.code,
     };
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("Error in updateFacility:", error.message);
+      throw new Error("Error updating facility");
+    } else {
+      throw new Error("Error updating facility");
+    }
   }
-
-  updateTag("facilities-list");
-
-  return responseData;
 }
 
-// ==============================
-// DELETE Facility
-// ==============================
+// =======================
+// Delete Facility
+// =======================
 
 export async function deleteFacility(
   id: number
 ): Promise<SingleFacilityResponse> {
-  const token = await requireSessionToken();
+  try {
+    const session = await getServerSession(authOptions);
+    const token = session?.accessToken;
 
-  const res = await fetch(`${API_BASE}/course-facilities/${id}`, {
-    method: "DELETE",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+    if (!token) {
+      return { success: false, message: "No valid session or access token found.", code: 401 };
+    }
 
-  const responseData = await res.json();
+    const res = await fetch(`${API_BASE}/course-facilities/${id}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
 
-  if (!res.ok) {
+    const result = await processApiResponse(res, "Failed to delete facility");
+
+    if (!result.success) {
+      return {
+        success: false,
+        message: result.message,
+        code: result.code,
+      };
+    }
+
+    updateTag("facilities-list");
     return {
-      message: responseData.message || "Failed to delete facility",
+      success: true,
+      message: result.message || "Facility deleted successfully",
+      data: result.data,
+      code: result.code,
     };
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("Error in deleteFacility:", error.message);
+      throw new Error("Error deleting facility");
+    } else {
+      throw new Error("Error deleting facility");
+    }
   }
-
-  updateTag("facilities-list");
-
-  return responseData;
 }

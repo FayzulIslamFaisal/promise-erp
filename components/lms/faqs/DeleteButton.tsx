@@ -26,7 +26,7 @@ type ApiResponse = {
   success: boolean;
   message?: string;
   code?: number;
-  data?: any;
+  data?: unknown;
 };
 
 const DeleteFaqButton = ({ id }: DeleteFaqButtonProps) => {

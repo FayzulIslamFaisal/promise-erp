@@ -2,7 +2,7 @@
 
 const API_BASE =
   process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api/v1";
-import { Pagination } from "./courseService";
+import { PaginationType } from "./studentService";
 
 // ---Start Interfaces home page hero section ---
 export interface HeroSection {
@@ -66,7 +66,7 @@ export interface BranchList {
   section_title?: string | null;
   section_subtitle?: string | null;
   branches: Branch[];
-  pagination: Pagination;
+  pagination: PaginationType;
 }
 
 export interface BranchApiResponse {
@@ -113,7 +113,7 @@ export interface TeacherList {
   section_title?: string | null;
   section_subtitle?: string | null;
   teachers: Teacher[] | null;
-  pagination: Pagination;
+  pagination: PaginationType;
 }
 
 export interface TeacherApiResponse {
@@ -140,7 +140,7 @@ export interface ReviewList {
   section_title?: string | null;
   section_subtitle?: string | null;
   reviews: Review[] | null;
-  pagination: Pagination;
+  pagination: PaginationType;
 }
 
 export interface ReviewApiResponse {
@@ -223,7 +223,7 @@ export interface ServicesResponseData {
   section_title?: string | null;
   section_subtitle?: string | null;
   services: ServiceItem[];
-  pagination: Pagination;
+  pagination: PaginationType;
 }
 
 export interface ServicesApiResponse {
@@ -248,7 +248,7 @@ export interface SuccessStoryData {
   section_title?: string | null;
   section_subtitle?: string | null;
   video_galleries: SuccessStoryItem[];
-  pagination: Pagination;
+  pagination: PaginationType;
 }
 
 export interface SuccessStoryApiResponse {
@@ -272,7 +272,7 @@ export interface NewsFeedData {
   section_title?: string | null;
   section_subtitle?: string | null;
   news_feeds: NewsFeedItem[];
-  pagination: Pagination;
+  pagination: PaginationType;
 }
 
 export interface NewsFeedApiResponse {
@@ -297,7 +297,7 @@ export interface OpportunityData {
   section_subtitle?: string | null;
   section_image?: string | null;
   opportunities: OpportunityItem[];
-  pagination: Pagination;
+  pagination: PaginationType;
 }
 
 export interface OpportunityApiResponse {
@@ -333,7 +333,7 @@ export interface BlogApiData {
   section_subtitle?: string | null;
   total_blogs: number;
   blogs: Blog[] | null;
-  pagination: Pagination;
+  pagination:PaginationType;
 }
 
 export interface BlogApiResponse {

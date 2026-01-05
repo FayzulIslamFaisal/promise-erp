@@ -9,7 +9,7 @@ import {
   Select,
   SelectContent,
   SelectItem,
-  SelectTrigger,
+  SelectTrigger, 
   SelectValue,
 } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
@@ -23,7 +23,7 @@ interface FilterFormValues {
   search?: string
   sort_order?: string
   division_id?: string
-  district_id?: string
+  district_id?: string  
   branch_id?: string
   course_id?: string
   is_online?: string
