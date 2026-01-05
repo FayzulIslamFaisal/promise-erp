@@ -19,7 +19,6 @@ interface TeacherListSectionProps {
 }
 const TeacherListSection = ({ teacherData }: TeacherListSectionProps) => {
   const instructors = teacherData?.data?.teachers || [];
-  const baseURL = process.env.baseURL || "";
   return (
     <>
       <Carousel
@@ -41,9 +40,7 @@ const TeacherListSection = ({ teacherData }: TeacherListSectionProps) => {
                 <div className=" z-20 relative h-48 w-fit rounded-2xl overflow-hidden shadow-xl transition-transform duration-500 group-hover:scale-102">
                   <Image
                     src={
-                      instructor?.profile_image
-                        ? `${baseURL}/${instructor.profile_image}`
-                        : "/images/placeholder_img.jpg"
+                      instructor?.profile_image || "/images/placeholder_img.jpg"
                     }
                     alt={instructor?.name || "teacher image"}
                     width={300}

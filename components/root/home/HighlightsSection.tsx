@@ -8,7 +8,6 @@ import { cacheTag } from "next/cache";
 const HighlightsSection = async () => {
   "use cache";
   cacheTag("count-down-list");
-  const imageBaseUrl = process.env.baseURL || '';
   let stats = [];
   try {
   const countDownData = await getLatestCountDown();
@@ -31,7 +30,7 @@ const HighlightsSection = async () => {
               <div className="px-4 py-6 text-center relative z-10">
                 <div className="mb-4 inline-flex items-center justify-center shadow-2xl w-22 h-22 rounded-full bg-white">
                   <Image
-                    src={`${imageBaseUrl}/${stat?.image}` || "/images/placeholder_img.jpg"}
+                    src={stat?.image || "/images/placeholder_img.jpg"}
                     alt={stat?.title}
                     width={70}
                     height={70}

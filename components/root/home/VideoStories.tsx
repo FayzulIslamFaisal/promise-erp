@@ -4,8 +4,8 @@ import {
 } from "@/apiServices/homePageService";
 import SectionTitle from "@/components/common/SectionTitle";
 import { cacheTag } from "next/cache";
-import dynamic from "next/dynamic";
-const VideoStoriesCard = dynamic(() => import("./VideoStoriesCard"));
+import VideoStoriesCard from "./VideoStoriesCard";
+
 
 const VideoStories = async () => {
   "use cache";
