@@ -10,28 +10,9 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
 import { Separator } from "@/components/ui/separator"
-import { getServerSession } from "next-auth"
-import { authOptions } from "@/lib/auth"
-import { redirect } from "next/navigation"
+
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
-
-  const session = await getServerSession(authOptions)
-
-  if (!session?.user || !session?.accessToken) {
-    redirect("/login")
-  }
-
-  const userRole = session?.user?.roles ?? null
-  const adminRoles = ["super-admin", "admin", "manager"]
-  
-  // Check if role is array or string
-  const roles = Array.isArray(userRole) ? userRole : userRole ? [userRole] : []
-  const isAdmin = roles.some(role => adminRoles.includes(role))
-
-  if (!isAdmin) {
-    redirect("/")
-  }
 
   return (
     <SidebarProvider>
