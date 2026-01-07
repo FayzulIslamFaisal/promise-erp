@@ -28,7 +28,7 @@ const StudentCertificate = () => {
               </div>
             </div>
             <div className="">
-              <Button>
+              <Button disabled>
                 <Download className="mr-2" /> Download{" "}
               </Button>
             </div>
@@ -57,7 +57,7 @@ const StudentCertificate = () => {
               </div>
             </div>
             <div className="">
-              <Button>
+              <Button disabled>
                 <Download className="mr-2" /> Download{" "}
               </Button>
             </div>

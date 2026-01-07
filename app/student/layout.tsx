@@ -6,7 +6,6 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { Separator } from "@radix-ui/react-separator";
-import { Suspense } from "react";
 
 export default function StudentDashboardLayout({
   children,
@@ -25,9 +24,7 @@ export default function StudentDashboardLayout({
               orientation="vertical"
               className="mr-2 data-[orientation=vertical]:h-4"
             />
-            <Suspense fallback={<div className="h-10 bg-background border-b animate-pulse" />}>
-              <StudentDashboardHeader />
-            </Suspense>
+            <StudentDashboardHeader />
           </header>
           <div className="w-full h-screen-16 overflow-y-auto">{children}</div>
         </SidebarInset>

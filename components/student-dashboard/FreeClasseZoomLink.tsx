@@ -1,7 +1,13 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar, Clock, Copy } from "lucide-react";
 import { Button } from "@/components/ui/button";
-const FreeClasseZoomLink = () => {
+import { FreeSeminar } from "@/apiServices/studentDashboardService";
+import Link from "next/link";
+
+interface FreeClasseSessionProps {
+  seminarData: FreeSeminar;
+}
+const FreeClasseZoomLink = ({ seminarData }: FreeClasseSessionProps) => {
   return (
     <div className="lg:col-span-1">
       <Card className="sticky top-4">
@@ -16,7 +22,7 @@ const FreeClasseZoomLink = () => {
             <Calendar className="mt-1 h-5 w-5 text-orange-500" />
             <div>
               <p className="font-semibold text-secondary text-lg">
-                1 December, 2025
+                {seminarData?.seminar_date}
               </p>
             </div>
           </div>
@@ -25,14 +31,14 @@ const FreeClasseZoomLink = () => {
           <div className="flex items-start gap-3">
             <Clock className="mt-1 h-5 w-5 text-orange-500" />
             <div>
-              <p className="font-semibold text-secondary text-lg">10 AM</p>
+              <p className="font-semibold text-secondary text-lg">{seminarData?.seminar_time_formatted}</p>
             </div>
           </div>
 
           {/* Medium */}
           <div>
             <p className="mb-1 font-semibold text-secondary">
-              Medium: Zoom Online Meeting
+              Medium: {seminarData?.location}
             </p>
           </div>
 
@@ -40,14 +46,14 @@ const FreeClasseZoomLink = () => {
           <div className="space-y-2">
             <p className="font-semibold text-secondary">Joining Link:</p>
             <div className="flex items-center gap-2">
-              <a
-                href="https://zoom.us/j/1234567890?pwd=abcd1234"
+              <Link
+                href={seminarData?.seminar_link ?? "#"}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex-1 break-all text-blue-600 text-sm hover:underline"
               >
-                https://zoom.us/j/1234567890?pwd=abcd1234
-              </a>
+                {seminarData?.seminar_link ?? "---"}
+              </Link>
               <Button
                 variant="ghost"
                 size="icon"

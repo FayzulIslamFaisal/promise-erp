@@ -1,5 +1,6 @@
 import HeaderNavLink from '../common/HeaderNavLink'
 import { NavLink } from '../common/HeaderContent'
+import { Suspense } from 'react';
 
 const StudentDashboardHeader = () => {
     const navLinks: NavLink[] = [
@@ -13,7 +14,9 @@ const StudentDashboardHeader = () => {
 
     return (
         <div className="w-full">
-            <HeaderNavLink navLinks={navLinks} isStudentDashboard={true} />
+            <Suspense fallback={<div className="h-10 bg-background border-b animate-pulse" />}>
+                <HeaderNavLink navLinks={navLinks} isStudentDashboard={true} />
+            </Suspense>
         </div>
     );
 };

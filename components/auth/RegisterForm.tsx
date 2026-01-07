@@ -83,7 +83,6 @@ const RegisterForm = () => {
     },
   });
 
-  const passwordValue = watch("password");
 
   const clearFieldError = (field: keyof FormData) => {
     if (errors[field]) clearErrors(field);

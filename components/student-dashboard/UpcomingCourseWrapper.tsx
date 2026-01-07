@@ -31,6 +31,11 @@ const UpcomingCourseWrapper = async ({
   return (
     <>
       {/* Cards */}
+      {categories?.length > 0 && 
+      <div className="px-4">
+        <UpcomingCategoryCarousel categories={categories} />
+      </div>
+      }
       <div className="py-6 px-4">
         {courses.length === 0 ? (
           <EmptyCoursesState
@@ -41,8 +46,8 @@ const UpcomingCourseWrapper = async ({
           />
         ) : (
           <div className="grid xl:grid-cols-3 2xl:grid-cols-4 lg:grid-cols-2 sm:grid-cols-2 grid-cols-1 gap-4">
-            {courses.map(( course: UpcomingCourse, index) => (
-              <UpcomingCourseCard key={index} course={course} />
+            {courses?.map(( course: UpcomingCourse) => (
+              <UpcomingCourseCard key={course?.id} course={course} />
             ))}
           </div>
         )}
