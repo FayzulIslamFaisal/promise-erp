@@ -1,6 +1,8 @@
 import { getStudentMyCourses } from "@/apiServices/studentDashboardService";
 import EmptyCoursesState from "./EmptyCoursesState";
 import MyCourseCard from "./MyCourseCard";
+import ErrorComponent from "../common/ErrorComponent";
+import NotFoundComponent from "../common/NotFoundComponent";
 
 const MyCoursesGrid = async () => {
   const params = {
@@ -10,6 +12,12 @@ const MyCoursesGrid = async () => {
 
   const response = await getStudentMyCourses({ params });
   const mockCourses = response?.data?.courses || [];
+  if (response.success) {
+    return <ErrorComponent message={response?.message || "Something went wrong"} />
+  }
+  if (mockCourses.length === 0) {
+    return <NotFoundComponent message={response?.message || "My courses not found"} title="My Courses" />
+  }
 
   return (
     <section className="py-4 px-4">
