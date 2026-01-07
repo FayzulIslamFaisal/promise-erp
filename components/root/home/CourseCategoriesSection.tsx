@@ -39,7 +39,7 @@ const CourseCategoriesSection = ({ categoriesData }: CategoriesData) => {
           >
             <Card className="group h-full bg-secondary-light transition-all duration-300 hover:shadow-xl hover:-translate-y-2 border-0 text-center">
               <CardContent className="flex flex-col items-center justify-between gap-6 px-8">
-                <div className="bg-white mt-4 rounded-full shadow-md w-25 h-25 flex items-center justify-center p-3">
+                <div className="bg-white mt-4 rounded-full w-25 h-25 flex items-center justify-center p-3">
                   <Image
                     src={course.image || "/images/placeholder_img.jpg"}
                     alt={course.name}

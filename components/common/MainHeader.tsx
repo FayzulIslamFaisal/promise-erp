@@ -1,6 +1,7 @@
 
 import HeaderNavLink from "./HeaderNavLink";
 import HeaderContent, { NavLink } from "./HeaderContent";
+import { Suspense } from "react";
 
 const navLinks: NavLink[] = [
   { name: "Home", href: "/" },
@@ -20,8 +21,10 @@ const MainHeader = () => {
           <HeaderContent navLinks={navLinks} />
         </div>
         <div className="border-t bg-muted/30">
-          <div className="container mx-auto px-4 py-3">
-            <HeaderNavLink navLinks={navLinks} />
+          <div className="container mx-auto px-4">
+            <Suspense fallback={null}>
+              <HeaderNavLink navLinks={navLinks} />
+            </Suspense>
           </div>
         </div>
       </header>

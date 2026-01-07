@@ -18,6 +18,7 @@ import {
   FieldGroup,
   FieldLabel,
   FieldDescription,
+  FieldError,
 } from "@/components/ui/field";
 import Link from "next/link";
 import RegisterUser from "@/apiServices/auth/RegisterUser";
@@ -120,11 +121,13 @@ const RegisterForm = () => {
 
         Object.entries(result.errors).forEach(([field, messages]) => {
           const mappedField = fieldMapping[field] || (field as keyof FormData);
-
-          setError(mappedField, {
-            type: "server",
-            message: messages[0],
-          });
+          
+          if (mappedField && messages && messages.length > 0) {
+            setError(mappedField, {
+              type: "server",
+              message: Array.isArray(messages) ? messages[0] : messages,
+            });
+          }
         });
         return;
       }
@@ -158,12 +161,11 @@ const RegisterForm = () => {
               <Field>
                 <FieldLabel>Full Name *</FieldLabel>
                 <Input
-                  {...register("name", { required: "Name is required" })}
+                  {...register("name")}
                   onChange={() => clearFieldError("name")}
+                  className={errors.name ? "border-destructive" : ""}
                 />
-                {errors.name && (
-                  <p className="text-red-500 text-sm">{errors.name.message}</p>
-                )}
+                <FieldError>{errors.name?.message}</FieldError>
               </Field>
 
               {/* Email */}
@@ -171,24 +173,22 @@ const RegisterForm = () => {
                 <FieldLabel>Email *</FieldLabel>
                 <Input
                   type="email"
-                  {...register("email", { required: "Email is required" })}
+                  {...register("email")}
                   onChange={() => clearFieldError("email")}
+                  className={errors.email ? "border-destructive" : ""}
                 />
-                {errors.email && (
-                  <p className="text-red-500 text-sm">{errors.email.message}</p>
-                )}
+                <FieldError>{errors.email?.message}</FieldError>
               </Field>
 
               {/* Phone */}
               <Field>
                 <FieldLabel>Phone *</FieldLabel>
                 <Input
-                  {...register("phone", { required: "Phone is required" })}
+                  {...register("phone")}
                   onChange={() => clearFieldError("phone")}
+                  className={errors.phone ? "border-destructive" : ""}
                 />
-                {errors.phone && (
-                  <p className="text-red-500 text-sm">{errors.phone.message}</p>
-                )}
+                <FieldError>{errors.phone?.message}</FieldError>
               </Field>
 
               {/* Password */}
@@ -197,8 +197,9 @@ const RegisterForm = () => {
                 <div className="relative">
                   <Input
                     type={showPassword ? "text" : "password"}
-                    {...register("password", { required: "Password required" })}
+                    {...register("password")}
                     onChange={() => clearFieldError("password")}
+                    className={errors.password ? "border-destructive" : ""}
                   />
                   <button
                     type="button"
@@ -208,11 +209,7 @@ const RegisterForm = () => {
                     {showPassword ? <EyeOff /> : <Eye />}
                   </button>
                 </div>
-                {errors.password && (
-                  <p className="text-red-500 text-sm">
-                    {errors.password.message}
-                  </p>
-                )}
+                <FieldError>{errors.password?.message}</FieldError>
               </Field>
 
               {/* Confirm Password */}
@@ -221,11 +218,9 @@ const RegisterForm = () => {
                 <div className="relative">
                   <Input
                     type={showConfirmPassword ? "text" : "password"}
-                    {...register("password_confirmation", {
-                      validate: (v) =>
-                        v === passwordValue || "Passwords do not match",
-                    })}
+                    {...register("password_confirmation")}
                     onChange={() => clearFieldError("password_confirmation")}
+                    className={errors.password_confirmation ? "border-destructive" : ""}
                   />
                   <button
                     type="button"
@@ -235,11 +230,7 @@ const RegisterForm = () => {
                     {showConfirmPassword ? <EyeOff /> : <Eye />}
                   </button>
                 </div>
-                {errors.password_confirmation && (
-                  <p className="text-red-500 text-sm">
-                    {errors.password_confirmation.message}
-                  </p>
-                )}
+                <FieldError>{errors.password_confirmation?.message}</FieldError>
               </Field>
 
               {/* Submit */}

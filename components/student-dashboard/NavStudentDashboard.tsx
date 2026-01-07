@@ -49,7 +49,7 @@ const NavStudentDashboard = ({
               <Collapsible key={title} asChild defaultOpen={isActive || hasActiveChild}>
                 <SidebarMenuItem>
                   <CollapsibleTrigger asChild>
-                    <SidebarMenuButton isActive={isActive || hasActiveChild}>
+                    <SidebarMenuButton isActive={isActive || hasActiveChild} className="data-[active=true]:bg-primary/10 data-[active=true]:text-primary font-medium hover:bg-primary/5 hover:text-primary">
                       {Icon && <Icon />}
                       <span>{title}</span>
                       <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]:rotate-90" />
@@ -61,7 +61,7 @@ const NavStudentDashboard = ({
                         const isChildActive = pathname === child.url || pathname?.startsWith(child.url + "/")
                         return (
                           <SidebarMenuSubItem key={child.title}>
-                            <SidebarMenuSubButton asChild isActive={isChildActive}>
+                            <SidebarMenuSubButton asChild isActive={isChildActive} className="data-[active=true]:bg-primary/10 data-[active=true]:text-primary font-medium hover:bg-primary/5 hover:text-primary">
                               <Link href={child.url} className="flex items-center gap-2">
                                 {child.icon && <child.icon className="w-4 h-4" />}
                                 <span>{child.title}</span>
@@ -79,7 +79,7 @@ const NavStudentDashboard = ({
 
           return (
             <SidebarMenuItem key={title}>
-              <SidebarMenuButton asChild isActive={isActive}>
+              <SidebarMenuButton asChild isActive={isActive} className="data-[active=true]:bg-primary/10 data-[active=true]:text-primary font-medium hover:bg-primary/5 hover:text-primary">
                 <Link href={url} className="flex items-center gap-2">
                   {Icon && <Icon />}
                   <span>{title}</span>

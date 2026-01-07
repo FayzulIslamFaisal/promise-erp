@@ -6,8 +6,8 @@ import { cacheTag } from "next/cache";
 const CourseCategoriesWrapper = async () => {
   "use cache";
   cacheTag("categories-list");
-  
-  const categoriesData:CategoriesResponse = await getHomeCourseCategories();
+
+  const categoriesData: CategoriesResponse = await getHomeCourseCategories();
 
   return (
     <section className="bg-secondary py-8 md:py-14">
@@ -17,8 +17,8 @@ const CourseCategoriesWrapper = async () => {
           subtitle={categoriesData?.data?.section_subtitle}
           iswhite={true}
         />
-        
-          <CourseCategoriesSection categoriesData={categoriesData} />
+
+        <CourseCategoriesSection categoriesData={categoriesData} />
       </div>
     </section>
   );

@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, Menu, Loader2 } from "lucide-react";
+import { Search, Menu, Loader2, ChevronDown } from "lucide-react";
 import { Suspense, useEffect, useState, useTransition } from "react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import Image from "next/image";
@@ -21,6 +21,20 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { signOut, useSession } from "next-auth/react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@/components/ui/avatar";
+import { User, LogOut, LayoutDashboard, Settings } from "lucide-react";
 
 export interface NavLink {
   name: string;
@@ -43,14 +57,21 @@ interface HeaderContentProps {
 /* ================= ROLE BASED DASHBOARD ================= */
 const getDashboardUrl = (role: string | string[] | null | undefined) => {
   if (!role) return "/student/dashboard";
-
   const roles = Array.isArray(role) ? role : [role];
-
   if (roles.includes("super-admin")) {
     return "/dashboard";
   }
-
   return "/student/dashboard";
+};
+
+/* ================= ROLE BASED PROFILE ================= */
+const getProfileUrl = (role: string | string[] | null | undefined) => {
+  if (!role) return "/student/profile";
+  const roles = Array.isArray(role) ? role : [role];
+  if (roles.includes("student")) {
+    return "/student/profile";
+  }
+  return "/lms/profile";
 };
 
 /* ================= AUTH BUTTONS ================= */
@@ -62,43 +83,102 @@ export const AuthButtons = ({
   role,
 }: AuthButtonsProps) => {
   if (status === "loading") {
-    return <Loader2 className="h-5 w-5 animate-spin" />;
+    return <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />;
   }
 
   if (isAuthenticated) {
     const dashboardUrl = getDashboardUrl(role);
+    const profileUrl = getProfileUrl(role);
+    const userInitials = userName
+      ?.split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2) || "U";
 
     return (
-      <div className="flex items-center gap-3">
-        <Button onClick={() => signOut({ callbackUrl: "/" })}>
-          Logout
-        </Button>
-
-        <Link href={dashboardUrl}>
-          <div className="flex items-center gap-1 cursor-pointer">
-            <Image
-              src={profileImage || "/images/profile_avatar.png"}
-              alt={userName || ""}
-              width={30}
-              height={30}
-              className="rounded-full border-2 border-secondary object-cover"
-            />
-            <span className="text-sm font-medium">Dashboard</span>
-          </div>
-        </Link>
-      </div>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <button className="flex items-center gap-2 rounded-md px-2 py-1.5 hover:bg-accent transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
+            <Avatar className="h-8 w-8 border-2 border-primary/20">
+              <AvatarImage 
+                src={profileImage || "/images/profile_avatar.png"} 
+                alt={userName || "User"} 
+              />
+              <AvatarFallback className="bg-primary/10 text-primary font-semibold">
+                {userInitials}
+              </AvatarFallback>
+            </Avatar>
+            <div className="hidden md:flex flex-col items-start">
+              <span className="text-sm font-medium leading-none">{userName || "User"}</span>
+              <span className="text-xs text-muted-foreground leading-none mt-0.5">
+                {Array.isArray(role) ? role[0] : role || "Student"}
+              </span>
+            </div>
+            <ChevronDown className="h-4 w-4 text-muted-foreground hidden md:block" />
+          </button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-56">
+          <DropdownMenuLabel className="p-0 font-normal">
+            <div className="flex items-center gap-3 px-2 py-2">
+              <Avatar className="h-10 w-10 border-2 border-primary/20">
+                <AvatarImage 
+                  src={profileImage || "/images/profile_avatar.png"} 
+                  alt={userName || "User"} 
+                />
+                <AvatarFallback className="bg-primary/10 text-primary font-semibold">
+                  {userInitials}
+                </AvatarFallback>
+              </Avatar>
+              <div className="flex flex-col">
+                <span className="text-sm font-medium">{userName || "User"}</span>
+                <span className="text-xs text-muted-foreground">
+                  {Array.isArray(role) ? role[0] : role || "Student"}
+                </span>
+              </div>
+            </div>
+          </DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem asChild>
+            <Link href={dashboardUrl} className="cursor-pointer">
+              <LayoutDashboard className="mr-2 h-4 w-4" />
+              Dashboard
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Link href={profileUrl} className="cursor-pointer">
+              <User className="mr-2 h-4 w-4" />
+              Profile
+            </Link>
+          </DropdownMenuItem>
+          {/* <DropdownMenuItem asChild>
+            <Link href="/settings" className="cursor-pointer">
+              <Settings className="mr-2 h-4 w-4" />
+              Settings
+            </Link>
+          </DropdownMenuItem> */}
+          <DropdownMenuSeparator />
+          <DropdownMenuItem
+            className="cursor-pointer text-destructive focus:text-destructive"
+            onClick={() => signOut({ callbackUrl: "/" })}
+          >
+            <LogOut className="mr-2 h-4 w-4" />
+            Logout
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
     );
   }
 
   return (
-    <>
-      <Button asChild>
+    <div className="flex items-center gap-2">
+      <Button asChild variant="ghost" size="sm">
         <Link href="/login">Login</Link>
       </Button>
-      <Button asChild variant="outline">
+      <Button asChild size="sm">
         <Link href="/register">Register</Link>
       </Button>
-    </>
+    </div>
   );
 };
 

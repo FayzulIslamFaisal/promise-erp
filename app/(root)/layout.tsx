@@ -9,9 +9,7 @@ export default function RootLayout({
 }) {
   return (
     <>
-    <Suspense fallback={<div className="h-20 bg-background border-b animate-pulse" />}>
       <MainHeader />
-    </Suspense>
     <main className="">
       {children}
     </main>

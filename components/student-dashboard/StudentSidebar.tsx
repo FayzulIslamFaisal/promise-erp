@@ -11,7 +11,6 @@ import NavStudentDashboard from "./NavStudentDashboard";
 import {
   LayoutDashboard,
   BookOpen,
-  Settings,
   Award,
   CreditCard,
   Bell,
@@ -20,6 +19,7 @@ import {
   DollarSign,
   Calendar,
   LogOut,
+  User,
 } from "lucide-react";
 import Image from "next/image";
 
@@ -83,9 +83,9 @@ const studentNavItems = [
     isActive: false,
   },
   {
-    title: "Settings",
-    url: "/student/settings",
-    icon: Settings,
+    title: "Profile",
+    url: "/student/profile",
+    icon: User,
     isActive: false,
   },
 ];
@@ -101,24 +101,6 @@ export function StudentSidebar() {
       <SidebarContent>
         <NavStudentDashboard items={studentNavItems} />
       </SidebarContent>
-      <SidebarFooter>
-        <div className="flex items-center gap-2">
-          <Image
-            src="/avatar.png"
-            alt="avatar"
-            width={32}
-            height={32}
-            className="w-8 h-8 rounded-full"
-          />
-          <span className="text-sm font-medium">John Doe</span>
-          <Button variant="outline" size="icon">
-            <LogOut
-              className="w-4 h-4"
-              onClick={() => signOut({ callbackUrl: "/" })}
-            />
-          </Button>
-        </div>
-      </SidebarFooter>
       <SidebarRail />
     </Sidebar>
   );

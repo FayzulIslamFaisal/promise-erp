@@ -13,7 +13,6 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import RatingStars from "@/components/common/RatingStars";
 import { ReviewApiResponse } from "@/apiServices/homePageService";
-import { AspectRatio } from "@/components/ui/aspect-ratio";
 
 interface StudentSuccessStoriesProps {
   reviewsData: ReviewApiResponse | null;

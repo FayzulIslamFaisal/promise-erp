@@ -2,7 +2,7 @@ import ProfileTabs from "@/components/student-dashboard/ProfileTabs";
 import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
 
-const SettingsPage = () => {
+const ProfilePage = () => {
   return (
     <section className="py-4 px-4">
       <div className="flex items-center gap-2 px-4 mb-5">
@@ -18,4 +18,4 @@ const SettingsPage = () => {
   );
 };
 
-export default SettingsPage;
+export default ProfilePage;

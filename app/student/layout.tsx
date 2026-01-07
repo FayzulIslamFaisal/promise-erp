@@ -25,7 +25,7 @@ export default function StudentDashboardLayout({
               orientation="vertical"
               className="mr-2 data-[orientation=vertical]:h-4"
             />
-            <Suspense fallback={<div>Loading...</div>}>
+            <Suspense fallback={<div className="h-10 bg-background border-b animate-pulse" />}>
               <StudentDashboardHeader />
             </Suspense>
           </header>
