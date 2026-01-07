@@ -1,5 +1,4 @@
 "use client";
-
 import { Controller, useForm } from "react-hook-form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -50,16 +49,6 @@ export default function FacilitiesForm({ title, facility }: FacilitiesFormProps)
   const imageFile = watch("image");
 
   useEffect(() => {
-    if (facility) {
-      reset({
-        title: facility.title,
-        status: facility.status.toString(),
-      });
-      if (facility.image) setPreviewImage(facility.image);
-    }
-  }, [facility, reset]);
-
-  useEffect(() => {
     if (imageFile && imageFile.length > 0) {
       const file = imageFile[0];
       if (file.type.startsWith("image/")) {
@@ -79,7 +68,6 @@ export default function FacilitiesForm({ title, facility }: FacilitiesFormProps)
     if (values.image && values.image.length > 0) {
       formData.append("image", values.image[0]);
     }
-    console.log("formData===", formData)
 
     try {
       let res
@@ -91,8 +79,10 @@ export default function FacilitiesForm({ title, facility }: FacilitiesFormProps)
 
       if (res.success) {
         toast.success(res.message || "Facility added successfully!");
+        setPreviewImage(null);
         reset();
         router.push("/lms/facilities");
+        return;
       } else {
         if (res.errors) {
           toast.error(res.message || "Failed to add facility");

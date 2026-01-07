@@ -4,13 +4,14 @@ import CourseFilterSidebar from "@/components/root/courseList/CourseFilterSideba
 import HeaderBanner from "@/components/root/courseList/HeaderBanner";
 import CourseListWrapper from "@/components/root/courseList/CourseListWrapper";
 import { Card } from "@/components/ui/card";
+import CourseFilterSkeleton from "@/components/root/courseList/CourseFilterSkeleton";
 
 const CoursesPage = async ({
   searchParams,
 }: {
-    searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
-  }) => {
-
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) => {
+  
   return (
     <>
       <HeaderBanner />
@@ -23,7 +24,7 @@ const CoursesPage = async ({
 
         <div className="flex flex-col lg:flex-row gap-8">
           <aside className="lg:w-80">
-            <Suspense fallback={<div>Loading Filters...</div>}>
+            <Suspense fallback={<CourseFilterSkeleton />}>
               <CourseFilterSidebar searchParams={searchParams} />
             </Suspense>
           </aside>
@@ -40,7 +41,3 @@ const CoursesPage = async ({
 };
 
 export default CoursesPage;
-
-
-
-

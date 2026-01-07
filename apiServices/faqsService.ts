@@ -4,8 +4,10 @@ import { authOptions } from "@/lib/auth";
 import { getServerSession } from "next-auth";
 import { cacheTag, updateTag } from "next/cache";
 import { PaginationType } from "./studentService";
+import { processApiResponse, handleApiError } from "@/lib/apiErrorHandler";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api/v1";
+const API_BASE =
+  process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api/v1";
 
 // =======================
 // Interfaces
@@ -17,7 +19,6 @@ export interface Faq {
   answer: string;
   status: number;
 }
-
 
 export interface FaqsResponse {
   success: boolean;
@@ -33,10 +34,10 @@ export interface FaqsResponse {
 
 export interface SingleFaqResponse {
   success: boolean;
-  message: string;
-  code: number;
+  message?: string;
+  code?: number;
   data?: Faq | null;
-  errors?: Record<string, string[]>;
+  errors?: Record<string, string[] | string>;
 }
 
 // =======================
@@ -52,25 +53,33 @@ export async function getFaqsCached(
 
   try {
     const urlParams = new URLSearchParams();
-
     for (const key in params) {
       if (params[key] !== undefined && params[key] !== null) {
-        urlParams.append(key, params[key]!.toString());
+        urlParams.append(key, String(params[key]));
       }
     }
 
-    const res = await fetch(`${API_BASE}/faq-sections?${urlParams.toString()}`, {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const res = await fetch(
+      `${API_BASE}/faq-sections?${urlParams.toString()}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
 
-    const data: FaqsResponse = await res.json();
-    return data;
-  } catch (error) {
-    console.error("Error fetching FAQs:", error);
-    throw new Error("Failed to fetch FAQs");
+    if (!res.ok) {
+      throw new Error(`Status: ${res.status} ${res.statusText}`);
+    }
+
+    return await res.json();
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    } else {
+      throw new Error("Error fetching faqs");
+    }
   }
 }
 
@@ -86,7 +95,7 @@ export async function getFaqs(
 
   if (!token) throw new Error("No valid session/token");
 
-  return await getFaqsCached(token, params);
+  return getFaqsCached(token, params);
 }
 
 // =======================
@@ -97,19 +106,29 @@ export async function getFaqById(id: number): Promise<SingleFaqResponse> {
   try {
     const session = await getServerSession(authOptions);
     const token = session?.accessToken;
+
     if (!token) throw new Error("No valid session/token");
 
     const res = await fetch(`${API_BASE}/faq-sections/${id}`, {
       headers: {
-        "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
       },
     });
 
+    if (!res.ok) {
+      const errorData = await res.json().catch(() => ({}));
+      throw new Error(errorData.message || `Status: ${res.status} ${res.statusText}`);
+    }
+
     return await res.json();
-  } catch (error) {
-    console.error("Error fetching FAQ by ID:", error);
-    throw new Error("Failed to fetch FAQ");
+  } catch (error: unknown) {
+    console.error("Error in getFaqById:", error);
+    if (error instanceof Error) {
+      throw new Error(error.message || "Failed to fetch FAQ");
+    } else {
+      throw new Error("Failed to fetch FAQ");
+    }
   }
 }
 
@@ -129,7 +148,10 @@ export async function createFaq(
   try {
     const session = await getServerSession(authOptions);
     const token = session?.accessToken;
-    if (!token) return { success: false, message: "No token found", code: 401 };
+
+    if (!token) {
+      return { success: false, message: "No token found", code: 401 };
+    }
 
     const res = await fetch(`${API_BASE}/faq-sections`, {
       method: "POST",
@@ -140,20 +162,16 @@ export async function createFaq(
       body: JSON.stringify(formData),
     });
 
-    const data: SingleFaqResponse = await res.json().catch(async () => ({ message: await res.text() }));
-    if (!res.ok) {
-      return {
-        success: false,
-        message: data.message || "Failed to create FAQ",
-        errors: data.errors,
-        code: res.status,
-      };
-    }
+    const result = await processApiResponse<Faq>(res, "Failed to create FAQ");
 
     updateTag("faqs-list");
-    return data;
-  } catch (error) {
-    return { success: false, message: error instanceof Error ? error.message : "Failed to create FAQ", code: 500 };
+    return result;
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      return { success: false, message: error.message, code: 500 };
+    } else {
+      return { success: false, message: "Failed to create FAQ", code: 500 };
+    }
   }
 }
 
@@ -174,10 +192,13 @@ export async function updateFaq(
   try {
     const session = await getServerSession(authOptions);
     const token = session?.accessToken;
-    if (!token) return { success: false, message: "No token found", code: 401 };
+
+    if (!token) {
+      return { success: false, message: "No token found", code: 401 };
+    }
 
     const res = await fetch(`${API_BASE}/faq-sections/${id}`, {
-      method: "PATCH",
+      method: "PUT",
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
@@ -185,20 +206,26 @@ export async function updateFaq(
       body: JSON.stringify(updateData),
     });
 
-    const data: SingleFaqResponse = await res.json().catch(async () => ({ message: await res.text() }));
-    if (!res.ok) {
+    const result = await processApiResponse<Faq>(res, "Failed to update FAQ");
+
+    if (!result.success) {
       return {
         success: false,
-        message: data.message || "Failed to update FAQ",
-        errors: data.errors,
-        code: res.status,
-      }
+        message: result.message,
+        errors: result.errors,
+        code: result.code,
+      };
     }
 
     updateTag("faqs-list");
-    return data;
-  } catch (error) {
-    return { success: false, message: error instanceof Error ? error.message : "Failed to update FAQ", code: 500 };
+    return {
+      success: true,
+      message: result.message || "FAQ updated successfully",
+      data: result.data,
+      code: result.code,
+    };
+  } catch (error: unknown) {
+    return await handleApiError(error, "Failed to update FAQ");
   }
 }
 
@@ -210,7 +237,10 @@ export async function deleteFaq(id: number): Promise<SingleFaqResponse> {
   try {
     const session = await getServerSession(authOptions);
     const token = session?.accessToken;
-    if (!token) return { success: false, message: "No token found", code: 401 };
+
+    if (!token) {
+      return { success: false, message: "No token found", code: 401 };
+    }
 
     const res = await fetch(`${API_BASE}/faq-sections/${id}`, {
       method: "DELETE",
@@ -220,19 +250,15 @@ export async function deleteFaq(id: number): Promise<SingleFaqResponse> {
       },
     });
 
-    const data: SingleFaqResponse = await res.json().catch(async () => ({ message: await res.text() }));
-
-    if (!res.ok) {
-      return {
-        success: false,
-        message: data.message || "Failed to delete FAQ",
-        code: res.status,
-      };
-    }
+    const result = await processApiResponse(res, "Failed to delete FAQ");
 
     updateTag("faqs-list");
-    return data;
-  } catch (error) {
-    return { success: false, message: error instanceof Error ? error.message : "Failed to delete FAQ", code: 500 };
+    return result;
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      return { success: false, message: error.message, code: 500 };
+    } else {
+      return { success: false, message: "Failed to delete FAQ", code: 500 };
+    }
   }
 }

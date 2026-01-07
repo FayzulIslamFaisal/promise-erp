@@ -1,5 +1,4 @@
 "use client";
-
 import { useEffect } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useForm, Controller } from "react-hook-form";
@@ -18,6 +17,7 @@ interface FilterFormValues {
   search?: string;
   sort_by?: string;
   sort_order?: string;
+  status?: string;
 }
 
 export default function FaqsFilter() {
@@ -25,51 +25,60 @@ export default function FaqsFilter() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const { register, control, reset, watch } = useForm<FilterFormValues>({
+  const { register, control, reset, watch, setValue } = useForm<FilterFormValues>({
     defaultValues: {
       search: searchParams.get("search") || "",
       sort_by: searchParams.get("sort_by") || "",
       sort_order: searchParams.get("sort_order") || "",
+      status: searchParams.get("status") || "",
     },
   });
 
   const watchedValues = watch();
-
-  /*
-   * Auto-sync filter changes into query params
-   */
   useEffect(() => {
-    const params = new URLSearchParams(searchParams);
+    const handler = setTimeout(() => {
+      const params = new URLSearchParams(searchParams.toString());
+      params.delete("page");
 
-    Object.entries(watchedValues).forEach(([key, value]) => {
-      if (value) params.set(key, String(value));
-      else params.delete(key);
-    });
-    params.set("page", "1")
+      Object.entries(watchedValues).forEach(([key, value]) => {
+        if (value && value !== "") {
+          params.set(key, String(value));
+        } else {
+          params.delete(key);
+        }
+      });
 
-    const timer = setTimeout(() => {
-      router.replace(`${pathname}?${params.toString()}`);
-    }, 400);
+      const newUrl = `${pathname}?${params.toString()}`;
+      router.replace(newUrl, { scroll: false });
+    }, 800);
 
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(handler);
+    };
   }, [JSON.stringify(watchedValues), router, pathname]);
 
-  /*
+  const handleSelectChange = (name: keyof FilterFormValues) => (value: string) => {
+    setValue(name, value);
+  };
+
+  /**
    * Reset Filters
    */
   const handleReset = () => {
     reset({
       search: "",
-      sort_by: "",
       sort_order: "",
     });
-
-    router.replace(pathname);
   };
 
-  const hasActiveFilters = Object.values(watchedValues).some(
-    (value) => value && value !== ""
-  );
+  const currentSearch = searchParams.get("search") || "";
+  const currentSortBy = searchParams.get("sort_by") || "";
+  const currentSortOrder = searchParams.get("sort_order") || "";
+  const currentStatus = searchParams.get("status") || "";
+
+  const hasActiveFilters =
+    currentSearch !== "" ||
+    currentSortOrder !== "";
 
   return (
     <div className="p-6 mb-6 border rounded-xl bg-card shadow-sm">
@@ -90,10 +99,9 @@ export default function FaqsFilter() {
         )}
       </div>
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-3 lg:grid-cols-6">
-
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
         {/* Search */}
-        <div className="relative col-span-1 lg:col-span-3">
+        <div className="relative col-span-1 lg:col-span-2">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Search FAQs..."
@@ -102,29 +110,18 @@ export default function FaqsFilter() {
           />
         </div>
 
-        {/* Sort By */}
-        <Controller
-          name="sort_by"
-          control={control}
-          render={({ field }) => (
-            <Select value={field.value} onValueChange={field.onChange}>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Sort By" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="created_at">Created At</SelectItem>
-                <SelectItem value="question">Question</SelectItem>
-              </SelectContent>
-            </Select>
-          )}
-        />
-
         {/* Sort Order */}
         <Controller
           name="sort_order"
           control={control}
           render={({ field }) => (
-            <Select value={field.value} onValueChange={field.onChange}>
+            <Select
+              value={field.value}
+              onValueChange={(value) => {
+                field.onChange(value);
+                handleSelectChange("sort_order")(value);
+              }}
+            >
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Sort Order" />
               </SelectTrigger>
@@ -135,7 +132,10 @@ export default function FaqsFilter() {
             </Select>
           )}
         />
+
+      
       </div>
     </div>
   );
 }
+

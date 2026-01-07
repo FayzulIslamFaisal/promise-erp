@@ -6,10 +6,9 @@ import { getPublicCoursesList } from "@/apiServices/courseListPublicService";
 const CourseFilterSidebar = async ({
   searchParams,
 }: {
-  searchParams:
-    | Promise<{ [key: string]: string | string[] | undefined }>
-    | { [key: string]: string | string[] | undefined };
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) => {
+
   const resolvedParams = await searchParams;
 
   const params = {
@@ -35,7 +34,7 @@ const CourseFilterSidebar = async ({
   let filtersData;
   try {
     const response = await getPublicCoursesList({ params });
-     filtersData = response?.data?.filters;
+    filtersData = response?.data?.filters;
   } catch (error) {
     if (error instanceof Error) {
       return <ErrorComponent message={error.message} />;

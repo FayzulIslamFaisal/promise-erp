@@ -1,25 +1,27 @@
-import { getFaqById } from "@/apiServices/faqsService";
-import FaqsForm from "@/components/lms/faqs/FaqsForm";
+import { getFaqById, Faq } from '@/apiServices/faqsService'
+import NotFoundComponent from '@/components/common/NotFoundComponent'
+import FaqsForm from '@/components/lms/faqs/FaqsForm'
+import { notFound } from 'next/navigation'
 
-export default async function EditFaqPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
-  const faqId = Number(id);
+interface PageProps {
+  params: Promise<{
+    id: string
+  }>
+}
+export default async function EditFaqPage({ params }: PageProps) {
+  const { id } = await params  
 
-  try {
-    const faqRes = await getFaqById(faqId);
+  const response = await getFaqById(Number(id))
 
-    // Extract FAQ data safely
-    const faq = faqRes?.data ?? null;
-
-    if (!faq) return <div>No FAQ found.</div>;
-
-    return (
-      <FaqsForm
-        title="Edit FAQ"
-        faq={faq}
-      />
-    );
-  } catch (error: unknown) {
-    return <div>Error: {error instanceof Error ? error.message : "Something went wrong."}</div>;
+  if (!response?.data) {
+    return <NotFoundComponent message={response.message || "No faqs found."} />;
   }
+  const faq: Faq = response?.data
+
+  return (
+    <FaqsForm
+      title="Edit FAQ"
+      faq={faq}
+    />
+  )
 }

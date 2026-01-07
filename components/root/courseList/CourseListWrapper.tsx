@@ -7,10 +7,9 @@ import CourseCard from "@/components/root/courseList/CourseCard";
 const CourseListWrapper = async ({
   searchParams,
 }: {
-  searchParams:
-  | Promise<{ [key: string]: string | string[] | undefined }>
-  | { [key: string]: string | string[] | undefined };
+  searchParams:Promise<{ [key: string]: string | string[] | undefined }>;
 }) => {
+
   const resolvedParams = await searchParams;
 
   const params = {

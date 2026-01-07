@@ -1,4 +1,3 @@
-
 import FaqsData from "@/components/lms/faqs/FaqsData";
 import FaqsFilterData from "@/components/lms/faqs/FaqsFilterData";
 import TableSkeleton from "@/components/TableSkeleton";

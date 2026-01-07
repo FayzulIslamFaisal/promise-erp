@@ -2,13 +2,13 @@ import Image from "next/image";
 
 interface CommonHeroBannerProps {
   title: string;
-  subtitle: string;
+  subtitle?: string;
   bgImage: string;
 }
 
 const CommonHeroBanner = ({
   title,
-  subtitle,
+  subtitle="",
   bgImage,
 }: CommonHeroBannerProps) => {
   return (

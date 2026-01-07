@@ -42,12 +42,13 @@ const DeleteFaqButton = ({ id }: DeleteFaqButtonProps) => {
         } else {
           toast.error(res.message || "Delete failed");
         }
-      } catch (error) {
-        const message =
-          error instanceof Error
-            ? error.message
-            : "An unexpected error occurred.";
-        toast.error(message);
+      } catch (error: unknown) {
+        console.error("FAQ delete failed:", error);
+        if (error instanceof Error) {
+          toast.error(error.message);
+        } else {
+          toast.error("An unknown error occurred while deleting FAQ");
+        }
       }
     });
   };
