@@ -29,24 +29,36 @@ export default function FacilitiesFilter() {
   useEffect(() => {
     const handler = setTimeout(() => {
       const params = new URLSearchParams(searchParams.toString());
-      params.delete("page");
+      let isChanged = false;
 
+      // Check if any filter value differs from the URL parameters
       Object.entries(watchedValues).forEach(([key, value]) => {
-        if (value && value !== "") {
-          params.set(key, String(value));
-        } else {
-          params.delete(key);
+        const urlValue = params.get(key) || "";
+        const formValue = String(value || "");
+        if (urlValue !== formValue) {
+          isChanged = true;
         }
       });
 
-      const newUrl = `${pathname}?${params.toString()}`;
-      router.replace(newUrl, { scroll: false });
+      if (isChanged) {
+        params.delete("page"); // Reset to page 1 on filter change
+        Object.entries(watchedValues).forEach(([key, value]) => {
+          if (value && value !== "") {
+            params.set(key, String(value));
+          } else {
+            params.delete(key);
+          }
+        });
+
+        const newUrl = `${pathname}?${params.toString()}`;
+        router.replace(newUrl, { scroll: false });
+      }
     }, 800);
 
     return () => {
       clearTimeout(handler);
     };
-  }, [JSON.stringify(watchedValues), router, pathname]);
+  }, [JSON.stringify(watchedValues), router, pathname, searchParams]);
   const handleSelectChange = (name: keyof FilterFormValues) => (value: string) => {
     setValue(name, value);
   };
@@ -69,10 +81,10 @@ export default function FacilitiesFilter() {
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-semibold text-foreground">Filters</h3>
         {hasActiveFilters && (
-          <Button 
-            type="button" 
-            variant="outline" 
-            size="sm" 
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
             onClick={handleReset}
             className="flex items-center gap-2"
           >
@@ -86,8 +98,8 @@ export default function FacilitiesFilter() {
         {/* Search Input */}
         <div className="relative col-span-1 lg:col-span-2">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input 
-            placeholder="Search facilities..." 
+          <Input
+            placeholder="Search facilities..."
             className="pl-10"
             {...register("search")}
           />
@@ -97,11 +109,11 @@ export default function FacilitiesFilter() {
           name="sort_order"
           control={control}
           render={({ field }) => (
-            <Select 
+            <Select
               onValueChange={(value) => {
                 field.onChange(value);
                 handleSelectChange("sort_order")(value);
-              }} 
+              }}
               value={field.value}
             >
               <SelectTrigger className="w-full">
@@ -118,11 +130,11 @@ export default function FacilitiesFilter() {
           name="status"
           control={control}
           render={({ field }) => (
-            <Select 
+            <Select
               onValueChange={(value) => {
                 field.onChange(value);
                 handleSelectChange("status")(value);
-              }} 
+              }}
               value={field.value}
             >
               <SelectTrigger className="w-full">

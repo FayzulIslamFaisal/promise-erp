@@ -32,6 +32,7 @@ import Pagination from "@/components/common/Pagination";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import EarningDeleteButton from "./EarningDeleteButton";
+import { useSession } from "next-auth/react";
 
 const EarningAllListTable = () => {
   const [earningsData, setEarningsData] =
@@ -41,12 +42,15 @@ const EarningAllListTable = () => {
   const [selectedImages, setSelectedImages] = useState<string[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const searchParams = useSearchParams();
+  const { data: session } = useSession();
+    const token = session?.accessToken;
 
   const handleImageClick = (images: string[]) => {
     setSelectedImages(images);
     setIsModalOpen(true);
   };
   useEffect(() => {
+    if (!token) return;
     const fetchEarnings = () => {
       try {
         startTransition(async () => {
@@ -63,7 +67,7 @@ const EarningAllListTable = () => {
             page: Number(searchParams.get("page")) || 1,
           };
 
-          const res = await getStudentEarningList({ params });
+          const res = await getStudentEarningList( { params, token });
 
           if (res.success) {
             setEarningsData(res);
@@ -82,7 +86,7 @@ const EarningAllListTable = () => {
     };
 
     fetchEarnings();
-  }, [searchParams]);
+  }, [searchParams, token]);
 
   if (isPending) {
     return <TableSkeleton columns={9} rows={15} className="mt-4" />;

@@ -6,6 +6,7 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { Separator } from "@radix-ui/react-separator";
+import { Suspense } from "react";
 
 export default function StudentDashboardLayout({
   children,
@@ -16,7 +17,9 @@ export default function StudentDashboardLayout({
   return (
     <div className="flex flex-col min-h-screen">
       <SidebarProvider>
-        <StudentSidebar />
+        <Suspense fallback={<div className="w-64 h-screen bg-muted animate-pulse" />}>
+          <StudentSidebar />
+        </Suspense>
         <SidebarInset>
           <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
             <SidebarTrigger className="-ml-1" />

@@ -1,21 +1,17 @@
 "use client";
-
 import { Controller, useForm } from "react-hook-form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-
 import {
   Select,
-  SelectContent,
-  SelectItem,
   SelectTrigger,
   SelectValue,
+  SelectContent,
+  SelectItem,
 } from "@/components/ui/select";
-
-import { useEffect } from "react";
-import { JoinType, createJoin, updateJoin, SingleJoinResponse } from "@/apiServices/joinService";
-import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
+import { createJoin, updateJoin, JoinType } from "@/apiServices/joinService";
 
 interface JoinFormProps {
   title: string;
@@ -24,7 +20,7 @@ interface JoinFormProps {
 
 interface FormValues {
   title: string;
-  status: number;
+  status: string;
 }
 
 export default function JoinForm({ title, join }: JoinFormProps) {
@@ -33,118 +29,131 @@ export default function JoinForm({ title, join }: JoinFormProps) {
   const {
     register,
     handleSubmit,
-    setError,
     control,
     reset,
+    setError,
     formState: { errors, isSubmitting },
   } = useForm<FormValues>({
     defaultValues: {
       title: join?.title || "",
-      status: join?.status ?? 1,
+      status: join?.status?.toString() || "1",
     },
   });
 
-  useEffect(() => {
-    if (join) {
-      reset({
-        title: join.title,
-        status: join.status,
-      });
-    }
-  }, [join, reset]);
-
   const submitHandler = async (values: FormValues) => {
-    try {
-      const formData = new FormData();
-      formData.append("title", values.title.trim());
-      formData.append("status", String(values.status));
+    const payload = {
+      title: values.title.trim(),
+      status: Number(values.status),
+    };
 
-      const res: SingleJoinResponse = join
-        ? await updateJoin(join.id, formData)
-        : await createJoin(formData);
+    try {
+      let res;
+      if (join) {
+        res = await updateJoin(join.id, payload);
+      } else {
+        res = await createJoin(payload);
+      }
 
       if (res.success) {
-        toast.success(res.message || `Join ${join ? 'updated' : 'created'} successfully!`);
+        toast.success(res.message || "Join saved successfully!");
         reset();
-        router.push('/lms/who-can-join');
-      } else if (res.errors) {
-        Object.entries(res.errors).forEach(([field, messages]) => {
-          if (Array.isArray(messages) && messages.length > 0) {
-            setError(field as keyof FormValues, { type: 'manual', message: messages[0] });
-          } else if (typeof messages === 'string') {
-            setError(field as keyof FormValues, { type: 'manual', message: messages });
-          }
-        });
-        toast.error('Please fix the errors below.');
-      } else {
-        toast.error(res.message || `Failed to ${join ? 'update' : 'create'} join.`);
+        router.push("/lms/who-can-join");
+        return;
       }
-    } catch (err: unknown) {
-      console.error(err);
-      toast.error('Something went wrong. Try again later.');
+
+      if (res.errors) {
+        toast.error(res.message || "Validation failed");
+
+        Object.entries(res.errors).forEach(([field, messages]) => {
+          const errorMessage = Array.isArray(messages)
+            ? messages[0]
+            : messages;
+
+          setError(field as keyof FormValues, {
+            type: "server",
+            message: errorMessage as string,
+          });
+        });
+      } else {
+        toast.error(res.message || "Failed to save join");
+      }
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        toast.error(error.message);
+      } else {
+        toast.error("An unexpected error occurred.");
+      }
+      console.error(error);
     }
   };
 
   return (
-    <div className="max-w-md mx-auto bg-card border rounded-2xl p-6 shadow-sm">
-      <h2 className="text-xl font-semibold mb-6 text-center">{title}</h2>
+    <div className="min-h-[calc(100vh-80px)] w-full bg-background flex items-start justify-center py-10 px-4">
+      <div className="w-full max-w-6xl bg-card border rounded-2xl p-10 shadow-md">
+        <h2 className="text-2xl font-semibold mb-8 text-center">
+          {title}
+        </h2>
 
-      <form onSubmit={handleSubmit(submitHandler)} className="space-y-5">
-        {/* Title */}
-        <div>
-          <label className="block text-sm font-medium mb-1">Join Title</label>
-          <Input
-            placeholder="Enter join title"
-            {...register("title", { required: "Title is required" })}
-          />
-          {errors.title && (
-            <p className="text-sm text-red-500 mt-1">
-              {errors.title.message}
-            </p>
-          )}
-        </div>
-
-        {/* Status */}
-        <div>
-          <label className="block text-sm font-medium mb-1">Status</label>
-
-          <Controller
-            name="status"
-            control={control}
-            rules={{ required: "Status is required" }}
-            render={({ field }) => (
-              <Select
-                value={String(field.value)}
-                onValueChange={(value) => field.onChange(Number(value))}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select Status" />
-                </SelectTrigger>
-
-                <SelectContent>
-                  <SelectItem value="1">Active</SelectItem>
-                  <SelectItem value="0">Inactive</SelectItem>
-                </SelectContent>
-              </Select>
+        <form onSubmit={handleSubmit(submitHandler)} className="space-y-6">
+          {/* Title */}
+          <div>
+            <label className="block text-sm font-medium mb-2">
+              Title
+            </label>
+            <Input
+              placeholder="Enter title"
+              {...register("title")}
+              className="h-11"
+            />
+            {errors.title && (
+              <p className="text-sm text-red-500 mt-1">
+                {errors.title.message}
+              </p>
             )}
-          />
+          </div>
 
-          {errors.status && (
-            <p className="text-sm text-red-500 mt-1">
-              {errors.status.message}
-            </p>
-          )}
-        </div>
+          {/* Status */}
+          <div>
+            <label className="block text-sm font-medium mb-2">
+              Status
+            </label>
+            <Controller
+              name="status"
+              control={control}
+              render={({ field }) => (
+                <Select value={field.value} onValueChange={field.onChange}>
+                  <SelectTrigger className="w-full h-11">
+                    <SelectValue placeholder="Select status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="1">Active</SelectItem>
+                    <SelectItem value="0">Inactive</SelectItem>
+                  </SelectContent>
+                </Select>
+              )}
+            />
+            {errors.status && (
+              <p className="text-sm text-red-500 mt-1">
+                {errors.status.message}
+              </p>
+            )}
+          </div>
 
-        {/* Submit Button */}
-        <Button
-          type="submit"
-          disabled={isSubmitting}
-          className="w-full cursor-pointer"
-        >
-          {isSubmitting ? "Submitting..." : join ? "Update Join" : "Add Join"}
-        </Button>
-      </form>
+          {/* Submit */}
+          <div className="pt-4 flex justify-end">
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+            >
+              {isSubmitting
+                ? "Submitting..."
+                : join
+                  ? "Update Join"
+                  : "Add Join"}
+            </Button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }

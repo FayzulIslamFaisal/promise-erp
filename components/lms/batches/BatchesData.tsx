@@ -91,23 +91,26 @@ export default async function BatchesData({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-[50px]">#</TableHead>
+              <TableHead className="text-center w-[50px]">Sl</TableHead>
               <TableHead className="text-center w-[100px]">Action</TableHead>
-              <TableHead className="min-w-[150px]">Batch Name</TableHead>
-              <TableHead className="min-w-[200px]">Course</TableHead>
-              <TableHead>Branch</TableHead>
+              <TableHead className="text-center min-w-[150px]">Batch Name</TableHead>
+              <TableHead className="text-center min-w-[150px]">Course</TableHead>
+              <TableHead className="text-center">Branch</TableHead>
+              <TableHead className="text-center">Type</TableHead>
               <TableHead className="text-right">Price</TableHead>
               <TableHead className="text-right">Discount</TableHead>
               <TableHead className="text-right">Final Price</TableHead>
               <TableHead className="text-center">Enrolled</TableHead>
-              <TableHead>End Date</TableHead>
+              <TableHead className="text-center min-w-[120px]">Last Apply Date</TableHead>
+              <TableHead className="text-center min-w-[120px]">Batch End Date</TableHead>
+              <TableHead className="text-center">Status</TableHead>
             </TableRow>
           </TableHeader>
 
           <TableBody>
             {batches.map((batch, i) => (
               <TableRow key={batch?.id}>
-                <TableCell>{(page - 1) * 15 + (i + 1)}</TableCell>
+                <TableCell className="text-center">{(page - 1) * 15 + (i + 1)}</TableCell>
                 <TableCell className="text-center">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -146,29 +149,48 @@ export default async function BatchesData({
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </TableCell>
-                <TableCell className="font-medium">{batch.name}</TableCell>
-                <TableCell>{batch.course?.title}</TableCell>
-                <TableCell>{batch?.branch?.name || "N/A"}</TableCell>
-                <TableCell className="text-right">{batch.price}</TableCell>
+                <TableCell className="font-medium text-center">{batch.name}</TableCell>
+                <TableCell className="text-center">{batch.course?.title}</TableCell>
+                <TableCell className="text-center">{batch?.branch?.name || "N/A"}</TableCell>
+                <TableCell className="text-center">
+                  {batch.is_online === 1 ? (
+                    <Badge className="bg-teal-600 text-white hover:bg-teal-700">Online</Badge>
+                  ) : (
+                    <Badge className="bg-orange-600 text-white hover:bg-orange-700">Offline</Badge>
+                  )}
+                </TableCell>
+                <TableCell className="text-right">{batch.price} ৳</TableCell>
                 <TableCell className="text-right">
                   {batch.discount_type === "percentage"
                     ? `${batch.discount}%`
-                    : batch.discount || "0"}
+                    : `${batch.discount || "0"} ৳`}
                 </TableCell>
                 <TableCell className="text-right font-semibold text-primary">
-                  {batch.after_discount}
+                  {batch.after_discount} ৳
                 </TableCell>
                 <TableCell className="text-center">
                   <Badge variant="outline">{batch.total_enrolled || 0}</Badge>
                 </TableCell>
-                <TableCell className="whitespace-nowrap">{batch.end_date}</TableCell>
+                <TableCell className="whitespace-nowrap text-xs text-center">
+                  {batch.apply_end_date ? batch.apply_end_date : "N/A"}
+                </TableCell>
+                <TableCell className="whitespace-nowrap text-center">{batch.end_date}</TableCell>
+                <TableCell className="text-center">
+                  {batch.status === 1 ? (
+                    <Badge variant="default" className="bg-green-500 hover:bg-green-600">Published</Badge>
+                  ) : batch.status === 2 ? (
+                    <Badge variant="secondary" className="bg-blue-500 hover:bg-blue-600 text-white">Upcoming</Badge>
+                  ) : (
+                    <Badge variant="destructive">Draft</Badge>
+                  )}
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
       </div>
       {
-        paginationData &&  (
+        paginationData && (
           <div className="mt-4">
             <Pagination pagination={paginationData} />
           </div>

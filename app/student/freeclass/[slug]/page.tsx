@@ -1,17 +1,14 @@
-import FreeClassBySlugSkeleton from "@/components/student-dashboard/FreeClassBySlugSkeleton";
-import FreeClassBySlugWrapper from "@/components/student-dashboard/FreeClassBySlugWrapper";
-import { Suspense } from "react";
 
-interface FreeClassBySlug {
-  params: Promise<{ slug: string }>;
-}
-const FreeClassDetailsPage = ({ params }: FreeClassBySlug) => {
-  const slug = params;
+"use client";
+// import FreeClassBySlugWrapper from "@/components/student-dashboard/FreeClassBySlugWrapper";
+import dynamic from 'next/dynamic';
+const FreeClassBySlugWrapper = dynamic(() => import("@/components/student-dashboard/FreeClassBySlugWrapper"), {
+  ssr: false,
+});
+const FreeClassDetailsPage = () => {
   return (
     <section className="py-6 px-4">
-      <Suspense fallback={<FreeClassBySlugSkeleton />}>
-        <FreeClassBySlugWrapper paramsData={slug} />
-      </Suspense>
+        <FreeClassBySlugWrapper />
     </section>
   );
 };

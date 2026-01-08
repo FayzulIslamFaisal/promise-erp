@@ -10,10 +10,10 @@ export default function RootLayout({
   return (
     <>
       <MainHeader />
-    <main className="">
-      {children}
-    </main>
-    <MainFooter />
+      <main className="">
+        {children}
+      </main>
+      <MainFooter />
     </>
   )
 }

@@ -28,9 +28,7 @@ export default function FaqsFilter() {
   const { register, control, reset, watch, setValue } = useForm<FilterFormValues>({
     defaultValues: {
       search: searchParams.get("search") || "",
-      sort_by: searchParams.get("sort_by") || "",
       sort_order: searchParams.get("sort_order") || "",
-      status: searchParams.get("status") || "",
     },
   });
 
@@ -38,24 +36,36 @@ export default function FaqsFilter() {
   useEffect(() => {
     const handler = setTimeout(() => {
       const params = new URLSearchParams(searchParams.toString());
-      params.delete("page");
+      let isChanged = false;
 
+      // Check if any filter value differs from the URL parameters
       Object.entries(watchedValues).forEach(([key, value]) => {
-        if (value && value !== "") {
-          params.set(key, String(value));
-        } else {
-          params.delete(key);
+        const urlValue = params.get(key) || "";
+        const formValue = String(value || "");
+        if (urlValue !== formValue) {
+          isChanged = true;
         }
       });
 
-      const newUrl = `${pathname}?${params.toString()}`;
-      router.replace(newUrl, { scroll: false });
+      if (isChanged) {
+        params.delete("page"); // Reset to page 1 on filter change
+        Object.entries(watchedValues).forEach(([key, value]) => {
+          if (value && value !== "") {
+            params.set(key, String(value));
+          } else {
+            params.delete(key);
+          }
+        });
+
+        const newUrl = `${pathname}?${params.toString()}`;
+        router.replace(newUrl, { scroll: false });
+      }
     }, 800);
 
     return () => {
       clearTimeout(handler);
     };
-  }, [JSON.stringify(watchedValues), router, pathname]);
+  }, [JSON.stringify(watchedValues), router, pathname, searchParams]);
 
   const handleSelectChange = (name: keyof FilterFormValues) => (value: string) => {
     setValue(name, value);
@@ -72,13 +82,13 @@ export default function FaqsFilter() {
   };
 
   const currentSearch = searchParams.get("search") || "";
-  const currentSortBy = searchParams.get("sort_by") || "";
   const currentSortOrder = searchParams.get("sort_order") || "";
   const currentStatus = searchParams.get("status") || "";
 
   const hasActiveFilters =
     currentSearch !== "" ||
-    currentSortOrder !== "";
+    currentSortOrder !== "" ||
+    currentStatus !== "";
 
   return (
     <div className="p-6 mb-6 border rounded-xl bg-card shadow-sm">
@@ -99,7 +109,7 @@ export default function FaqsFilter() {
         )}
       </div>
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
         {/* Search */}
         <div className="relative col-span-1 lg:col-span-2">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -133,9 +143,29 @@ export default function FaqsFilter() {
           )}
         />
 
-      
+        {/* Status */}
+        <Controller
+          name="status"
+          control={control}
+          render={({ field }) => (
+            <Select
+              value={field.value}
+              onValueChange={(value) => {
+                field.onChange(value);
+                handleSelectChange("status")(value);
+              }}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="1">Active</SelectItem>
+                <SelectItem value="0">Inactive</SelectItem>
+              </SelectContent>
+            </Select>
+          )}
+        />
       </div>
     </div>
   );
 }
-

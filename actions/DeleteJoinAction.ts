@@ -6,18 +6,15 @@ const DeleteJoinAction = async (id: number): Promise<SingleJoinResponse> => {
   try {
     const result: SingleJoinResponse = await deleteJoin(id);
 
-    return {
-      success: !!result?.success,
-      message:
-        result?.message ||
-        (result?.success ? "Join deleted successfully" : "Delete failed"),
-      code: result?.code,
-      errors: result?.errors,
-    };
-  } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "Something went wrong!";
-    return { success: false, message, code: 500 } as SingleJoinResponse;
+    if (!result.success) {
+      console.error("Failed to delete join:", result.message);
+      throw new Error(result.message);
+    }
+
+    return result;
+  } catch (error : unknown) {
+    console.error("DeleteJoinAction Error:", error);
+  throw new Error(error instanceof Error ? error.message : "Failed to delete join");
   }
 };
 

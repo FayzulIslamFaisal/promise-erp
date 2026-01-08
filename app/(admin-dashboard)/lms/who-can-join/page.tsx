@@ -1,18 +1,16 @@
+import WhoCanJoinData from "@/components/lms/who-can-join/WhoCanJoinData";
+import JoinFilterData from "@/components/lms/who-can-join/JoinFilterData";
 import TableSkeleton from "@/components/TableSkeleton";
 import { Button } from "@/components/ui/button";
 import { PlusCircle } from "lucide-react";
 import Link from "next/link";
 import { Suspense } from "react";
-import WhoCanJoinData from "@/components/lms/who-can-join/WhoCanJoinData";
-import JoinFilterData from "@/components/lms/who-can-join/JoinFilterData";
 
-const WhoCanJoinPage = async ({
+export default function WhoCanJoinPage({
   searchParams,
 }: {
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
-}) => {
-  const params = await searchParams;
-
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
   return (
     <div className="mx-auto space-y-6">
       <div className="flex justify-between items-center">
@@ -26,15 +24,13 @@ const WhoCanJoinPage = async ({
         </Button>
       </div>
 
-      <Suspense fallback={<div>Loading Filter...</div>}>
+      <Suspense fallback={<div>Loading filters...</div>}>
         <JoinFilterData />
       </Suspense>
 
-      <Suspense fallback={<TableSkeleton columns={4} rows={8} />}>
-        <WhoCanJoinData searchParams={params} />
+      <Suspense fallback={<TableSkeleton columns={4} rows={10} />}>
+        <WhoCanJoinData searchParams={searchParams} />
       </Suspense>
     </div>
   );
-};
-
-export default WhoCanJoinPage;
+}

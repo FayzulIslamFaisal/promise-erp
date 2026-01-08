@@ -1,22 +1,118 @@
 "use client"
 
 import { useState } from "react"
+import { useForm } from "react-hook-form"
+import { useSession } from "next-auth/react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { Eye, EyeOff } from "lucide-react"
+import { toast } from "sonner"
+
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api/v1"
+
+interface PasswordFormData {
+  current_password: string
+  password: string
+  password_confirmation: string
+}
+
+// Field mapping for backend error fields to form fields
+const fieldMapping: Record<string, keyof PasswordFormData> = {
+  current_password: "current_password",
+  password: "password",
+  password_confirmation: "password_confirmation",
+}
 
 const PasswordTab = () => {
-const [showCurrentPassword, setShowCurrentPassword] = useState(false)
+  const { data: session } = useSession()
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false)
   const [showNewPassword, setShowNewPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
 
-  const [passwords, setPasswords] = useState({
-    current: "",
-    new: "",
-    confirm: "",
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+    setError,
+  } = useForm<PasswordFormData>({
+    mode: "onTouched",
+    defaultValues: {
+      current_password: "",
+      password: "",
+      password_confirmation: "",
+    },
   })
+
+  const onSubmit = async (data: PasswordFormData) => {
+    if (!session?.accessToken) {
+      toast.error("Unauthorized: Please login again")
+      return
+    }
+
+    setIsLoading(true)
+
+    try {
+      // Convert to URL-encoded format
+      const formData = new URLSearchParams()
+      formData.append("current_password", data.current_password)
+      formData.append("password", data.password)
+      formData.append("password_confirmation", data.password_confirmation)
+
+      const res = await fetch(`${API_BASE}/student-panel/profile/change-password`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${session.accessToken}`,
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: formData.toString(),
+      })
+
+      const response = await res.json()
+
+      if (response.success) {
+        toast.success(response.message || "Password changed successfully!")
+        reset()
+        setShowCurrentPassword(false)
+        setShowNewPassword(false)
+        setShowConfirmPassword(false)
+        return
+      }
+
+      // Handle validation errors from backend
+      if (response.errors) {
+        toast.error(response.message || "Validation failed")
+
+        Object.entries(response.errors).forEach(([field, messages]) => {
+          const mappedField = fieldMapping[field] || (field as keyof PasswordFormData)
+          const errorMessage = Array.isArray(messages) ? messages[0] : messages
+
+          if (mappedField && errorMessage) {
+            setError(mappedField, {
+              type: "server",
+              message: errorMessage as string,
+            })
+          }
+        })
+        return
+      }
+
+      // Handle other errors
+      toast.error(response.message || "Failed to change password")
+    } catch (error) {
+      console.error("Password change error:", error)
+      if (error instanceof Error) {
+        toast.error(error.message || "An error occurred while changing password")
+      } else {
+        toast.error("An unexpected error occurred")
+      }
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   return (
     <Card className="border-gray-200 text-secondary shadow-sm py-0">
@@ -24,84 +120,100 @@ const [showCurrentPassword, setShowCurrentPassword] = useState(false)
         <CardTitle className="text-xl font-semibold text-secondary">Change Password</CardTitle>
       </CardHeader>
       <CardContent className="px-8 pb-8">
-        <div className="space-y-4">
-          {/* Current Password */}
-          <div className="space-y-2">
-            <Label htmlFor="current-password" className="text-base font-normal text-secondary">
-              Current Password
-            </Label>
-            <div className="relative">
-              <Input
-                id="current-password"
-                type={showCurrentPassword ? "text" : "password"}
-                placeholder="Provide your current password"
-                value={passwords.current}
-                onChange={(e) => setPasswords({ ...passwords, current: e.target.value })}
-                className="border-gray-200 text-secondary pr-10"
-              />
-              <button
-                type="button"
-                onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-              >
-                {showCurrentPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-              </button>
+        <form onSubmit={handleSubmit(onSubmit)} noValidate>
+          <div className="space-y-4">
+            {/* Current Password */}
+            <div className="space-y-2">
+              <Label htmlFor="current-password" className="text-base font-normal text-secondary">
+                Current Password
+              </Label>
+              <div className="relative">
+                <Input
+                  id="current-password"
+                  type={showCurrentPassword ? "text" : "password"}
+                  placeholder="Provide your current password"
+                  {...register("current_password")}
+                  className={`border-gray-200 text-secondary pr-10 ${
+                    errors.current_password ? "border-red-500" : ""
+                  }`}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                >
+                  {showCurrentPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
+              {errors.current_password && (
+                <p className="text-sm text-red-500 mt-1">{errors.current_password.message}</p>
+              )}
+            </div>
+
+            {/* New Password */}
+            <div className="space-y-2">
+              <Label htmlFor="new-password" className="text-base font-normal text-secondary">
+                New Password
+              </Label>
+              <div className="relative">
+                <Input
+                  id="new-password"
+                  type={showNewPassword ? "text" : "password"}
+                  placeholder="Set a new password"
+                  {...register("password")}
+                  className={`border-gray-200 text-secondary pr-10 ${
+                    errors.password ? "border-red-500" : ""
+                  }`}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowNewPassword(!showNewPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                >
+                  {showNewPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
+              {errors.password && (
+                <p className="text-sm text-red-500 mt-1">{errors.password.message}</p>
+              )}
+            </div>
+
+            {/* Confirm Password */}
+            <div className="space-y-2">
+              <Label htmlFor="confirm-password" className="text-base font-normal text-secondary">
+                Confirm Password
+              </Label>
+              <div className="relative">
+                <Input
+                  id="confirm-password"
+                  type={showConfirmPassword ? "text" : "password"}
+                  placeholder="Write the new password"
+                  {...register("password_confirmation")}
+                  className={`border-gray-200 text-secondary pr-10 ${
+                    errors.password_confirmation ? "border-red-500" : ""
+                  }`}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                >
+                  {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
+              {errors.password_confirmation && (
+                <p className="text-sm text-red-500 mt-1">{errors.password_confirmation.message}</p>
+              )}
+            </div>
+
+            {/* Submit Button */}
+            <div className="flex justify-end pt-2">
+              <Button type="submit" className="px-6" disabled={isLoading}>
+                {isLoading ? "Changing Password..." : "Change Password"}
+              </Button>
             </div>
           </div>
-
-          {/* New Password */}
-          <div className="space-y-2">
-            <Label htmlFor="new-password" className="text-base font-normal text-secondary">
-              New Password
-            </Label>
-            <div className="relative">
-              <Input
-                id="new-password"
-                type={showNewPassword ? "text" : "password"}
-                placeholder="Set a new password"
-                value={passwords.new}
-                onChange={(e) => setPasswords({ ...passwords, new: e.target.value })}
-                className="border-gray-200 text-secondary pr-10"
-              />
-              <button
-                type="button"
-                onClick={() => setShowNewPassword(!showNewPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-              >
-                {showNewPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-              </button>
-            </div>
-          </div>
-
-          {/* Confirm Password */}
-          <div className="space-y-2">
-            <Label htmlFor="confirm-password" className="text-base font-normal text-secondary">
-              Confirm Password
-            </Label>
-            <div className="relative">
-              <Input
-                id="confirm-password"
-                type={showConfirmPassword ? "text" : "password"}
-                placeholder="Write the new password"
-                value={passwords.confirm}
-                onChange={(e) => setPasswords({ ...passwords, confirm: e.target.value })}
-                className="border-gray-200 text-secondary pr-10"
-              />
-              <button
-                type="button"
-                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-              >
-                {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-              </button>
-            </div>
-          </div>
-
-          {/* Submit Button */}
-          <div className="flex justify-end pt-2">
-            <Button className="px-6">Change Password</Button>
-          </div>
-        </div>
+        </form>
       </CardContent>
     </Card>
   )

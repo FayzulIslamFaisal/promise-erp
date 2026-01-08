@@ -20,12 +20,12 @@ export interface BatchInstructor {
 
 export interface Batch {
   id: number;
-  uuid: string;
+  // uuid: string;
   course_id: number;
   branch_id: number;
   name: string;
-  price: string | number;
-  discount: string | number | null;
+  price: number | null;
+  discount: number | null;
   discount_type: string | null;
   duration: string | null;
   start_date: string | null;
@@ -34,7 +34,8 @@ export interface Batch {
   end_date_raw: string | null;
   total_enrolled: number | null;
   is_online: number;
-  is_offline: number;
+  apply_end_date: string | null;
+  status: number;
   branch: {
     id: number;
     name: string;
@@ -45,7 +46,7 @@ export interface Batch {
     level: string | null;
   };
   instructors: BatchInstructor[];
-  after_discount?: number | null;
+  after_discount: number | string | null;
   teacher_ids?: (string | number)[];
 }
 
@@ -87,7 +88,8 @@ export interface CreateBatchRequest {
   start_date: string;
   end_date: string;
   is_online: number;
-  is_offline: number;
+  apply_end_date: string;
+  status: number;
   teacher_ids: number[];
 }
 
@@ -223,7 +225,7 @@ export async function getBatchById(
 // ==========================
 
 export async function updateBatch(
-  id: string,
+  id: number,
   batchData: CreateBatchRequest
 ): Promise<BatchResponseType> {
   try {

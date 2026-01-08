@@ -1,10 +1,8 @@
-// apiServices/joinService.ts
 "use server";
 
 import { authOptions } from "@/lib/auth";
 import { getServerSession } from "next-auth";
 import { cacheTag, updateTag } from "next/cache";
-import { handleApiError, processApiResponse } from "@/lib/apiErrorHandler";
 import { PaginationType } from "./studentService";
 
 const API_BASE =
@@ -19,8 +17,6 @@ export interface JoinType {
   title: string;
   status: number;
 }
-
-
 
 export interface JoinsResponse {
   success: boolean;
@@ -37,13 +33,13 @@ export interface JoinsResponse {
 export interface SingleJoinResponse {
   success: boolean;
   message: string;
-  code?: number;
-  data?: JoinType | null;
+  code: number;
+  data: JoinType | null;
   errors?: Record<string, string[] | string>;
 }
 
 // =======================
-// GET joins (Cached)
+// GET joins (CACHED)
 // =======================
 
 export async function getJoinsCached(
@@ -55,14 +51,9 @@ export async function getJoinsCached(
 
   try {
     const urlParams = new URLSearchParams();
-
     for (const key in params) {
-      if (
-        params[key] !== undefined &&
-        params[key] !== null &&
-        params.hasOwnProperty(key)
-      ) {
-        urlParams.append(key, params[key].toString());
+      if (params[key] !== undefined && params[key] !== null) {
+        urlParams.append(key, String(params[key]));
       }
     }
 
@@ -72,50 +63,47 @@ export async function getJoinsCached(
         Authorization: `Bearer ${token}`,
       },
     });
+    if (!res.ok) {
+      throw new Error(`Status: ${res.status} ${res.statusText}`);
+    }
 
     return await res.json();
   } catch (error: unknown) {
     console.error("Error in getJoinsCached:", error);
-    throw new Error(
-      error instanceof Error
-        ? error.message
-        : "Unknown error occurred while fetching joins"
-    );
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    } else {
+      throw new Error("Failed to fetch joins");
+    }
   }
 }
 
 // =======================
-// GET joins wrapper
+// GET joins WRAPPER
 // =======================
 
 export async function getJoins(
   params: Record<string, unknown> = {}
 ): Promise<JoinsResponse> {
-  try {
-    const session = await getServerSession(authOptions);
-    const token = session?.accessToken;
+  const session = await getServerSession(authOptions);
+  const token = session?.accessToken;
 
-    if (!token) throw new Error("No valid session or access token found.");
+  if (!token) throw new Error("No valid session/token");
 
-    return await getJoinsCached(token, params);
-  } catch (error : unknown) {
-    console.error("Error in getJoins:", error);
-    throw new Error(
-      error instanceof Error ? error.message : "Failed to get joins"
-    );
-  }
+  return getJoinsCached(token, params);
 }
 
 // =======================
-// GET Join By ID
+// GET SINGLE JOIN
 // =======================
 
 export async function getJoinById(id: number): Promise<SingleJoinResponse> {
-  try {
-    const session = await getServerSession(authOptions);
-    const token = session?.accessToken;
-    if (!token) throw new Error("No valid session or access token found.");
+  const session = await getServerSession(authOptions);
+  const token = session?.accessToken;
 
+  if (!token) throw new Error("No valid session/token");
+
+  try {
     const res = await fetch(`${API_BASE}/joins/${id}`, {
       headers: {
         "Content-Type": "application/json",
@@ -123,190 +111,143 @@ export async function getJoinById(id: number): Promise<SingleJoinResponse> {
       },
     });
 
+    if (!res.ok) {
+      throw new Error(
+        `Failed to fetch join Status: ${res.status} ${res.statusText}`
+      );
+    }
+
     return await res.json();
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("Error in getJoinById:", error);
-    throw new Error(
-      error instanceof Error
-        ? error.message
-        : "Unknown error occurred while fetching join by ID"
-    );
+    if (error instanceof Error) {
+      throw new Error(error.message || "Failed to fetch join");
+    } else {
+      throw new Error("Failed to fetch join");
+    }
   }
 }
 
 // =======================
-// CREATE Join
+// CREATE JOIN
 // =======================
 
-export async function createJoin(
-  formData: FormData
-): Promise<SingleJoinResponse> {
-  try {
-    const session = await getServerSession(authOptions);
-    const token = session?.accessToken;
-    if (!token)
-      return {
-        success: false,
-        message: "No valid session or access token found.",
-        code: 401,
-      };
+export interface JoinFormData {
+  title: string;
+  status: number;
+}
 
-    const response = await fetch(`${API_BASE}/joins`, {
+export async function createJoin(
+  formData: JoinFormData
+): Promise<SingleJoinResponse> {
+  const session = await getServerSession(authOptions);
+  const token = session?.accessToken;
+
+  if (!token) {
+    throw new Error("No token found");
+  }
+
+  try {
+    const res = await fetch(`${API_BASE}/joins`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
       },
-      body: formData,
+      body: JSON.stringify(formData),
     });
 
-    const result = await processApiResponse(response, "Failed to create join");
-
-    if (!result.success) {
-      return {
-        success: false,
-        message: result.message,
-        errors: result.errors,
-        code: result.code,
-      };
-    }
+    const result = await res.json();
 
     updateTag("joins-list");
-
-    return {
-      success: true,
-      message: result.message || "Join created successfully",
-      data: result.data,
-      code: result.code,
-    };
-  } catch (error) {
-    const err = await handleApiError(error, "Failed to create join");
-    return { success: false, message: err.message, code: err.code };
+    return result;
+  } catch (error: unknown) {
+    console.error("Error in createJoin:", error);
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    } else {
+      throw new Error("Failed to create join");
+    }
   }
 }
 
 // =======================
-// UPDATE join
+// UPDATE JOIN
 // =======================
+
+export interface JoinUpdateFormData {
+  title: string;
+  status: number;
+}
 
 export async function updateJoin(
   id: number,
-  formData: FormData
+  updateData: JoinUpdateFormData
 ): Promise<SingleJoinResponse> {
+  const session = await getServerSession(authOptions);
+  const token = session?.accessToken;
+
+  if (!token) {
+    throw new Error("No token found");
+  }
+
   try {
-    const session = await getServerSession(authOptions);
-    const token = session?.accessToken;
-    if (!token)
-      return {
-        success: false,
-        message: "No valid session or access token found.",
-        code: 401,
-      };
-
-    formData.append("_method", "PATCH");
-
-    const response = await fetch(`${API_BASE}/joins/${id}`, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${token}` },
-      body: formData,
+    const res = await fetch(`${API_BASE}/joins/${id}`, {
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(updateData),
     });
 
-    const result = await processApiResponse(response, "Failed to update join");
-
-    if (!result.success) {
-      return {
-        success: false,
-        message: result.message,
-        errors: result.errors,
-        code: result.code,
-      };
-    }
+    const result = await res.json();
 
     updateTag("joins-list");
-
-    return {
-      success: true,
-      message: result.message || "Join updated successfully",
-      data: result.data,
-      code: result.code,
-    };
-  } catch (error) {
-    const err = await handleApiError(error, "Failed to update join");
-    return { success: false, message: err.message, code: err.code };
+    return result;
+  } catch (error: unknown) {
+    console.error("Error in updateJoin:", error);
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    } else {
+      throw new Error("Failed to update join");
+    }
   }
 }
 
 // =======================
-// DELETE join
+// DELETE JOIN
 // =======================
 
 export async function deleteJoin(id: number): Promise<SingleJoinResponse> {
-  try {
-    const session = await getServerSession(authOptions);
-    const token = session?.accessToken;
-    if (!token)
-      return {
-        success: false,
-        message: "No valid session or access token found.",
-        code: 401,
-      };
+  const session = await getServerSession(authOptions);
+  const token = session?.accessToken;
 
-    const response = await fetch(`${API_BASE}/joins/${id}`, {
+  if (!token) {
+    throw new Error("No token found");
+  }
+
+  try {
+    const res = await fetch(`${API_BASE}/joins/${id}`, {
       method: "DELETE",
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
     });
-
-    const result = await processApiResponse(response, "Failed to delete join");
-
+    
+    const result = await res.json();
     if (!result.success) {
-      return { success: false, message: result.message, code: result.code };
+      throw new Error(result.message);
     }
-
     updateTag("joins-list");
-
-    return {
-      success: true,
-      message: result.message || "Join deleted successfully",
-      data: result.data,
-      code: result.code,
-    };
-  } catch (error) {
-    const err = await handleApiError(error, "Failed to delete join");
-    return { success: false, message: err.message, code: err.code };
-  }
-}
-
-// =======================
-// PUBLIC: Home Page Joins
-// =======================
-
-export async function getHomeJoins({
-  params = {},
-}: {
-  params?: Record<string, unknown>;
-}): Promise<JoinsResponse> {
-  "use cache";
-  cacheTag("public-joins");
-
-  try {
-    const urlParams = new URLSearchParams();
-    Object.entries(params).forEach(([key, value]) => {
-      if (value !== undefined && value !== null) {
-        urlParams.append(key, String(value));
-      }
-    });
-
-    const res = await fetch(`${API_BASE}/public/joins?${urlParams.toString()}`);
-
-    if (!res.ok) {
-      throw new Error(`Home Joins API failed: ${res.status}`);
+    return result;
+  } catch (error: unknown) {
+    console.error("Error in deleteJoin:", error);
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    } else {
+      throw new Error("Failed to delete join");
     }
-
-    return await res.json();
-  } catch (error) {
-    console.error("Home Joins API Error:", error);
-    throw new Error("Error fetching home joins");
   }
 }

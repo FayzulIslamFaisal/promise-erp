@@ -12,12 +12,14 @@ interface CourseDetailPageProps {
 
 export async function generateStaticParams() {
   const response = await getPublicCoursesList({ params: { per_page: 100 } });
+  const courses = response?.data?.courses;
+  if (!courses || courses.length === 0) {
+    return [{ slug: "not-found" }];
+  }
 
-  return (
-    response?.data?.courses?.map((course) => ({
-      slug: course.slug,
-    })) ?? []
-  );
+  return courses.map((course) => ({
+    slug: course.slug,
+  }));
 }
 
 // Generate metadata for SEO
@@ -60,7 +62,7 @@ const CourseDetail = async ({ params }: CourseDetailPageProps) => {
   return (
     <Suspense fallback={<div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-16 space-y-16">
-        <h1 className="text-3xl text-center">Loading...</h1>
+        <h1 className="text-2xl text-center">Loading...</h1>
       </div>
     </div>}>
       <CourseDetailsWrapper slug={slug} />

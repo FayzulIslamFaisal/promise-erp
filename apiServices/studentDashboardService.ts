@@ -1,8 +1,8 @@
 // apiServices/studentDashboardService.ts
-"use server";
+// "use server";
 import { getServerSession } from "next-auth";
+import { PaginationType } from "./studentService";
 import { authOptions } from "@/lib/auth";
-import {  PaginationType } from "./studentService";
 const API_BASE =
   process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api/v1";
 
@@ -118,23 +118,23 @@ export async function getFreeSeminars({
 }: {
   params?: Record<string, unknown>;
 }): Promise<FreeSeminarsApiResponse> {
-  const session = await getServerSession(authOptions);
-  const token = session?.accessToken;
-
-  if (!token) {
-    throw new Error("Unauthorized: Access token not found");
-  }
-
-  const urlParams = new URLSearchParams();
-
-  Object.entries(params).forEach(([key, value]) => {
-    if (value !== undefined && value !== null) {
-      urlParams.append(key, String(value));
-    }
-  });
-
-  const queryString = urlParams.toString();
   try {
+    const session = await getServerSession(authOptions);
+    const token = session?.accessToken;
+
+    if (!token) {
+      throw new Error("Unauthorized: Access token not found");
+    }
+
+    const urlParams = new URLSearchParams();
+
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        urlParams.append(key, String(value));
+      }
+    });
+
+    const queryString = urlParams.toString();
     const res = await fetch(
       `${API_BASE}/student-panel/free-seminars?${queryString}`,
       {
@@ -328,10 +328,9 @@ export interface EarningsChartApiResponse {
   data: EarningsChartData;
 }
 
-export async function getStudentEarningUsdChart(): Promise<EarningsChartApiResponse> {
-  const session = await getServerSession(authOptions);
-  const accessToken = session?.accessToken;
-
+export async function getStudentEarningUsdChart(
+  accessToken: string
+): Promise<EarningsChartApiResponse> {
   if (!accessToken) {
     throw new Error("Unauthorized: No access token found");
   }
@@ -362,10 +361,9 @@ export async function getStudentEarningUsdChart(): Promise<EarningsChartApiRespo
 // End get Earning Usd Charts
 
 // Start get Earning Bdt Charts
-export async function getStudentEarningBdtChart(): Promise<EarningsChartApiResponse> {
-  const session = await getServerSession(authOptions);
-  const accessToken = session?.accessToken;
-
+export async function getStudentEarningBdtChart(
+  accessToken: string
+): Promise<EarningsChartApiResponse> {
   if (!accessToken) {
     throw new Error("Unauthorized: No access token found");
   }
@@ -421,11 +419,11 @@ export interface StudentEarningsApiResponse {
 }
 export async function getStudentEarningList({
   params = {},
+  token,
 }: {
   params?: Record<string, unknown>;
+  token: string;
 }): Promise<StudentEarningsApiResponse> {
-  const session = await getServerSession(authOptions);
-  const token = session?.accessToken;
   if (!token) {
     throw new Error("Unauthorized: Access token not found");
   }
@@ -737,6 +735,88 @@ export async function getStudentMyCourses({
 
 // End get Student My Courses
 
+// Start get Student Profile
+export interface Education {
+  id: number;
+  degree: string;
+  institution: string;
+  subject: string;
+}
+
+export interface Organization {
+  id: number;
+  name: string;
+}
+
+export interface Branch {
+  id: number;
+  name: string;
+}
+
+export interface StudentProfile {
+  id: number;
+  uuid: string;
+  name: string;
+  email: string;
+  phone: string;
+  designation: string;
+  profile_image: string | null;
+  status: string;
+  is_blocked: boolean;
+  email_verified_at: string | null;
+  last_login_at: string | null;
+  organization: Organization;
+  branch: Branch;
+  age: number | null;
+  gender: string | null;
+  facebook: string | null;
+  linkedin: string | null;
+  educations: Education[];
+}
+
+export interface StudentProfileResponse {
+  success: boolean;
+  message: string;
+  code: number;
+  data: StudentProfile;
+  errors?: Record<string, string[]>;
+}
+
+export async function getStudentProfile(): Promise<StudentProfileResponse> {
+  const session = await getServerSession(authOptions);
+  const token = session?.accessToken;
+
+  if (!token) {
+    throw new Error("Unauthorized: Access token not found");
+  }
+
+  try {
+    const res = await fetch(`${API_BASE}/student-panel/profile`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!res.ok) {
+      throw new Error(
+        `StudentProfile API Error: ${res.status} ${res.statusText}`
+      );
+    }
+
+    const data: StudentProfileResponse = await res.json();
+    return data;
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("getStudentProfile Error:", error.message);
+      throw error;
+    }
+    throw new Error("Unknown error occurred while fetching student profile");
+  }
+}
+// End get Student Profile
+
 // Start get Free Seminar by Slug
 export interface FreeSeminar {
   id: number;
@@ -780,11 +860,9 @@ export interface FreeSeminarBySlugResponse {
   data: FreeSeminar;
 }
 export async function getFreeSeminarBySlug(
-  slug: string
+  slug: string,
+  token?: string
 ): Promise<FreeSeminarBySlugResponse> {
-  const session = await getServerSession(authOptions);
-  const token = session?.accessToken;
-
   if (!token) {
     throw new Error("Unauthorized: Access token not found");
   }
@@ -796,6 +874,7 @@ export async function getFreeSeminarBySlug(
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
       }
     );

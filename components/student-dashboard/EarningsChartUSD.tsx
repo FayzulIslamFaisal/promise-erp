@@ -13,32 +13,35 @@ import {
   getStudentEarningUsdChart,
 } from "@/apiServices/studentDashboardService";
 import { useEffect, useState, useTransition } from "react";
-import { toast } from "sonner";
 import SectionLoadingSkeleton from "../common/SectionLoadingSkeleton";
+import { useSession } from "next-auth/react";
 
 const EarningsChartUSD = () => {
   const [earningsDataUSD, setEarningsDataUSD] = useState<EarningsChartItem[]>([]);
   const [isPending, startTransition] = useTransition();
 
+  const { data: session } = useSession();
+    const token = session?.accessToken;
+
   useEffect(() => {
+    if (!token) return;
     startTransition(async () => {
       try {
-        const response = await getStudentEarningUsdChart();
+        const response = await getStudentEarningUsdChart(token);
         if (!response?.success) {
-          toast.error("Failed to fetch USD earnings data");
+          console.error(response?.message);
         } else {
           setEarningsDataUSD(response?.data?.chart_data || []);
         }
       } catch (error: unknown) {
         if (error instanceof Error) {
-          console.error("Error fetching USD earnings data:", error.message);
-          toast.error("Something went wrong");
+          console.log("Error fetching USD earnings data:", error.message);
         } else {
           console.error("Unknown error fetching USD earnings data");
         }
       }
     });
-  }, []);
+  }, [token]);
 
   if (isPending) return <SectionLoadingSkeleton />;
 

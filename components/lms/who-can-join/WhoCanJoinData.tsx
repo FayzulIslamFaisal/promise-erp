@@ -1,14 +1,6 @@
-// components/lms/who-can-join/WhoCanJoinData.tsx
 import ErrorComponent from "@/components/common/ErrorComponent";
 import NotFoundComponent from "@/components/common/NotFoundComponent";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 import {
   DropdownMenu,
@@ -16,7 +8,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-
 import { Badge } from "@/components/ui/badge";
 import { Pencil } from "lucide-react";
 import Link from "next/link";
@@ -27,30 +18,31 @@ import Pagination from "@/components/common/Pagination";
 const WhoCanJoinData = async ({
   searchParams,
 }: {
-  searchParams: { [key: string]: string | string[] | undefined };
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) => {
   const resolvedSearchParams = await searchParams;
-
-  const page =
-    typeof resolvedSearchParams.page === "string"
-      ? Number(resolvedSearchParams.page)
-      : 1;
-
+  const page = typeof resolvedSearchParams.page === "string" ? Number(resolvedSearchParams.page) : 1;
   const params = {
     page,
     search:
       typeof resolvedSearchParams.search === "string"
         ? resolvedSearchParams.search
         : undefined,
+    sort_by:
+      typeof resolvedSearchParams.sort_by === "string"
+        ? resolvedSearchParams.sort_by
+        : undefined,
+    sort_order:
+      typeof resolvedSearchParams.sort_order === "string"
+        ? resolvedSearchParams.sort_order
+        : undefined,
     status:
       typeof resolvedSearchParams.status === "string"
         ? resolvedSearchParams.status
         : undefined,
-        
   };
 
   let results;
-
   try {
     results = await getJoins(params);
   } catch (error: unknown) {
@@ -62,11 +54,10 @@ const WhoCanJoinData = async ({
   }
 
   const joins = results?.data?.joins || [];
-  const pagination = results?.data?.pagination;
-  
+  const paginationData = results?.data?.pagination;
 
   if (!joins.length) {
-    return <NotFoundComponent message={results?.message} title="Join Option List" />;
+    return <NotFoundComponent message={results?.message || "No joins found."} />;
   }
 
   return (
@@ -74,19 +65,18 @@ const WhoCanJoinData = async ({
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Sl</TableHead>
-            <TableHead>Action</TableHead>
-            <TableHead>Title</TableHead>
-            <TableHead>Status</TableHead>
+            <TableHead className="text-center">Sl</TableHead>
+            <TableHead className="text-center">Action</TableHead>
+            <TableHead className="text-center">Title</TableHead>
+            <TableHead className="text-center">Status</TableHead>
           </TableRow>
         </TableHeader>
 
         <TableBody>
           {joins.map((join: JoinType, index: number) => (
             <TableRow key={join?.id}>
-              <TableCell>{(page - 1) * 15 + (index + 1) }</TableCell>
-
-              <TableCell>
+              <TableCell className="text-center">{(page - 1) * 15 + (index + 1)}</TableCell>
+              <TableCell className="text-center">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Badge
@@ -109,17 +99,14 @@ const WhoCanJoinData = async ({
                         Manage
                       </Link>
                     </DropdownMenuItem>
-
                     <DropdownMenuItem asChild>
                       <DeleteButton id={join?.id} />
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
               </TableCell>
-
-              <TableCell className="font-medium">{join?.title}</TableCell>
-
-              <TableCell>
+              <TableCell className="font-medium text-center">{join?.title}</TableCell>
+              <TableCell className="text-center">
                 <Badge variant={join.status === 1 ? "outline" : "destructive"}>
                   {join.status === 1 ? "Active" : "Inactive"}
                 </Badge>
@@ -128,10 +115,10 @@ const WhoCanJoinData = async ({
           ))}
         </TableBody>
       </Table>
-
-      {/* Pagination Added */}
-      {pagination && (
-        <Pagination pagination={pagination} />
+      {paginationData && (
+        <div className="mt-4">
+          <Pagination pagination={paginationData} />
+        </div>
       )}
     </div>
   );

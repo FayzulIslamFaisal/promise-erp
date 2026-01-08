@@ -1,7 +1,6 @@
 import { getFaqById, Faq } from '@/apiServices/faqsService'
 import NotFoundComponent from '@/components/common/NotFoundComponent'
 import FaqsForm from '@/components/lms/faqs/FaqsForm'
-import { notFound } from 'next/navigation'
 
 interface PageProps {
   params: Promise<{

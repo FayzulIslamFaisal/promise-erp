@@ -1,23 +1,27 @@
-import { getJoinById } from "@/apiServices/joinService";
-import JoinForm from "@/components/lms/who-can-join/JoinForm";
+import { getJoinById, JoinType } from '@/apiServices/joinService'
+import NotFoundComponent from '@/components/common/NotFoundComponent'
+import JoinForm from '@/components/lms/who-can-join/JoinForm'
 
-export default async function EditJoinPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
-  const joinId = Number(id);
+interface PageProps {
+  params: Promise<{
+    id: string
+  }>
+}
 
-  try {
-    const joinRes = await getJoinById(joinId);
-    const join = joinRes?.data ?? null;
+export default async function EditJoinPage({ params }: PageProps) {
+  const { id } = await params
 
-    if (!join) return <div>No join item found.</div>;
+  const response = await getJoinById(Number(id))
 
-    return (
-      <JoinForm
-        title="Edit Join Option"
-        join={join}
-      />
-    );
-  } catch (error: unknown) {
-    return <div>Error: {error instanceof Error ? error.message : "Something went wrong."}</div>;
+  if (!response?.data) {
+    return <NotFoundComponent message={response.message || "No join item found."} />;
   }
+  const join: JoinType = response?.data
+
+  return (
+    <JoinForm
+      title="Edit Join"
+      join={join}
+    />
+  )
 }

@@ -1,4 +1,3 @@
-
 "use client";
 
 import { Controller, useForm } from "react-hook-form";
@@ -15,20 +14,15 @@ import { useEffect, useState } from "react";
 import { Branch, getBranches } from "@/apiServices/branchService";
 import { Course, getCourses } from "@/apiServices/courseService";
 import { getTeachers } from "@/apiServices/teacherService";
-import { Batch, BatchResponseType, CreateBatchRequest } from "@/apiServices/batchService";
+import { addBatch, Batch, CreateBatchRequest, updateBatch } from "@/apiServices/batchService";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-
-
 import { Teacher } from "@/apiServices/teacherService";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 interface BatchFormProps {
   title: string;
-  onSubmit: (
-    formData: CreateBatchRequest,
-    setFormError: (field: keyof FormValues, message: string) => void,
-    resetForm: () => void
-  ) => void | Promise<void>;
   batch?: Batch;
 }
 
@@ -36,22 +30,24 @@ interface FormValues {
   course_id: string;
   branch_id: string;
   name: string;
-  price: number;
-  discount: number;
+  price: number | null;
+  discount: number | null;
   discount_type: string;
   duration: string;
   start_date: string;
   end_date: string;
+  apply_end_date: string;
+  status: string;
   is_online: string;
-  is_offline: string;
   teacher_ids?: string[];
 }
 
-export default function BatchForm({ title, onSubmit, batch }: BatchFormProps) {
+export default function BatchForm({ title, batch }: BatchFormProps) {
   const [branches, setBranches] = useState<Branch[]>([]);
   const [courses, setCourses] = useState<Course[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [teachers, setTeachers] = useState<Teacher[]>([]);
+  const router = useRouter();
 
   const {
     register,
@@ -66,14 +62,15 @@ export default function BatchForm({ title, onSubmit, batch }: BatchFormProps) {
       name: batch?.name || "",
       course_id: batch?.course_id?.toString() || "",
       branch_id: batch?.branch_id?.toString() || "",
-      price: batch ? parseFloat(batch.price.toString()) : 0,
-      discount: batch ? parseFloat(batch.discount?.toString() || "0") : 0,
+      price: batch ? parseFloat(batch.price?.toString() || "") : null,
+      discount: batch ? parseFloat(batch.discount?.toString() || "") : null,
       discount_type: batch?.discount_type || "percentage",
       duration: batch?.duration || "",
       start_date: batch?.start_date_raw || "",
       end_date: batch?.end_date_raw || "",
-      is_online: batch?.is_online?.toString() || "0",
-      is_offline: batch?.is_offline?.toString() || "0",
+      apply_end_date: batch?.apply_end_date ? batch.apply_end_date.replace(" ", "T") : "",
+      status: batch?.status?.toString() || "0",
+      is_online: batch?.is_online?.toString() || "1",
       teacher_ids: batch?.instructors?.map((t) => t.id.toString()) ||
         batch?.teacher_ids?.map((id) => id.toString()) || [],
     },
@@ -81,11 +78,6 @@ export default function BatchForm({ title, onSubmit, batch }: BatchFormProps) {
 
   const selectedBranchId = watch("branch_id");
 
-  console.log('batch', batch);
-
-  const setFormError = (field: keyof FormValues, message: string) => {
-    setError(field, { type: "server", message });
-  };
 
   useEffect(() => {
     if (batch) {
@@ -93,14 +85,15 @@ export default function BatchForm({ title, onSubmit, batch }: BatchFormProps) {
         name: batch.name,
         course_id: batch.course_id?.toString(),
         branch_id: batch.branch_id?.toString(),
-        price: parseFloat(batch.price.toString()),
-        discount: parseFloat(batch.discount?.toString() || "0"),
+        price: parseFloat(batch.price?.toString() || ""),
+        discount: parseFloat(batch.discount?.toString() || ""),
         discount_type: batch.discount_type || "percentage",
         duration: batch.duration || "",
         start_date: batch.start_date_raw || "",
         end_date: batch.end_date_raw || "",
-        is_online: batch.is_online?.toString() || "0",
-        is_offline: batch.is_offline?.toString() || "0",
+        apply_end_date: batch.apply_end_date ? batch.apply_end_date.replace(" ", "T") : "",
+        status: batch.status?.toString() || "0",
+        is_online: batch.is_online?.toString() || "1",
         teacher_ids: batch.instructors?.map((t) => t.id.toString()) ||
           batch.teacher_ids?.map((id) => id.toString()) || [],
       });
@@ -149,7 +142,8 @@ export default function BatchForm({ title, onSubmit, batch }: BatchFormProps) {
     loadInitialData();
   }, []);
 
-  const submitHandler = (values: FormValues) => {
+  const submitHandler = async (values: FormValues) => {
+
     const formData: CreateBatchRequest = {
       ...values,
       course_id: Number(values.course_id),
@@ -157,10 +151,41 @@ export default function BatchForm({ title, onSubmit, batch }: BatchFormProps) {
       price: Number(values.price),
       discount: Number(values.discount),
       is_online: Number(values.is_online),
-      is_offline: Number(values.is_offline),
+      status: Number(values.status),
+      apply_end_date: values.apply_end_date ? values.apply_end_date.replace("T", " ") : "",
       teacher_ids: values.teacher_ids ? values.teacher_ids.map(id => Number(id)) : [],
     };
-    onSubmit(formData, setFormError, () => reset());
+
+    try {
+      let res;
+      if (batch) {
+        res = await updateBatch(batch.id, formData);
+      } else {
+        res = await addBatch(formData);
+      }
+
+      if (res.success) {
+        reset();
+        toast.success(res.message);
+        router.push("/lms/batches");
+      } else if (res.errors) {
+        Object.entries(res.errors).forEach(([field, messages]) => {
+          if (messages && (Array.isArray(messages) ? messages.length > 0 : !!messages)) {
+            const message = Array.isArray(messages) ? messages[0] : messages;
+            setError(field as keyof FormValues, { type: "server", message: message as string });
+          }
+        });
+      } else {
+        toast.error(res.message || "Something went wrong. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error submitting batch:", error);
+      if (error instanceof Error) {
+        toast.error(error.message);
+      } else {
+        toast.error("An unknown error occurred while submitting batch");
+      }
+    }
   };
 
   return (
@@ -171,14 +196,12 @@ export default function BatchForm({ title, onSubmit, batch }: BatchFormProps) {
 
       <CardContent>
         <form onSubmit={handleSubmit(submitHandler)} className="grid gap-6">
-
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="grid gap-2">
-              <Label htmlFor="course_id">Course</Label>
+            <div className="grid gap-2 relative pb-5">
+              <Label htmlFor="course_id">Course<span className="text-red-500">*</span></Label>
               <Controller
                 name="course_id"
                 control={control}
-                rules={{ required: "Course is required" }}
                 render={({ field }) => (
                   <Select
                     value={field.value}
@@ -199,16 +222,15 @@ export default function BatchForm({ title, onSubmit, batch }: BatchFormProps) {
                 )}
               />
               {errors.course_id && (
-                <p className="text-sm text-red-500 mt-1">{errors.course_id.message}</p>
+                <p className="text-xs text-red-500 absolute bottom-0 left-0">{errors.course_id.message}</p>
               )}
             </div>
 
-            <div className="grid gap-2">
-              <Label htmlFor="branch_id">Branch</Label>
+            <div className="grid gap-2 relative pb-5">
+              <Label htmlFor="branch_id">Branch<span className="text-red-500">*</span></Label>
               <Controller
                 name="branch_id"
                 control={control}
-                rules={{ required: "Branch is required" }}
                 render={({ field }) => (
                   <Select
                     value={field.value}
@@ -229,25 +251,25 @@ export default function BatchForm({ title, onSubmit, batch }: BatchFormProps) {
                 )}
               />
               {errors.branch_id && (
-                <p className="text-sm text-red-500 mt-1">{errors.branch_id.message}</p>
+                <p className="text-xs text-red-500 absolute bottom-0 left-0">{errors.branch_id.message}</p>
               )}
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="grid gap-2">
-              <Label htmlFor="name">Batch Name</Label>
+            <div className="grid gap-2 relative pb-5">
+              <Label htmlFor="name">Batch Name <span className="text-red-500">*</span></Label>
               <Input
                 id="name"
                 placeholder="Enter Batch name"
-                {...register("name", { required: "Name is required" })}
+                {...register("name")}
               />
               {errors.name && (
-                <p className="text-sm text-red-500 mt-1">{errors.name.message}</p>
+                <p className="text-xs text-red-500 absolute bottom-0 left-0">{errors.name.message}</p>
               )}
             </div>
 
-            <div className="grid gap-2">
+            <div className="grid gap-2 relative pb-5">
               <Label htmlFor="duration">Duration</Label>
               <Input
                 id="duration"
@@ -255,14 +277,14 @@ export default function BatchForm({ title, onSubmit, batch }: BatchFormProps) {
                 {...register("duration")}
               />
               {errors.duration && (
-                <p className="text-sm text-red-500 mt-1">{errors.duration.message}</p>
+                <p className="text-xs text-red-500 absolute bottom-0 left-0">{errors.duration.message}</p>
               )}
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="grid gap-2">
-              <Label htmlFor="price">Price</Label>
+            <div className="grid gap-2 relative pb-5">
+              <Label htmlFor="price">Price<span className="text-red-500">*</span></Label>
               <Input
                 id="price"
                 type="number"
@@ -271,11 +293,11 @@ export default function BatchForm({ title, onSubmit, batch }: BatchFormProps) {
                 {...register("price", { valueAsNumber: true })}
               />
               {errors.price && (
-                <p className="text-sm text-red-500 mt-1">{errors.price.message}</p>
+                <p className="text-xs text-red-500 absolute bottom-0 left-0">{errors.price.message}</p>
               )}
             </div>
 
-            <div className="grid gap-2">
+            <div className="grid gap-2 relative pb-5">
               <Label htmlFor="discount_type">Discount Type</Label>
               <Controller
                 name="discount_type"
@@ -296,11 +318,11 @@ export default function BatchForm({ title, onSubmit, batch }: BatchFormProps) {
                 )}
               />
               {errors.discount_type && (
-                <p className="text-sm text-red-500 mt-1">{errors.discount_type.message}</p>
+                <p className="text-xs text-red-500 absolute bottom-0 left-0">{errors.discount_type.message}</p>
               )}
             </div>
 
-            <div className="grid gap-2">
+            <div className="grid gap-2 relative pb-5">
               <Label htmlFor="discount">Discount Value</Label>
               <Input
                 id="discount"
@@ -310,13 +332,13 @@ export default function BatchForm({ title, onSubmit, batch }: BatchFormProps) {
                 {...register("discount", { valueAsNumber: true })}
               />
               {errors.discount && (
-                <p className="text-sm text-red-500 mt-1">{errors.discount.message}</p>
+                <p className="text-xs text-red-500 absolute bottom-0 left-0">{errors.discount.message}</p>
               )}
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="grid gap-2">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid gap-2 relative pb-5">
               <Label htmlFor="start_date">Start Date</Label>
               <Input
                 id="start_date"
@@ -324,11 +346,11 @@ export default function BatchForm({ title, onSubmit, batch }: BatchFormProps) {
                 {...register("start_date")}
               />
               {errors.start_date && (
-                <p className="text-sm text-red-500 mt-1">{errors.start_date.message}</p>
+                <p className="text-xs text-red-500 absolute bottom-0 left-0">{errors.start_date.message}</p>
               )}
             </div>
 
-            <div className="grid gap-2">
+            <div className="grid gap-2 relative pb-5">
               <Label htmlFor="end_date">End Date</Label>
               <Input
                 id="end_date"
@@ -336,14 +358,79 @@ export default function BatchForm({ title, onSubmit, batch }: BatchFormProps) {
                 {...register("end_date")}
               />
               {errors.end_date && (
-                <p className="text-sm text-red-500 mt-1">{errors.end_date.message}</p>
+                <p className="text-xs text-red-500 absolute bottom-0 left-0">{errors.end_date.message}</p>
+              )}
+            </div>
+
+            <div className="grid gap-2 relative pb-5">
+              <Label htmlFor="apply_end_date">Apply End Date<span className="text-red-500">*</span></Label>
+              <Input
+                id="apply_end_date"
+                type="datetime-local"
+                {...register("apply_end_date")}
+              />
+              {errors.apply_end_date && (
+                <p className="text-xs text-red-500 absolute bottom-0 left-0">{errors.apply_end_date.message}</p>
+              )}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid gap-2 relative pb-5">
+              <Label htmlFor="status">Status</Label>
+              <Controller
+                name="status"
+                control={control}
+                render={({ field }) => (
+                  <Select
+                    value={field.value}
+                    onValueChange={field.onChange}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select Status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="0">Draft</SelectItem>
+                      <SelectItem value="1">Published</SelectItem>
+                      <SelectItem value="2">Upcoming</SelectItem>
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+              {errors.status && (
+                <p className="text-xs text-red-500 absolute bottom-0 left-0">{errors.status.message}</p>
+              )}
+            </div>
+
+            <div className="grid gap-2 relative pb-5">
+              <Label htmlFor="is_online">Is Online?</Label>
+              <Controller
+                name="is_online"
+                control={control}
+                render={({ field }) => (
+                  <Select
+                    value={field.value}
+                    onValueChange={field.onChange}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select Option" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="1">Online</SelectItem>
+                      <SelectItem value="0">Offline</SelectItem>
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+              {errors.is_online && (
+                <p className="text-xs text-red-500 absolute bottom-0 left-0">{errors.is_online.message}</p>
               )}
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* added teacher_ids field multiselect */}
-            <div className="grid gap-2 col-span-1 md:col-span-2">
+            <div className="grid gap-2 col-span-1 md:col-span-2 relative pb-6">
               <Label htmlFor="teacher_ids">Teachers</Label>
               <Controller
                 name="teacher_ids"
@@ -385,65 +472,13 @@ export default function BatchForm({ title, onSubmit, batch }: BatchFormProps) {
                 )}
               />
               {errors.teacher_ids && (
-                <p className="text-sm text-red-500 mt-1">
+                <p className="text-xs text-red-500 absolute bottom-0 left-0">
                   {errors.teacher_ids.message}
                 </p>
               )}
             </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 col-span-1 md:col-span-2">
-              <div className="grid gap-2">
-                <Label htmlFor="is_online">Is Online?</Label>
-                <Controller
-                  name="is_online"
-                  control={control}
-                  render={({ field }) => (
-                    <Select
-                      value={field.value}
-                      onValueChange={field.onChange}
-                    >
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select Option" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="1">Yes</SelectItem>
-                        <SelectItem value="0">No</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  )}
-                />
-                {errors.is_online && (
-                  <p className="text-sm text-red-500 mt-1">{errors.is_online.message}</p>
-                )}
-              </div>
-
-              <div className="grid gap-2">
-                <Label htmlFor="is_offline">Is Offline?</Label>
-                <Controller
-                  name="is_offline"
-                  control={control}
-                  render={({ field }) => (
-                    <Select
-                      value={field.value}
-                      onValueChange={field.onChange}
-                    >
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select Option" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="1">Yes</SelectItem>
-                        <SelectItem value="0">No</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  )}
-                />
-                {errors.is_offline && (
-                  <p className="text-sm text-red-500 mt-1">{errors.is_offline.message}</p>
-                )}
-              </div>
-            </div>
           </div>
-          <div className="flex justify-center">
+          <div className="flex justify-end">
             <Button
               type="submit"
               disabled={isSubmitting || isLoading}

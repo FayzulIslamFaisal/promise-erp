@@ -10,7 +10,7 @@ import { Progress } from "@/components/ui/progress";
 import Image from "next/image";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import RatingStars from "@/components/common/RatingStars";
-import Link from "next/link";
+// import Link from "next/link";
 import { StudentMyCourse } from "@/apiServices/studentDashboardService";
 
 interface MyCourseCardProps {
@@ -38,7 +38,8 @@ const MyCourseCard = ({ course }: MyCourseCardProps) => {
           <RatingStars rating={course?.course?.ratings} />
         </div>
         <h3 className="text-base font-semibold text-secondary leading-snug">
-          <Link href={`/courses/${course?.course?.slug}`}>{course?.course?.title}</Link>
+          {/* <Link href={`/courses/${course?.course?.slug}`}>{course?.course?.title}</Link> */}
+          {course?.course?.title}
         </h3>
         {/* Progress info */}
         <div className="flex justify-between text-sm text-primary">
@@ -53,9 +54,9 @@ const MyCourseCard = ({ course }: MyCourseCardProps) => {
       </CardContent>
 
       <CardFooter className="p-4 pt-0 flex justify-center">
-        <Link href={`/courses/${course?.course?.slug}`}>
+        {/* <Link href={`/courses/${course?.course?.slug}`}> */}
           <Button>Continue Learning</Button>
-        </Link>
+        {/* </Link> */}
       </CardFooter>
     </Card>
   );

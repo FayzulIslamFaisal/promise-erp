@@ -1,13 +1,7 @@
-'use client'
-
-import { use, useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { UseFormSetError } from 'react-hook-form'
-
-import { getBatchById, updateBatch, Batch, CreateBatchRequest } from '@/apiServices/batchService'
+import { getBatchById, Batch } from '@/apiServices/batchService'
+import ErrorComponent from '@/components/common/ErrorComponent'
+import NotFoundComponent from '@/components/common/NotFoundComponent'
 import BatchForm from '@/components/lms/batches/BatchForm'
-import { handleFormErrors, handleFormSuccess } from '@/lib/formErrorHandler'
-import { ApiErrorResponse } from '@/lib/apiErrorHandler'
 
 type EditBatchPageProps = {
   params: Promise<{
@@ -15,68 +9,43 @@ type EditBatchPageProps = {
   }>
 }
 
-export default function EditBatchPage({ params }: EditBatchPageProps) {
-  const router = useRouter()
-  const { id: batchId } = use(params)
+export default async function EditBatchPage({
+  params,
+}: EditBatchPageProps) {
+  const { id: batchId } = await params
 
-  const [batch, setBatch] = useState<Batch | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
-  const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  let batch: Batch | null = null
+  let message: string | undefined
 
-  useEffect(() => {
-    async function loadBatch() {
-      try {
-        const res = await getBatchById(batchId)
-        setBatch(res.data)
-      } catch (error) {
-        setErrorMessage(
+  try {
+    const res = await getBatchById(batchId)
+    batch = res.data
+    message = res.message
+  } catch (error) {
+    return (
+      <ErrorComponent
+        message={
           error instanceof Error
             ? error.message
-            : 'Failed to load batch data'
-        )
-      } finally {
-        setIsLoading(false)
-      }
-    }
-
-    loadBatch()
-  }, [batchId])
-
-  async function handleSubmit(
-    formData: CreateBatchRequest,
-    setFormError: (field: any, message: string) => void
-  ) {
-    const res = await updateBatch(batchId, formData)
-
-    if (res.success) {
-      handleFormSuccess(res.message ?? 'Batch updated successfully')
-      router.push('/lms/batches')
-      return
-    }
-
-    handleFormErrors(
-      res as ApiErrorResponse,
-      setFormError as UseFormSetError<Batch>
+            : 'Failed to load batch'
+        }
+      />
     )
   }
 
-  if (isLoading) {
-    return <div>Loading batch...</div>
-  }
-
-  if (errorMessage) {
-    return <div className="text-red-500">{errorMessage}</div>
-  }
-
   if (!batch) {
-    return <div>Batch not found</div>
+    return (
+      <NotFoundComponent
+        title="Batch"
+        message={message || 'No batches found.'}
+      />
+    )
   }
 
   return (
     <BatchForm
       title="Edit Batch"
       batch={batch}
-      onSubmit={handleSubmit}
     />
   )
 }

@@ -1,5 +1,4 @@
 "use client";
-
 import { useEffect } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useForm, Controller } from "react-hook-form";
@@ -14,8 +13,9 @@ import {
 import { Button } from "@/components/ui/button";
 import { Search, FilterX } from "lucide-react";
 
-interface JoinFilterFormValues {
+interface FilterFormValues {
   search?: string;
+  sort_by?: string;
   sort_order?: string;
   status?: string;
 }
@@ -25,45 +25,72 @@ export default function JoinFilter() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const { register, control, reset, watch } = useForm<JoinFilterFormValues>({
+  const { register, control, reset, watch, setValue } = useForm<FilterFormValues>({
     defaultValues: {
       search: searchParams.get("search") || "",
-      sort_order: searchParams.get("sort_order") || "",
+      sort_by: searchParams.get("sort_by") || "",
       status: searchParams.get("status") || "",
     },
   });
 
   const watchedValues = watch();
-
   useEffect(() => {
-    const params = new URLSearchParams(searchParams);
-    Object.entries(watchedValues).forEach(([key, value]) => {
-      if (value) {
-        params.set(key, String(value));
-      } else {
-        params.delete(key);
+    const handler = setTimeout(() => {
+      const params = new URLSearchParams(searchParams.toString());
+      let isChanged = false;
+
+      // Check if any filter value differs from the URL parameters
+      Object.entries(watchedValues).forEach(([key, value]) => {
+        const urlValue = params.get(key) || "";
+        const formValue = String(value || "");
+        if (urlValue !== formValue) {
+          isChanged = true;
+        }
+      });
+
+      if (isChanged) {
+        params.delete("page"); // Reset to page 1 on filter change
+        Object.entries(watchedValues).forEach(([key, value]) => {
+          if (value && value !== "") {
+            params.set(key, String(value));
+          } else {
+            params.delete(key);
+          }
+        });
+
+        const newUrl = `${pathname}?${params.toString()}`;
+        router.replace(newUrl, { scroll: false });
       }
-    });
+    }, 800);
 
-    const timer = setTimeout(() => {
-      router.replace(`${pathname}?${params.toString()}`);
-    }, 500);
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [JSON.stringify(watchedValues), router, pathname, searchParams]);
 
-    return () => clearTimeout(timer);
-  }, [JSON.stringify(watchedValues), router, pathname]);
+  const handleSelectChange = (name: keyof FilterFormValues) => (value: string) => {
+    setValue(name, value);
+  };
 
+  /**
+   * Reset Filters
+   */
   const handleReset = () => {
     reset({
       search: "",
       sort_order: "",
       status: "",
     });
-    router.replace(pathname);
   };
 
-  const hasActiveFilters = Object.values(watchedValues).some(
-    (value) => value && value !== "" && value !== false
-  );
+  const currentSearch = searchParams.get("search") || "";
+  const currentSortOrder = searchParams.get("sort_order") || "";
+  const currentStatus = searchParams.get("status") || "";
+
+  const hasActiveFilters =
+    currentSearch !== "" ||
+    currentSortOrder !== "" ||
+    currentStatus !== "";
 
   return (
     <div className="p-6 mb-6 border rounded-xl bg-card shadow-sm">
@@ -85,11 +112,11 @@ export default function JoinFilter() {
       </div>
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {/* Search Input */}
+        {/* Search */}
         <div className="relative col-span-1 lg:col-span-2">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Search joins by title..."
+            placeholder="Search Join Options..."
             className="pl-10"
             {...register("search")}
           />
@@ -100,7 +127,13 @@ export default function JoinFilter() {
           name="sort_order"
           control={control}
           render={({ field }) => (
-            <Select onValueChange={field.onChange} value={field.value}>
+            <Select
+              value={field.value}
+              onValueChange={(value) => {
+                field.onChange(value);
+                handleSelectChange("sort_order")(value);
+              }}
+            >
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Sort Order" />
               </SelectTrigger>
@@ -117,7 +150,13 @@ export default function JoinFilter() {
           name="status"
           control={control}
           render={({ field }) => (
-            <Select onValueChange={field.onChange} value={field.value}>
+            <Select
+              value={field.value}
+              onValueChange={(value) => {
+                field.onChange(value);
+                handleSelectChange("status")(value);
+              }}
+            >
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Status" />
               </SelectTrigger>

@@ -13,34 +13,36 @@ import {
   EarningsChartItem,
   getStudentEarningBdtChart,
 } from "@/apiServices/studentDashboardService";
-import { toast } from "sonner";
 import { useEffect, useState, useTransition } from "react";
+import { useSession } from "next-auth/react";
 
 const EarningsChartBDT = () => {
   const [earningsDataBDT, setEarningsDataBDT] = useState<EarningsChartItem[]>(
     []
   );
   const [isPending, startTransition] = useTransition();
+  const { data: session } = useSession();
+  const token = session?.accessToken;
 
   useEffect(() => {
+     if (!token) return;
     startTransition(async () => {
       try {
-        const response = await getStudentEarningBdtChart();
+        const response = await getStudentEarningBdtChart(token);
         if (!response?.success) {
-          toast.error("Failed to fetch BDT earnings data");
+          console.error(response?.message);
         } else {
           setEarningsDataBDT(response?.data?.chart_data || []);
         }
       } catch (error: unknown) {
         if (error instanceof Error) {
-          console.error("Error fetching BDT earnings data:", error.message);
-          toast.error("Something went wrong");
+          console.log("Error fetching BDT earnings data:", error.message);
         } else {
           console.error("Unknown error fetching USD earnings data");
         }
       }
     });
-  }, []);
+  }, [token]);
 
   if (isPending) return <SectionLoadingSkeleton />;
 

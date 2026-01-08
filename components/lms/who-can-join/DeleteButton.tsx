@@ -1,10 +1,8 @@
 "use client";
 
 import { useTransition } from "react";
-import { useRouter } from "next/navigation";
 import { Trash2, Loader2 } from "lucide-react";
 import { toast } from "sonner";
-
 import {
   AlertDialog,
   AlertDialogTrigger,
@@ -16,38 +14,41 @@ import {
   AlertDialogCancel,
   AlertDialogAction,
 } from "@/components/ui/alert-dialog";
-
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
-
 import DeleteJoinAction from "@/actions/DeleteJoinAction";
-import { SingleJoinResponse } from "@/apiServices/joinService";
 
-interface DeleteButtonProps {
+interface DeleteJoinButtonProps {
   id: number;
 }
 
-const DeleteJoinButton = ({ id }: DeleteButtonProps) => {
+type ApiResponse = {
+  success: boolean;
+  message: string;
+  code: number;
+  data: unknown;
+};
+
+const DeleteJoinButton = ({ id }: DeleteJoinButtonProps) => {
   const [isPending, startTransition] = useTransition();
-  const router = useRouter();
 
   const handleDelete = () => {
     startTransition(async () => {
       try {
-        const res: SingleJoinResponse = await DeleteJoinAction(id);
+        const res: ApiResponse = await DeleteJoinAction(id);
 
         if (res.success) {
           toast.success(res.message || "Join deleted successfully");
-          router.refresh();
         } else {
           toast.error(res.message || "Delete failed");
         }
-      } catch (error) {
-        toast.error(
-          error instanceof Error
-            ? error.message
-            : "An unexpected error occurred."
-        );
+      } catch (error: unknown) {
+        console.error("Join delete failed:", error);
+        if (error instanceof Error) {
+          toast.error(error.message);
+        } else {
+          toast.error("An unknown error occurred while deleting join item");
+        }
       }
     });
   };
@@ -57,7 +58,7 @@ const DeleteJoinButton = ({ id }: DeleteButtonProps) => {
       <AlertDialogTrigger asChild>
         <Button
           variant="ghost"
-          className="text-red-600 hover:text-red-800 flex items-center cursor-pointer"
+          className="text-red-600 hover:text-red-800 flex items-center"
           disabled={isPending}
         >
           {isPending ? (
@@ -76,22 +77,18 @@ const DeleteJoinButton = ({ id }: DeleteButtonProps) => {
         <AlertDialogHeader>
           <AlertDialogTitle>Are you sure?</AlertDialogTitle>
           <AlertDialogDescription>
-            This action cannot be undone. The join item will be permanently
-            deleted.
+            This action cannot be undone. This join item will be permanently deleted.
           </AlertDialogDescription>
         </AlertDialogHeader>
 
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={isPending} className="cursor-pointer">
-            Cancel
-          </AlertDialogCancel>
+          <AlertDialogCancel disabled={isPending}>Cancel</AlertDialogCancel>
 
           <AlertDialogAction asChild>
             <Button
               onClick={handleDelete}
               variant="destructive"
               disabled={isPending}
-              className="cursor-pointer"
             >
               {isPending ? (
                 <>

@@ -48,19 +48,16 @@ export default function UserForm({ title, onSubmit, user }: UserFormProps) {
   });
 
   const [preview, setPreview] = useState<string | null>(user?.profile_image || null);
-
-  useEffect(() => {
+   useEffect(() => {
     // reset form when user data changes
-    if (user) {
       reset({
-        name: user.name || "",
-        email: user.email || "",
-        phone: user.phone || "",
+        name: user?.name || "",
+        email: user?.email || "",
+        phone: user?.phone || "",
       });
-      setPreview(user.profile_image || null);
-    }
-  }, [user, reset]);
+      setPreview(user?.profile_image || null);
 
+  }, [user, reset]);
   const setFormError = (field: string, message: string) => {
     setError(field as keyof FormValues, { type: "server", message });
   };
