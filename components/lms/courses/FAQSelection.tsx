@@ -110,13 +110,8 @@ export default function FAQSelection({
         console.log("getCourseFaqs response:", response);
 
         if (response.success && response.data) {
-          let faqsList: Faq[] = [];
+          let faqsList: Faq[] = response.data;
 
-          if (Array.isArray(response.data)) {
-            faqsList = response.data;
-          } else if ('faqs' in response.data && Array.isArray(response.data.faqs)) {
-            faqsList = response.data.faqs;
-          }
 
           if (faqsList.length > 0) {
             const assignedFaqIds = faqsList.map((faq) => faq.id);

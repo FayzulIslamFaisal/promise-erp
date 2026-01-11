@@ -735,6 +735,111 @@ export async function getStudentMyCourses({
 
 // End get Student My Courses
 
+// Start get My Course By Slug
+export interface MyCourseBySlugLesson {
+  id: number;
+  title: string;
+  description: string;
+  duration: number;
+  duration_text: string;
+  type: number;
+  video_url: string;
+  is_completed: boolean;
+  order: number;
+  status: number;
+}
+export interface MyCourseBySlugModule {
+  id: number;
+  title: string;
+  description: string;
+  lessons: MyCourseBySlugLesson[];
+}
+export interface MyCourseBySlugInfo {
+  id: number;
+  title: string;
+}
+export interface CurrentBySlugLesson {
+  id: number;
+  chapter_id: number;
+  chapter_title: string;
+  title: string;
+  description: string;
+  duration: number;
+  duration_text: string;
+   type: "video" | "document" | string;
+  video_url: string;
+  is_completed: boolean;
+  order: number;
+}
+export interface LessonBySlugNavigation {
+  previous_lesson: null | {
+    id: number;
+    title: string;
+    chapter_title: string;
+  };
+  next_lesson: null | {
+    id: number;
+    title: string;
+    chapter_title: string;
+  };
+}
+export interface MyCourseBySlugData {
+  course: MyCourseBySlugInfo;
+  current_lesson: CurrentBySlugLesson;
+  course_modules: MyCourseBySlugModule[];
+  navigation: LessonBySlugNavigation;
+}
+
+export interface MyCourseBySlugApiResponse {
+  success: boolean;
+  message: string;
+  code: number;
+  data: MyCourseBySlugData;
+  errors?: Record<string, string[]>;
+}
+export async function getMyCourseBySlug(
+  slug: string,
+  lessonId?: string
+): Promise<MyCourseBySlugApiResponse> {
+  const session = await getServerSession(authOptions);
+  const token = session?.accessToken;
+
+  if (!token) {
+    throw new Error("Unauthorized: Access token not found");
+  }
+
+  try {
+    const url = lessonId
+      ? `${API_BASE}/student-panel/my-courses/${slug}?lesson=${lessonId}`
+      : `${API_BASE}/student-panel/my-courses/${slug}`;
+    const res = await fetch(url, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!res.ok) {
+      throw new Error(
+        `MyCourse By Slug API Error: ${res.status} ${res.statusText}`
+      );
+    }
+
+    const data: MyCourseBySlugApiResponse = await res.json();
+    return data;
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("getMyCourseBySlug Error:", error.message);
+      throw error;
+    }
+
+    throw new Error("Unknown error occurred while fetching my course by slug");
+  }
+}
+
+// End get My Course By Slug
+
 // Start get Student Profile
 export interface Education {
   id: number;
@@ -768,6 +873,7 @@ export interface StudentProfile {
   organization: Organization;
   branch: Branch;
   age: number | null;
+  date_of_birth: string | null;
   gender: string | null;
   facebook: string | null;
   linkedin: string | null;
@@ -816,6 +922,144 @@ export async function getStudentProfile(): Promise<StudentProfileResponse> {
   }
 }
 // End get Student Profile
+
+// Start change Student Password
+export interface ChangePasswordPayload {
+  current_password: string
+  password: string
+  password_confirmation: string
+}
+
+export interface ChangePasswordResponse {
+  success: boolean
+  message: string
+  code: number
+  errors?: Record<string, string[]>
+}
+
+// Client-side function for changing password (for use in client components)
+export async function changeStudentPasswordClient(
+  payload: ChangePasswordPayload,
+  accessToken: string
+): Promise<ChangePasswordResponse> {
+  try {
+    // Convert to URL-encoded format
+    const formData = new URLSearchParams()
+    formData.append("current_password", payload.current_password)
+    formData.append("password", payload.password)
+    formData.append("password_confirmation", payload.password_confirmation)
+
+    const res = await fetch(`${API_BASE}/student-panel/profile/change-password`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: formData.toString(),
+    })
+
+    const data: ChangePasswordResponse = await res.json()
+
+    if (!res.ok) {
+      return data
+    }
+
+    return data
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("changeStudentPasswordClient Error:", error.message)
+      throw error
+    }
+    throw new Error("Unknown error occurred while changing password")
+  }
+}
+// End change Student Password
+
+// Client-side function for getting student profile (for use in client components)
+export async function getStudentProfileClient(
+  accessToken: string
+): Promise<StudentProfileResponse> {
+  try {
+    const res = await fetch(`${API_BASE}/student-panel/profile`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "Content-Type": "application/json",
+      },
+    })
+
+    if (!res.ok) {
+      throw new Error(
+        `StudentProfile API Error: ${res.status} ${res.statusText}`
+      )
+    }
+
+    const data: StudentProfileResponse = await res.json()
+    return data
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("getStudentProfileClient Error:", error.message)
+      throw error
+    }
+    throw new Error("Unknown error occurred while fetching student profile")
+  }
+}
+
+// Start update Student Profile
+export interface UpdateProfilePayload {
+  name?: string;
+  email?: string;
+  phone?: string;
+  gender?: string;
+  age?: number | null;
+  facebook?: string | null;
+  linkedin?: string | null;
+  educations?: Array<{
+    id?: number;
+    degree: string;
+    institution: string;
+    subject: string;
+  }>;
+}
+
+export interface UpdateProfileResponse {
+  success: boolean;
+  message: string;
+  code: number;
+  data?: StudentProfile;
+  errors?: Record<string, string[]>;
+}
+
+// Client-side function for updating student profile (for use in client components with FormData)
+export async function updateStudentProfileClient(
+  formData: FormData,
+  accessToken: string
+): Promise<UpdateProfileResponse> {
+  try {
+    const res = await fetch(`${API_BASE}/student-panel/profile/update`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        // Don't set Content-Type header, browser will set it with boundary for FormData
+      },
+      body: formData,
+    })
+
+    const data: UpdateProfileResponse = await res.json()
+
+    if (!res.ok) {
+      return data
+    }
+
+    return data
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("updateStudentProfileClient Error:", error.message)
+      throw error
+    }
+    throw new Error("Unknown error occurred while updating profile")
+  }
+}
 
 // Start get Free Seminar by Slug
 export interface FreeSeminar {
@@ -895,3 +1139,217 @@ export async function getFreeSeminarBySlug(
     throw new Error("An unknown error occurred while fetching free seminar");
   }
 }
+// End get Free Seminar by Slug
+
+// start get All Job Titles For Earning
+
+export interface JobTitleEarningItem {
+  id: number;
+  title: string;
+}
+
+export interface JobTitleEarningItemData {
+  marketplaces: JobTitleEarningItem[];
+  payment_methods: JobTitleEarningItem[];
+  job_titles: JobTitleEarningItem[];
+}
+
+export interface JobTitleEarningItemResponse {
+  success: boolean;
+  message: string;
+  code: number;
+  data: JobTitleEarningItemData;
+  errors?: Record<string, string[]>;
+}
+
+export async function getAllJobTitlesForEarning(
+  token?: string
+): Promise<JobTitleEarningItemResponse> {
+  if (!token) {
+    throw new Error("Unauthorized: Access token not found");
+  }
+
+  try {
+    const response = await fetch(
+      `${API_BASE}/student-earnings/dropdown-options`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(
+        `Failed to fetch student job list (${response.status} ${response.statusText})`
+      );
+    }
+
+    const data: JobTitleEarningItemResponse = await response.json();
+    return data;
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("getAllJobTitlesForEarning Error:", error.message);
+      throw error;
+    }
+    throw new Error("An unknown error occurred while fetching job list");
+  }
+}
+
+// End get All Job Titles For Earning
+
+// start Post add student earning
+
+export interface StudentEarningCreateData {
+  id: number;
+  marketplace_name: string;
+  payment_method: string;
+  job_title: string;
+  amount_bdt: number;
+  amount_usd: number;
+  earning_images: string[];
+  earned_at: string;
+  status: number;
+}
+export interface CreateStudentEarningApiResponse {
+  success: boolean;
+  message: string;
+  code: number;
+  data?: StudentEarningCreateData;
+  errors?: Record<string, string[]>;
+}
+
+export async function addStudentEarning(
+  formData: FormData,
+  token: string
+): Promise<CreateStudentEarningApiResponse> {
+  if (!token) {
+    throw new Error("Unauthorized: Access token not found");
+  }
+
+  try {
+    const response = await fetch(`${API_BASE}/student-earnings`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData,
+    });
+    const data: CreateStudentEarningApiResponse = await response.json();
+    return data;
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("addStudentEarning Error:", error.message);
+      throw error;
+    }
+    throw new Error("An unknown error occurred while adding job Earning");
+  }
+}
+// End addStudentEarning
+
+// start get student earning by id
+export interface StudentEarningByIdData {
+  id: number;
+  marketplace_name: string;
+  payment_method: string;
+  job_title: string;
+  amount_bdt: number;
+  amount_usd: number;
+  earning_images: string[];
+  earned_at: string;
+}
+
+export interface GetStudentEarningByIdApiResponse {
+  success: boolean;
+  message: string;
+  code: number;
+  data?: StudentEarningByIdData;
+  errors?: Record<string, string[]>;
+}
+
+export async function getStudentEarning(
+  earningId: number,
+  token: string
+): Promise<GetStudentEarningByIdApiResponse> {
+  if (!token) {
+    throw new Error("Unauthorized: Access token not found");
+  }
+
+  try {
+    const response = await fetch(`${API_BASE}/student-earnings/${earningId}`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(
+        `Failed to fetch student earning (${response.status} ${response.statusText})`
+      );
+    }
+
+    const data: GetStudentEarningByIdApiResponse = await response.json();
+    return data;
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("getStudentEarning Error:", error.message);
+      throw error;
+    }
+    throw new Error("An unknown error occurred while fetching student earning");
+  }
+}
+// End get student earning by id
+
+// Start update student earning
+export interface StudentEarningUpdateData {
+  id: number;
+  marketplace_name: string;
+  payment_method: string;
+  job_title: string;
+  amount_bdt: number;
+  amount_usd: number;
+  earning_images: string[];
+  earned_at: string;
+}
+
+export interface UpdateStudentEarningApiResponse {
+  success: boolean;
+  message: string;
+  code: number;
+  data?: StudentEarningUpdateData;
+  errors?: Record<string, string[]>;
+}
+
+export async function updateStudentEarning(
+  earningId: number,
+  formData: FormData,
+  token: string
+): Promise<UpdateStudentEarningApiResponse> {
+  if (!token) {
+    throw new Error("Unauthorized: Access token not found");
+  }
+
+  try {
+    const response = await fetch(`${API_BASE}/student-earnings/${earningId}`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData,
+    });
+
+    const data: UpdateStudentEarningApiResponse = await response.json();
+    return data;
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("updateStudentEarning Error:", error.message);
+      throw error;
+    }
+    throw new Error("An unknown error occurred while updating student earning");
+  }
+}
+// End update student earning

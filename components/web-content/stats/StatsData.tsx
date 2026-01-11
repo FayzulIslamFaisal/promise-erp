@@ -34,7 +34,7 @@ const StatsData = () => {
   const [pagination, setPagination] = useState<Pagination | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
 
   const fetchStats = async () => {
     startTransition(async () => {
@@ -69,9 +69,15 @@ const StatsData = () => {
   };
 
   useEffect(() => {
-    fetchStats();
+    if (status === "loading") return;
+
+    if (session?.accessToken) {
+      fetchStats();
+    } else if (status === "authenticated" && !session?.accessToken) {
+      setError("No valid session or access token found.");
+    }
     // searchParams এর কোন পরিবর্তন হলে আবার fetch করবে
-  }, [searchParams]);
+  }, [searchParams, session, status]);
 
   if (error) return <ErrorComponent message={error} />;
 
@@ -121,7 +127,7 @@ const StatsData = () => {
                     <DropdownMenuContent align="center">
                       <DropdownMenuItem asChild>
                         <Link
-                          href={`/lms/stats/${statData?.id}`}
+                          href={`/web-content/stats/${statData?.id}`}
                           className="flex items-center cursor-pointer"
                         >
                           <Eye className="mr-2 h-4 w-4" />
@@ -130,7 +136,7 @@ const StatsData = () => {
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>
                         <Link
-                          href={`/lms/stats/${statData?.id}/edit`}
+                          href={`/web-content/stats/${statData?.id}/edit`}
                           className="flex items-center cursor-pointer"
                         >
                           <Pencil className="mr-2 h-4 w-4" />

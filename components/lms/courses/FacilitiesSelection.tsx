@@ -1,5 +1,4 @@
 "use client";
-
 import { useEffect, useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 
@@ -113,13 +112,7 @@ export default function FacilitiesSelection({
         console.log("getCourseFacilities response:", response);
 
         if (response.success && response.data) {
-          let facilitiesList: Facility[] = [];
-
-          if (Array.isArray(response.data)) {
-            facilitiesList = response.data;
-          } else if ('facilities' in response.data && Array.isArray(response.data.facilities)) {
-            facilitiesList = response.data.facilities;
-          }
+          let facilitiesList: Facility[] = response.data;
 
           if (facilitiesList.length > 0) {
             const assignedFacilityIds = facilitiesList.map((facility) => facility.id);

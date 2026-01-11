@@ -220,7 +220,7 @@ const data = {
       items: [
         {
           title: "Statistics",
-          url: "/lms/stats",
+          url: "/web-content/stats",
         },
         {
           title: "Departments",

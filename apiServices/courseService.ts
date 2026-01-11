@@ -4,7 +4,6 @@ import { authOptions } from "@/lib/auth";
 import { getServerSession } from "next-auth";
 import { cacheTag, updateTag } from "next/cache";
 import { CourseProject } from "./courseProjectsService";
-import { handleApiError, processApiResponse } from "@/lib/apiErrorHandler";
 import { Facility } from "./facilitiesService";
 import { JoinType } from "./joinService";
 import { Faq } from "./faqsService";
@@ -22,26 +21,28 @@ export interface Batch {
   is_offline: boolean;
 }
 
-
+export interface Category { id: number; name: string };
+export interface Branch { id: number; name: string };
 
 export interface Course {
   id: number;
   category_id: number;
   title: string;
-  sub_title?: string;
-  slug?: string;
-  short_description?: string;
-  description?: string;
-  featured_image?: string;
+  sub_title: string;
+  slug: string;
+  short_description: string;
+  description: string;
+  featured_image: string;
+  certificate_image: string;
   video_link?: string;
-  // level: string;
-  end_date?: string;
+  level: string;
+  end_date: string;
   status: string;
-  is_default: boolean;
+  is_default: number;
   total_enrolled: number;
   status_text: string;
-  category: { id: number; name: string };
-  branches: { id: number; name: string }[];
+  category: Category;
+  branches: Branch[];
   organization: { name: string };
   batches: Batch[];
   course_projects?: CourseProject[];
@@ -49,8 +50,15 @@ export interface Course {
   language: string;
   price: number;
   discount: number;
+  discount_type: string;
+  after_discount: number;
   ratings: number;
+  total_seats: number;
   total_live_class: number | null;
+  total_prerecorded_video: number | null;
+  about_support: string;
+  course_type: string;
+  is_collaboration: number;
   latest_batch?: { name: string } | null;
   facilities?: Facility[];
   joins?: JoinType[];
@@ -70,9 +78,9 @@ export interface CourseResponse {
 
 export interface CourseSingleResponse {
   success: boolean;
-  message?: string;
-  code?: number;
-  data?: Course;
+  message: string;
+  code: number;
+  data: Course;
   errors?: Record<string, string[] | string>;
 }
 
@@ -87,7 +95,7 @@ export interface CourseLearningResponseData {
   id: number;
   title: string;
   status: number;
-  course_id?: number;
+  course_id: number;
   course_learnings?: CourseLearning[];
 }
 
@@ -103,11 +111,11 @@ export interface CourseLearningResponse {
 }
 
 export interface CourseTool {
-  id?: number;
+  id: number;
   course_id: number;
   title: string;
   sub_title: string;
-  image: string | File | null;
+  image?: string | null;
   status: number;
 }
 
@@ -127,49 +135,44 @@ export interface AssignedFaqsResponse {
   success: boolean;
   message: string;
   code: number;
-  data: {
-    faqs: Faq[];
-  } | Faq[];
+  data: Faq[];
   errors?: Record<string, string[] | string>;
 }
+
 
 export interface AssignedFacilitiesResponse {
   success: boolean;
   message: string;
   code: number;
-  data: {
-    facilities: Facility[];
-  } | Facility[];
+  data: Facility[];
   errors?: Record<string, string[] | string>;
 }
 export interface AssignedJoinsResponse {
   success: boolean;
   message: string;
   code: number;
-  data: {
-    joins: JoinType[];
-  } | JoinType[];
+  data: JoinType[];
   errors?: Record<string, string[] | string>;
 }
 
 export interface Lesson {
-  id?: number;
+  id?: number | null;
   title: string;
-  description?: string | null;
+  description: string | null;
   duration: number;
   type: string | number;
   type_name?: string;
-  video_url?: string;
-  order?: number;
-  is_preview: string | number;
-  status: string | number;
-  schedule_at?: string | null;
+  video_url: string;
+  order: number;
+  is_preview: number;
+  status: number;
+  schedule_at: string | null;
 }
 
 export interface Chapter {
   id?: number;
   title: string;
-  description?: string;
+  description: string;
   status: string | number;
   lessons: Lesson[];
   lessons_count?: number;
@@ -215,11 +218,11 @@ async function getCoursesCached(
     return res.json();
   } catch (error: unknown) {
     console.error("Error in getCoursesCached:", error);
-    throw new Error(
-      error instanceof Error
-        ? error.message
-        : "Unknown error occurred while fetching courses"
-    );
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    } else {
+      throw new Error("Failed to fetch courses");
+    }
   }
 }
 
@@ -242,11 +245,7 @@ export async function createCourse(formData: FormData): Promise<CourseSingleResp
     const session = await getServerSession(authOptions);
     const token = session?.accessToken;
     if (!token) {
-      return {
-        success: false,
-        message: "No valid session or access token found.",
-        code: 401,
-      };
+      throw new Error("No valid session or access token found.");
     }
 
     const res = await fetch(`${API_BASE}/courses`, {
@@ -257,31 +256,21 @@ export async function createCourse(formData: FormData): Promise<CourseSingleResp
       body: formData,
     });
 
-    const result = await processApiResponse(res, "Failed to create course.");
+    const result = await res.json();
 
-    if (!result.success) {
-      return {
-        success: false,
-        message: result.message || "Failed to create course",
-        errors: result.errors,
-        code: result.code || 400,
-      };
+    if (!result.success && !result.errors) {
+      throw new Error(result.message || "Failed to create course");
     }
 
     updateTag("courses-list");
-    return {
-      success: true,
-      message: result.message || "Course created successfully",
-      data: result.data,
-      code: result.code || 200,
-    };
+    return result;
   } catch (error: unknown) {
-    const errorResult = await handleApiError(error, "Failed to create course.");
-    return {
-      success: false,
-      message: errorResult.message,
-      code: errorResult.code,
-    };
+    console.error("Error in createCourse:", error);
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    } else {
+      throw new Error("Failed to create course.");
+    }
   }
 }
 
@@ -293,11 +282,7 @@ export async function getCourseById(id: string): Promise<CourseSingleResponse> {
     const session = await getServerSession(authOptions);
     const token = session?.accessToken;
     if (!token) {
-      return {
-        success: false,
-        message: "No valid session or access token found.",
-        code: 401,
-      };
+      throw new Error("No valid session or access token found.");
     }
 
     const res = await fetch(`${API_BASE}/courses/${id}`, {
@@ -307,30 +292,21 @@ export async function getCourseById(id: string): Promise<CourseSingleResponse> {
       },
     });
 
-    const result = await processApiResponse(res, "Failed to fetch course.");
+    const result = await res.json();
 
     if (!result.success) {
-      return {
-        success: false,
-        message: result.message || "Failed to fetch course",
-        errors: result.errors,
-        code: result.code || 404,
-      };
+      throw new Error(result.message || "Failed to get course");
     }
 
-    return {
-      success: true,
-      message: result.message || "Course fetched successfully",
-      data: result.data,
-      code: result.code || 200,
-    };
+    return result;
   } catch (error: unknown) {
-    const errorResult = await handleApiError(error, "Failed to fetch course.");
-    return {
-      success: false,
-      message: errorResult.message,
-      code: errorResult.code,
-    };
+    console.error("Error in getCourseById:", error);
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    } else {
+      throw new Error("Failed to get course.");
+    }
+
   }
 }
 
@@ -342,14 +318,10 @@ export async function updateCourse(id: number, formData: FormData): Promise<Cour
     const session = await getServerSession(authOptions);
     const token = session?.accessToken;
     if (!token) {
-      return {
-        success: false,
-        message: "No valid session or access token found.",
-        code: 401,
-      };
+      throw new Error("No valid session or access token found.");
     }
 
-    formData.append("_method", "PATCH");
+    formData.append("_method", "PUT");
 
     const res = await fetch(`${API_BASE}/courses/${id}`, {
       method: "POST",
@@ -359,31 +331,21 @@ export async function updateCourse(id: number, formData: FormData): Promise<Cour
       body: formData,
     });
 
-    const result = await processApiResponse(res, "Failed to update course.");
+    const result = await res.json();
 
-    if (!result.success) {
-      return {
-        success: false,
-        message: result.message || "Failed to update course",
-        errors: result.errors,
-        code: result.code || 400,
-      };
+    if (!result.success && !result.errors) {
+      throw new Error(result.message || "Failed to update course");
     }
 
     updateTag("courses-list");
-    return {
-      success: true,
-      message: result.message || "Course updated successfully",
-      data: result.data,
-      code: result.code || 200,
-    };
+    return result;
   } catch (error: unknown) {
-    const errorResult = await handleApiError(error, "Failed to update course.");
-    return {
-      success: false,
-      message: errorResult.message,
-      code: errorResult.code,
-    };
+    console.error("Error in updateCourse:", error);
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    } else {
+      throw new Error("Failed to update course.");
+    }
   }
 }
 
@@ -395,11 +357,7 @@ export async function DeleteCourse(id: number): Promise<CourseSingleResponse> {
     const session = await getServerSession(authOptions);
     const token = session?.accessToken;
     if (!token) {
-      return {
-        success: false,
-        message: "No valid session or access token found.",
-        code: 401,
-      };
+      throw new Error("No valid session or access token found.");
     }
 
     const res = await fetch(`${API_BASE}/courses/${id}`, {
@@ -409,30 +367,21 @@ export async function DeleteCourse(id: number): Promise<CourseSingleResponse> {
       },
     });
 
-    const result = await processApiResponse(res, "Failed to delete course.");
+    const result = await res.json();
 
     if (!result.success) {
-      return {
-        success: false,
-        message: result.message,
-        code: result.code,
-      };
+      throw new Error(result.message || "Failed to delete course");
     }
 
     updateTag("courses-list");
-    return {
-      success: true,
-      message: result.message || "Course deleted successfully",
-      data: result.data,
-      code: result.code || 200,
-    };
+    return result;
   } catch (error: unknown) {
-    const errorResult = await handleApiError(error, "Failed to delete course.");
-    return {
-      success: false,
-      message: errorResult.message,
-      code: errorResult.code,
-    };
+    console.error("Error in DeleteCourse:", error);
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    } else {
+      throw new Error("Failed to delete course.");
+    }
   }
 }
 
@@ -447,11 +396,7 @@ export async function assignBranchesToCourse(
     const session = await getServerSession(authOptions);
     const token = session?.accessToken;
     if (!token) {
-      return {
-        success: false,
-        message: "No valid session or access token found.",
-        code: 401,
-      };
+      throw new Error("No valid session or access token found.");
     }
 
     const res = await fetch(`${API_BASE}/courses/${courseId}/branches`, {
@@ -463,30 +408,20 @@ export async function assignBranchesToCourse(
       body: JSON.stringify({ branch_ids: branchIds }),
     });
 
-    const result = await processApiResponse(res, "Failed to assign branches.");
+    const result = await res.json();
 
     if (!result.success) {
-      return {
-        success: false,
-        message: result.message || "Failed to assign branches",
-        errors: result.errors,
-        code: result.code || 400,
-      };
+      throw new Error(result.message || "Failed to assign branches");
     }
 
-    return {
-      success: true,
-      message: result.message || "Branches assigned successfully",
-      data: result.data,
-      code: result.code || 200,
-    };
+    return result;
   } catch (error: unknown) {
-    const errorResult = await handleApiError(error, "Failed to assign branches.");
-    return {
-      success: false,
-      message: errorResult.message,
-      code: errorResult.code,
-    };
+    console.error("Error in assignBranchesToCourse:", error);
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    } else {
+      throw new Error("Failed to assign branches.");
+    }
   }
 }
 
@@ -500,11 +435,7 @@ export async function createChaptersWithLessons(
     const session = await getServerSession(authOptions);
     const token = session?.accessToken;
     if (!token) {
-      return {
-        success: false,
-        message: "No valid session or access token found.",
-        code: 401,
-      };
+      throw new Error("No valid session or access token found.");
     }
 
     const res = await fetch(`${API_BASE}/chapter-lessons`, {
@@ -516,30 +447,20 @@ export async function createChaptersWithLessons(
       body: JSON.stringify(chaptersData),
     });
 
-    const result = await processApiResponse(res, "Failed to create chapters.");
+    const result = await res.json();
 
     if (!result.success) {
-      return {
-        success: false,
-        message: result.message || "Failed to create chapters",
-        errors: result.errors,
-        code: result.code || 400,
-      };
+      throw new Error(result.message || "Failed to create chapters");
     }
 
-    return {
-      success: true,
-      message: result.message || "Chapters created successfully",
-      data: result.data,
-      code: result.code || 201,
-    };
+    return result;
   } catch (error: unknown) {
-    const errorResult = await handleApiError(error, "Failed to create chapters.");
-    return {
-      success: false,
-      message: errorResult.message,
-      code: errorResult.code,
-    };
+    console.error("Error in createChaptersWithLessons:", error);
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    } else {
+      throw new Error("Failed to create chapters.");
+    }
   }
 }
 
@@ -553,11 +474,7 @@ export async function updateChaptersWithLessons(
     const session = await getServerSession(authOptions);
     const token = session?.accessToken;
     if (!token) {
-      return {
-        success: false,
-        message: "No valid session or access token found.",
-        code: 401,
-      };
+      throw new Error("No valid session or access token found.");
     }
 
     const res = await fetch(`${API_BASE}/chapter-lessons/bulk-update`, {
@@ -569,30 +486,20 @@ export async function updateChaptersWithLessons(
       body: JSON.stringify(chaptersData),
     });
 
-    const result = await processApiResponse(res, "Failed to update chapters.");
+    const result = await res.json();
 
     if (!result.success) {
-      return {
-        success: false,
-        message: result.message || "Failed to update chapters",
-        errors: result.errors,
-        code: result.code || 400,
-      };
+      throw new Error(result.message || "Failed to update chapters");
     }
 
-    return {
-      success: true,
-      message: result.message || "Chapters updated successfully",
-      data: result.data,
-      code: result.code || 200,
-    };
+    return result;
   } catch (error: unknown) {
-    const errorResult = await handleApiError(error, "Failed to update chapters.");
-    return {
-      success: false,
-      message: errorResult.message,
-      code: errorResult.code,
-    };
+    console.error("Error in updateChaptersWithLessons:", error);
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    } else {
+      throw new Error("Failed to update chapters.");
+    }
   }
 }
 
@@ -608,11 +515,7 @@ export async function assignFaqsToCourse(
     const session = await getServerSession(authOptions);
     const token = session?.accessToken;
     if (!token) {
-      return {
-        success: false,
-        message: "No valid session or access token found.",
-        code: 401,
-      };
+      throw new Error("No valid session or access token found.");
     }
 
     const response = await fetch(`${API_BASE}/courses/${courseId}/faqs`, {
@@ -624,30 +527,20 @@ export async function assignFaqsToCourse(
       body: JSON.stringify({ faq_ids: faqIds }),
     });
 
-    const result = await processApiResponse(response, "Failed to assign FAQs.");
+    const result = await response.json();
 
     if (!result.success) {
-      return {
-        success: false,
-        message: result.message || "Failed to assign FAQs",
-        errors: result.errors,
-        code: result.code || 400,
-      };
+      throw new Error(result.message || "Failed to assign FAQs");
     }
 
-    return {
-      success: true,
-      message: result.message || "FAQs assigned successfully",
-      data: result.data,
-      code: result.code || 200,
-    };
+    return result;
   } catch (error: unknown) {
-    const errorResult = await handleApiError(error, "Failed to assign FAQs.");
-    return {
-      success: false,
-      message: errorResult.message,
-      code: errorResult.code,
-    };
+    console.error("Error in assignFaqsToCourse:", error);
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    } else {
+      throw new Error("Failed to assign FAQs.");
+    }
   }
 }
 
@@ -664,11 +557,7 @@ export async function assignFacilitiesToCourse(
     const token = session?.accessToken;
 
     if (!token) {
-      return {
-        success: false,
-        message: "No valid session or access token found.",
-        code: 401,
-      };
+      throw new Error("No valid session or access token found.");
     }
 
     const response = await fetch(
@@ -683,30 +572,20 @@ export async function assignFacilitiesToCourse(
       }
     );
 
-    const result = await processApiResponse(response, "Failed to assign facilities.");
+    const result = await response.json();
 
     if (!result.success) {
-      return {
-        success: false,
-        message: result.message || "Failed to assign facilities",
-        errors: result.errors,
-        code: result.code || 400,
-      };
+      throw new Error(result.message || "Failed to assign facilities");
     }
 
-    return {
-      success: true,
-      message: result.message || "Facilities assigned successfully",
-      data: result.data,
-      code: result.code || 200,
-    };
+    return result;
   } catch (error: unknown) {
-    const errorResult = await handleApiError(error, "Failed to assign facilities.");
-    return {
-      success: false,
-      message: errorResult.message,
-      code: errorResult.code,
-    };
+    console.error("Error in assignFacilitiesToCourse:", error);
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    } else {
+      throw new Error("Failed to assign facilities.");
+    }
   }
 }
 // =======================
@@ -720,11 +599,7 @@ export async function createCourseTools(
     const token = session?.accessToken;
 
     if (!token) {
-      return {
-        success: false,
-        message: "No valid session or access token found.",
-        code: 401,
-      };
+      throw new Error("No valid session or access token found.");
     }
 
     const res = await fetch(`${API_BASE}/course-tools/bulk`, {
@@ -736,30 +611,20 @@ export async function createCourseTools(
       body: formData,
     });
 
-    const result = await processApiResponse(res, "Failed to create course tools.");
+    const result = await res.json();
 
     if (!result.success) {
-      return {
-        success: false,
-        message: result.message || "Failed to create course tools",
-        errors: result.errors,
-        code: result.code ?? 400,
-      };
+      throw new Error(result.message || "Failed to create course tools");
     }
 
-    return {
-      success: true,
-      message: result.message || "Course tools created successfully",
-      data: result.data ?? [],
-      code: result.code ?? 201,
-    };
+    return result;
   } catch (error: unknown) {
-    const errorResult = await handleApiError(error, "Failed to create course tools.");
-    return {
-      success: false,
-      message: errorResult.message ?? "Unknown error occurred",
-      code: errorResult.code ?? 500,
-    };
+    console.error("Error in createCourseTools:", error);
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    } else {
+      throw new Error("Failed to create course tools.");
+    }
   }
 }
 
@@ -769,17 +634,12 @@ export async function createCourseTools(
 export async function updateCourseTools(
   formData: FormData
 ): Promise<CourseToolResponse> {
-
   try {
     const session = await getServerSession(authOptions);
     const token = session?.accessToken;
 
     if (!token) {
-      return {
-        success: false,
-        message: "No valid session or access token found.",
-        code: 401,
-      };
+      throw new Error("No valid session or access token found.");
     }
 
     // Attempting bulk update endpoint
@@ -791,30 +651,20 @@ export async function updateCourseTools(
       body: formData,
     });
 
-    const result = await processApiResponse(res, "Failed to update course tools.");
+    const result = await res.json();
 
     if (!result.success) {
-      return {
-        success: false,
-        message: result.message || "Failed to update course tools",
-        errors: result.errors,
-        code: result.code ?? 400,
-      };
+      throw new Error(result.message || "Failed to update course tools");
     }
 
-    return {
-      success: true,
-      message: result.message || "Course tools updated successfully",
-      data: result.data ?? [],
-      code: result.code ?? 200,
-    };
+    return result;
   } catch (error: unknown) {
-    const errorResult = await handleApiError(error, "Failed to update course tools.");
-    return {
-      success: false,
-      message: errorResult.message ?? "Unknown error occurred",
-      code: errorResult.code ?? 500,
-    };
+    console.error("Error in updateCourseTools:", error);
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    } else {
+      throw new Error("Failed to update course tools.");
+    }
   }
 }
 
@@ -829,11 +679,7 @@ export async function getCourseTools(
     const token = session?.accessToken;
 
     if (!token) {
-      return {
-        success: false,
-        message: "No valid session or access token found.",
-        code: 401,
-      };
+      throw new Error("No valid session or access token found.");
     }
 
     const res = await fetch(`${API_BASE}/course-tools?course_id=${courseId}`, {
@@ -843,38 +689,26 @@ export async function getCourseTools(
       },
     });
 
-    const result = await processApiResponse(res, "Failed to fetch course tools.");
+    const result = await res.json();
 
     if (!result.success) {
-      return {
-        success: false,
-        message: result.message || "Failed to fetch course tools",
-        errors: result.errors,
-        code: result.code || 404,
-      };
+      throw new Error(result.message || "Failed to fetch course tools");
     }
 
-    return {
-      success: true,
-      message: result.message || "Course tools fetched successfully",
-      data: result.data ?? [],
-      code: result.code || 200,
-    };
+    return result;
   } catch (error: unknown) {
-    const errorResult = await handleApiError(error, "Failed to fetch course tools.");
-    return {
-      success: false,
-      message: errorResult.message ?? "Unknown error",
-      code: errorResult.code ?? 500,
-    };
+    console.error("Error in getCourseTools:", error);
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    } else {
+      throw new Error("Failed to fetch course tools.");
+    }
   }
 }
-
 
 // =======================
 // Create Course Learnings
 // =======================
-
 export interface CourseLearningInput {
   id?: number;
   title: string;
@@ -890,11 +724,7 @@ export async function createCourseLearningsFormData(
     const token = session?.accessToken;
 
     if (!token) {
-      return {
-        success: false,
-        message: "No valid session or access token found.",
-        code: 401,
-      };
+      throw new Error("No valid session or access token found.");
     }
 
     const requestBody = {
@@ -913,39 +743,20 @@ export async function createCourseLearningsFormData(
       body: JSON.stringify(requestBody),
     });
 
-    const result = await processApiResponse(
-      res,
-      "Failed to create course learnings."
-    );
-
+    const result = await res.json();
 
     if (!result.success) {
-      return {
-        success: false,
-        message: result.message ?? "Failed to create course learnings",
-        code: result.code ?? 400,
-        errors: result.errors,
-      };
+      throw new Error(result.message || "Failed to create course learnings");
     }
 
-    return {
-      success: true,
-      message: result.message ?? "Course learnings created successfully",
-      data: result.data ?? [],
-      code: result.code ?? 201,
-    };
-
+    return result;
   } catch (error: unknown) {
-    const errorResult = await handleApiError(
-      error,
-      "Failed to create course learnings."
-    );
-
-    return {
-      success: false,
-      message: errorResult.message ?? "Unknown error",
-      code: errorResult.code ?? 500,
-    };
+    console.error("Error in createCourseLearningsFormData:", error);
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    } else {
+      throw new Error("Failed to create course learnings.");
+    }
   }
 }
 // =======================
@@ -959,11 +770,7 @@ export async function getCourseLearnings(
     const token = session?.accessToken;
 
     if (!token) {
-      return {
-        success: false,
-        message: "No valid session or access token found.",
-        code: 401,
-      };
+      throw new Error("No valid session or access token found.");
     }
 
     const res = await fetch(`${API_BASE}/course-learnings?course_id=${courseId}`, {
@@ -973,30 +780,20 @@ export async function getCourseLearnings(
       },
     });
 
-    const result = await processApiResponse(res, "Failed to fetch course learnings.");
+    const result = await res.json();
 
     if (!result.success) {
-      return {
-        success: false,
-        message: result.message || "Failed to fetch course learnings",
-        errors: result.errors,
-        code: result.code || 404,
-      };
+      throw new Error(result.message || "Failed to fetch course learnings");
     }
 
-    return {
-      success: true,
-      message: result.message || "Course learnings fetched successfully",
-      data: result.data,
-      code: result.code || 200,
-    };
+    return result;
   } catch (error: unknown) {
-    const errorResult = await handleApiError(error, "Failed to fetch course learnings.");
-    return {
-      success: false,
-      message: errorResult.message ?? "Unknown error",
-      code: errorResult.code ?? 500,
-    };
+    console.error("Error in getCourseLearnings:", error);
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    } else {
+      throw new Error("Failed to fetch course learnings.");
+    }
   }
 }
 
@@ -1007,17 +804,13 @@ export async function editCourseLearnings(
   courseId: number,
   learnings: CourseLearningInput[]
 ): Promise<CourseLearningResponse> {
-  console.log("Editing course learnings for courseId:", courseId, "with learnings:", learnings);
   try {
     const session = await getServerSession(authOptions);
     const token = session?.accessToken;
     if (!token) {
-      return {
-        success: false,
-        message: "No valid session or access token found.",
-        code: 401,
-      };
+      throw new Error("No valid session or access token found.");
     }
+
     const res = await fetch(`${API_BASE}/course-learnings/bulk-update`, {
       method: "POST",
       headers: {
@@ -1026,37 +819,23 @@ export async function editCourseLearnings(
       },
       body: JSON.stringify({ course_id: courseId, course_learnings: learnings }),
     });
-    console.log("Response from editCourseLearnings:", res);
-    const result = await processApiResponse(res, "Failed to edit course learnings.");
+
+    const result = await res.json();
 
     if (!result.success) {
-      return {
-        success: false,
-        message: result.message ?? "Failed to edit course learnings",
-        code: result.code ?? 400,
-        errors: result.errors,
-      };
+      throw new Error(result.message || "Failed to edit course learnings");
     }
-    return {
-      success: true,
-      message: result.message ?? "Course learnings edited successfully",
-      data: result.data ?? [],
-      code: result.code ?? 200,
-    };
+
+    return result;
   } catch (error: unknown) {
-    const errorResult = await handleApiError(error, "Failed to edit course learnings.");
-    return {
-      success: false,
-      message: errorResult.message ?? "Unknown error",
-      code: errorResult.code ?? 500,
-    };
+    console.error("Error in editCourseLearnings:", error);
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    } else {
+      throw new Error("Failed to edit course learnings.");
+    }
   }
-};
-
-
-
-
-
+}
 // =======================
 //  GET Chapters by Course ID (for edit mode)
 // =======================
@@ -1068,11 +847,7 @@ export async function getChaptersByCourseId(
     const token = session?.accessToken;
 
     if (!token) {
-      return {
-        success: false,
-        message: "No valid session or access token found.",
-        code: 401,
-      };
+      throw new Error("No valid session or access token found.");
     }
 
     const res = await fetch(`${API_BASE}/chapter-lessons/courses/${courseId}`, {
@@ -1082,33 +857,22 @@ export async function getChaptersByCourseId(
       },
     });
 
-    const result = await processApiResponse(res, "Failed to fetch chapters.");
+    const result = await res.json();
 
     if (!result.success) {
-      return {
-        success: false,
-        message: result.message || "Failed to fetch chapters",
-        errors: result.errors,
-        code: result.code || 404,
-      };
+      throw new Error(result.message || "Failed to fetch chapters");
     }
 
-    return {
-      success: true,
-      message: result.message || "Chapters fetched successfully",
-      data: result.data,
-      code: result.code || 200,
-    };
+    return result;
   } catch (error: unknown) {
-    const errorResult = await handleApiError(error, "Failed to fetch chapters.");
-    return {
-      success: false,
-      message: errorResult.message,
-      code: errorResult.code,
-    };
+    console.error("Error in getChaptersByCourseId:", error);
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    } else {
+      throw new Error("Failed to fetch chapters.");
+    }
   }
 }
-
 // =======================
 //  GET Course FAQs (for edit mode)
 // =======================
@@ -1120,12 +884,7 @@ export async function getCourseFaqs(
     const token = session?.accessToken;
 
     if (!token) {
-      return {
-        success: false,
-        message: "No valid session or access token found.",
-        code: 401,
-        data: [],
-      };
+      throw new Error("No valid session or access token found.");
     }
 
     const res = await fetch(`${API_BASE}/courses/${courseId}/faqs`, {
@@ -1135,36 +894,22 @@ export async function getCourseFaqs(
       },
     });
 
-    const result = await processApiResponse(res, "Failed to fetch FAQs.");
+    const result = await res.json();
 
     if (!result.success) {
-      return {
-        success: false,
-        message: result.message || "Failed to fetch FAQs",
-        errors: result.errors,
-        code: result.code || 404,
-        data: [],
-      };
+      throw new Error(result.message || "Failed to fetch FAQs");
     }
 
-    // Ensure data matches the expected union type
-    return {
-      success: true,
-      message: result.message || "FAQs fetched successfully",
-      data: result.data as { faqs: Faq[] } | Faq[],
-      code: result.code || 200,
-    };
+    return result;
   } catch (error: unknown) {
-    const errorResult = await handleApiError(error, "Failed to fetch FAQs.");
-    return {
-      success: false,
-      message: errorResult.message,
-      code: errorResult.code,
-      data: [],
-    };
+    console.error("Error in getCourseFaqs:", error);
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    } else {
+      throw new Error("Failed to fetch FAQs.");
+    }
   }
 }
-
 // =======================
 // GET Course Facilities (for edit mode)
 // =======================
@@ -1176,12 +921,7 @@ export async function getCourseFacilities(
     const token = session?.accessToken;
 
     if (!token) {
-      return {
-        success: false,
-        message: "No valid session or access token found.",
-        code: 401,
-        data: [],
-      };
+      throw new Error("No valid session or access token found.");
     }
 
     const res = await fetch(`${API_BASE}/courses/${courseId}/facilities`, {
@@ -1191,40 +931,22 @@ export async function getCourseFacilities(
       },
     });
 
-    const result = await processApiResponse(res, "Failed to fetch facilities.");
+    const result = await res.json();
 
     if (!result.success) {
-      return {
-        success: false,
-        message: result.message || "Failed to fetch facilities",
-        errors: result.errors,
-        code: result.code || 404,
-        data: [],
-      };
+      throw new Error(result.message || "Failed to fetch facilities");
     }
 
-    return {
-      success: true,
-      message: result.message || "Facilities fetched successfully",
-      data: result.data as { facilities: Facility[] } | Facility[],
-      code: result.code || 200,
-    };
+    return result;
   } catch (error: unknown) {
-    const errorResult = await handleApiError(error, "Failed to fetch facilities.");
-    return {
-      success: false,
-      message: errorResult.message,
-      code: errorResult.code,
-      data: [],
-    };
+    console.error("Error in getCourseFacilities:", error);
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    } else {
+      throw new Error("Failed to fetch facilities.");
+    }
   }
 }
-
-
-
-
-
-
 // =======================
 // Assign Joins to Course
 // =======================
@@ -1237,11 +959,7 @@ export async function assignJoinsToCourse(
     const token = session?.accessToken;
 
     if (!token) {
-      return {
-        success: false,
-        message: "No valid session or access token found.",
-        code: 401,
-      };
+      throw new Error("No valid session or access token found.");
     }
 
     const response = await fetch(
@@ -1256,30 +974,20 @@ export async function assignJoinsToCourse(
       }
     );
 
-    const result = await processApiResponse(response, "Failed to assign joins.");
+    const result = await response.json();
 
     if (!result.success) {
-      return {
-        success: false,
-        message: result.message || "Failed to assign joins",
-        errors: result.errors,
-        code: result.code || 400,
-      };
+      throw new Error(result.message || "Failed to assign joins");
     }
 
-    return {
-      success: true,
-      message: result.message || "Joins assigned successfully",
-      data: result.data,
-      code: result.code || 200,
-    };
+    return result;
   } catch (error: unknown) {
-    const errorResult = await handleApiError(error, "Failed to assign joins.");
-    return {
-      success: false,
-      message: errorResult.message,
-      code: errorResult.code,
-    };
+    console.error("Error in assignJoinsToCourse:", error);
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    } else {
+      throw new Error("Failed to assign joins.");
+    }
   }
 }
 
@@ -1294,12 +1002,7 @@ export async function getCourseJoins(
     const token = session?.accessToken;
 
     if (!token) {
-      return {
-        success: false,
-        message: "No valid session or access token found.",
-        code: 401,
-        data: [],
-      };
+      throw new Error("No valid session or access token found.");
     }
 
     const res = await fetch(`${API_BASE}/courses/${courseId}/joins`, {
@@ -1309,31 +1012,19 @@ export async function getCourseJoins(
       },
     });
 
-    const result = await processApiResponse(res, "Failed to fetch joins.");
+    const result = await res.json();
 
     if (!result.success) {
-      return {
-        success: false,
-        message: result.message || "Failed to fetch joins",
-        errors: result.errors,
-        code: result.code || 404,
-        data: [],
-      };
+      throw new Error(result.message || "Failed to fetch joins");
     }
 
-    return {
-      success: true,
-      message: result.message || "Joins fetched successfully",
-      data: result.data as { joins: JoinType[] } | JoinType[],
-      code: result.code || 200,
-    };
+    return result;
   } catch (error: unknown) {
-    const errorResult = await handleApiError(error, "Failed to fetch joins.");
-    return {
-      success: false,
-      message: errorResult.message,
-      code: errorResult.code,
-      data: [],
-    };
+    console.error("Error in getCourseJoins:", error);
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    } else {
+      throw new Error("Failed to fetch joins.");
+    }
   }
 }

@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { FormValues } from "@/apiServices/courseService";
-import { Plus, Trash2, Video, FileText, HelpCircle } from "lucide-react";
+import { Plus, Video, FileText, HelpCircle } from "lucide-react";
 import { toast } from "sonner";
 
 interface LessonListProps {
@@ -26,30 +26,31 @@ export default function LessonList({ chapterIndex, control, register, errors }: 
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <h5 className="font-semibold text-md text-gray-700 flex items-center gap-2">
-          <Video className="w-4 h-4" /> Lessons List
+        <h5 className="font-semibold text-lg flex items-center gap-2">
+          <Video className="w-5 h-5" />
+          Lessons
         </h5>
-        <span className="text-xs font-medium bg-gray-100 px-2 py-1 rounded-full text-gray-500">
+        <span className="text-sm font-medium bg-gray-100 px-3 py-1 rounded-full">
           {fields.length} {fields.length === 1 ? 'Lesson' : 'Lessons'}
         </span>
       </div>
 
       <div className="space-y-4">
         {fields.map((f, idx) => (
-          <div key={f.id} className="border border-gray-100 rounded-xl p-5 bg-white space-y-5 transition-all hover:border-primary/20 group shadow-sm">
-            <div className="flex justify-between items-center">
+          <div key={f.id} className="border rounded-lg p-5 space-y-4">
+            <div className="flex justify-between items-center pb-3 border-b">
               <div className="flex items-center gap-3">
-                <div className="bg-gray-100 group-hover:bg-primary/10 group-hover:text-primary transition-colors w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold border border-gray-200 text-gray-500">
+                <div className="bg-gray-100 w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold">
                   {idx + 1}
                 </div>
-                <div className="font-bold text-gray-800">Lesson Setup</div>
+                <div className="font-semibold text-lg">Lesson Setup</div>
               </div>
               {fields.length > 1 && (
                 <Button
                   variant="ghost"
                   size="sm"
                   type="button"
-                  className="text-red-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
+                  className="text-red-500 hover:text-red-700 hover:bg-red-50"
                   onClick={() => {
                     remove(idx);
                     toast.success("Lesson removed successfully");
@@ -57,203 +58,204 @@ export default function LessonList({ chapterIndex, control, register, errors }: 
                 >
                   Remove
                 </Button>
-
               )}
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Lesson ID (hidden) */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <input type="hidden" {...register(`chapters.${chapterIndex}.lessons.${idx}.id` as const)} />
-              {/* Order (hidden - updated during submit) */}
               <input type="hidden" {...register(`chapters.${chapterIndex}.lessons.${idx}.order` as const)} />
 
-              {/* Lesson Title */}
               <div className="md:col-span-2 grid gap-2">
-                <Label htmlFor={`lesson-title-${chapterIndex}-${idx}`} className="text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">
-                  Lesson Title<span className="text-red-500 ml-1">*</span>
+                <Label htmlFor={`lesson-title-${chapterIndex}-${idx}`}>
+                  Lesson Title<span className="text-red-500">*</span>
                 </Label>
                 <Input
                   id={`lesson-title-${chapterIndex}-${idx}`}
                   placeholder="e.g. Setting up the Project"
-                  className="h-10 rounded-lg bg-gray-50/50 border-gray-200 focus:bg-white transition-all"
-                  {...register(`chapters.${chapterIndex}.lessons.${idx}.title` as const, {
-                    required: "Lesson title is required"
-                  })}
+                  {...register(`chapters.${chapterIndex}.lessons.${idx}.title` as const,)}
                 />
-                {errors?.chapters?.[chapterIndex]?.lessons?.[idx]?.title && (
-                  <span className="text-xs text-red-500 font-medium italic ml-1">
-                    {errors.chapters[chapterIndex]?.lessons?.[idx]?.title?.message}
-                  </span>
-                )}
+                <div className="min-h-5">
+                  {errors?.chapters?.[chapterIndex]?.lessons?.[idx]?.title && (
+                    <p className="text-red-500 text-sm">{errors.chapters[chapterIndex]?.lessons?.[idx]?.title?.message}</p>
+                  )}
+                </div>
               </div>
 
-              {/* Lesson Description */}
               <div className="md:col-span-2 grid gap-2">
-                <Label htmlFor={`lesson-description-${chapterIndex}-${idx}`} className="text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">
-                  Lesson Description
-                </Label>
+                <Label htmlFor={`lesson-description-${chapterIndex}-${idx}`}>Lesson Description</Label>
                 <Textarea
                   id={`lesson-description-${chapterIndex}-${idx}`}
                   placeholder="What will students learn in this lesson?..."
-                  className="rounded-lg bg-gray-50/50 border-gray-200 focus:bg-white transition-all resize-none py-2"
                   {...register(`chapters.${chapterIndex}.lessons.${idx}.description` as const)}
                 />
+                <div className="min-h-5">
+                  {errors?.chapters?.[chapterIndex]?.lessons?.[idx]?.description && (
+                    <p className="text-red-500 text-sm">{errors.chapters[chapterIndex]?.lessons?.[idx]?.description?.message}</p>
+                  )}
+                </div>
               </div>
 
-              {/* Duration */}
               <div className="grid gap-2">
-                <Label htmlFor={`lesson-duration-${chapterIndex}-${idx}`} className="text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">
-                  Duration (mins)
-                </Label>
+                <Label htmlFor={`lesson-duration-${chapterIndex}-${idx}`}>Duration (mins)</Label>
                 <Input
                   id={`lesson-duration-${chapterIndex}-${idx}`}
                   type="number"
                   placeholder="30"
-                  className="h-10 rounded-lg bg-gray-50/50 border-gray-200 focus:bg-white transition-all"
                   {...register(`chapters.${chapterIndex}.lessons.${idx}.duration` as const, {
                     valueAsNumber: true
                   })}
                 />
-                {errors?.chapters?.[chapterIndex]?.lessons?.[idx]?.duration && (
-                  <span className="text-xs text-red-500 font-medium italic ml-1">
-                    {errors.chapters[chapterIndex]?.lessons?.[idx]?.duration?.message}
-                  </span>
-                )}
+                <div className="min-h-5">
+                  {errors?.chapters?.[chapterIndex]?.lessons?.[idx]?.duration && (
+                    <p className="text-red-500 text-sm">{errors.chapters[chapterIndex]?.lessons?.[idx]?.duration?.message}</p>
+                  )}
+                </div>
               </div>
 
-              {/* Type */}
               <div className="grid gap-2">
-                <Label htmlFor={`lesson-type-${chapterIndex}-${idx}`} className="text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">Content Type</Label>
+                <Label htmlFor={`lesson-type-${chapterIndex}-${idx}`}>Content Type</Label>
                 <Controller
                   name={`chapters.${chapterIndex}.lessons.${idx}.type` as const}
                   control={control}
                   render={({ field }) => (
-                    <Select value={String(field.value)} onValueChange={field.onChange}>
-                      <SelectTrigger className="h-10 rounded-lg bg-gray-50/50 border-gray-200 focus:ring-primary/20 w-full">
+                    <Select value={String(field.value)} onValueChange={field.onChange} disabled>
+                      <SelectTrigger id={`lesson-type-${chapterIndex}-${idx}`} className="w-full h-10">
                         <SelectValue placeholder="Select type" />
                       </SelectTrigger>
-                      <SelectContent className="rounded-xl overflow-hidden shadow-xl border-gray-100">
-                        <SelectItem value="1">
-                          <div className="flex items-center gap-2"><Video className="w-4 h-4 text-blue-500" /> Video Lesson</div>
+                      <SelectContent>
+                        <SelectItem value="1" defaultChecked>
+                          <div className="flex items-center gap-2">
+                            <Video className="w-4 h-4 text-blue-500" />
+                            Prerecorded Video 
+                          </div>
                         </SelectItem>
                         <SelectItem value="2">
-                          <div className="flex items-center gap-2"><FileText className="w-4 h-4 text-green-500" /> Article / Doc</div>
+                          <div className="flex items-center gap-2">
+                            <FileText className="w-4 h-4 text-green-500" />
+                            Article / Doc
+                          </div>
                         </SelectItem>
                         <SelectItem value="3">
-                          <div className="flex items-center gap-2"><HelpCircle className="w-4 h-4 text-orange-500" /> Quiz / Test</div>
+                          <div className="flex items-center gap-2">
+                            <HelpCircle className="w-4 h-4 text-orange-500" />
+                            Quiz / Test
+                          </div>
                         </SelectItem>
                       </SelectContent>
                     </Select>
                   )}
                 />
-                {errors?.chapters?.[chapterIndex]?.lessons?.[idx]?.type && (
-                  <span className="text-xs text-red-500 font-medium italic ml-1">
-                    {errors.chapters[chapterIndex]?.lessons?.[idx]?.type?.message}
-                  </span>
-                )}
+                <div className="min-h-5">
+                  {errors?.chapters?.[chapterIndex]?.lessons?.[idx]?.type && (
+                    <p className="text-red-500 text-sm">{errors.chapters[chapterIndex]?.lessons?.[idx]?.type?.message}</p>
+                  )}
+                </div>
               </div>
 
-              {/* Video URL */}
               <div className="grid gap-2">
-                <Label htmlFor={`lesson-video-url-${chapterIndex}-${idx}`} className="text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">Video / Resource URL</Label>
+                <Label htmlFor={`lesson-video-url-${chapterIndex}-${idx}`}>Video / Resource URL</Label>
                 <Input
                   id={`lesson-video-url-${chapterIndex}-${idx}`}
                   placeholder="Enter your video URL here"
-                  className="h-10 rounded-lg bg-gray-50/50 border-gray-200 focus:bg-white transition-all"
                   {...register(`chapters.${chapterIndex}.lessons.${idx}.video_url` as const)}
                 />
-                {errors?.chapters?.[chapterIndex]?.lessons?.[idx]?.video_url && (
-                  <span className="text-xs text-red-500 font-medium italic ml-1">
-                    {errors.chapters[chapterIndex]?.lessons?.[idx]?.video_url?.message}
-                  </span>
-                )}
+                <div className="min-h-5">
+                  {errors?.chapters?.[chapterIndex]?.lessons?.[idx]?.video_url && (
+                    <p className="text-red-500 text-sm">{errors.chapters[chapterIndex]?.lessons?.[idx]?.video_url?.message}</p>
+                  )}
+                </div>
               </div>
 
-              {/* Schedule At */}
               <div className="grid gap-2">
-                <Label htmlFor={`lesson-schedule-${chapterIndex}-${idx}`} className="text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">Available From (Optional)</Label>
+                <Label htmlFor={`lesson-schedule-${chapterIndex}-${idx}`}>Available From (Optional)</Label>
                 <Input
                   id={`lesson-schedule-${chapterIndex}-${idx}`}
                   type="datetime-local"
-                  className="h-10 rounded-lg bg-gray-50/50 border-gray-200 focus:bg-white transition-all"
                   {...register(`chapters.${chapterIndex}.lessons.${idx}.schedule_at` as const)}
                 />
-                {errors?.chapters?.[chapterIndex]?.lessons?.[idx]?.schedule_at && (
-                  <span className="text-xs text-red-500 font-medium italic ml-1">
-                    {errors.chapters[chapterIndex]?.lessons?.[idx]?.schedule_at?.message}
-                  </span>
-                )}
+                <div className="min-h-5">
+                  {errors?.chapters?.[chapterIndex]?.lessons?.[idx]?.schedule_at && (
+                    <p className="text-red-500 text-sm">{errors.chapters[chapterIndex]?.lessons?.[idx]?.schedule_at?.message}</p>
+                  )}
+                </div>
               </div>
 
-              {/* Preview */}
               <div className="grid gap-2">
-                <Label htmlFor={`lesson-preview-${chapterIndex}-${idx}`} className="text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">Access Level</Label>
+                <Label htmlFor={`lesson-preview-${chapterIndex}-${idx}`}>Access Level</Label>
                 <Controller
                   name={`chapters.${chapterIndex}.lessons.${idx}.is_preview` as const}
                   control={control}
                   render={({ field }) => (
-                    <Select value={String(field.value)} onValueChange={field.onChange}>
-                      <SelectTrigger className="h-10 rounded-lg bg-gray-50/50 border-gray-200 w-full" >
+                    <Select 
+                      value={String(field.value)} 
+                      onValueChange={(value) => field.onChange(Number(value))}
+                    >
+                      <SelectTrigger id={`lesson-preview-${chapterIndex}-${idx}`} className="w-full h-10">
                         <SelectValue placeholder="Select access" />
                       </SelectTrigger>
-                      <SelectContent className="rounded-xl">
-                        <SelectItem value="1" className="text-green-600 font-medium">Free Preview</SelectItem>
+                      <SelectContent>
+                        <SelectItem value="1">Free Preview</SelectItem>
                         <SelectItem value="0">Premium Only</SelectItem>
                       </SelectContent>
                     </Select>
                   )}
                 />
-                {errors?.chapters?.[chapterIndex]?.lessons?.[idx]?.is_preview && (
-                  <span className="text-xs text-red-500 font-medium italic ml-1">
-                    {errors.chapters[chapterIndex]?.lessons?.[idx]?.is_preview?.message}
-                  </span>
-                )}
+                <div className="min-h-5">
+                  {errors?.chapters?.[chapterIndex]?.lessons?.[idx]?.is_preview && (
+                    <p className="text-red-500 text-sm">{errors.chapters[chapterIndex]?.lessons?.[idx]?.is_preview?.message}</p>
+                  )}
+                </div>
               </div>
 
-              {/* Status */}
               <div className="grid gap-2">
-                <Label htmlFor={`lesson-status-${chapterIndex}-${idx}`} className="text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">Status</Label>
+                <Label htmlFor={`lesson-status-${chapterIndex}-${idx}`}>Status</Label>
                 <Controller
                   name={`chapters.${chapterIndex}.lessons.${idx}.status` as const}
                   control={control}
                   render={({ field }) => (
-                    <Select value={String(field.value)} onValueChange={field.onChange}>
-                      <SelectTrigger className="h-10 rounded-lg bg-gray-50/50 border-gray-200 w-full">
+                    <Select 
+                      value={String(field.value)} 
+                      onValueChange={(value) => field.onChange(Number(value))}
+                    >
+                      <SelectTrigger id={`lesson-status-${chapterIndex}-${idx}`} className="w-full h-10">
                         <SelectValue placeholder="Select status" />
                       </SelectTrigger>
-                      <SelectContent className="rounded-xl">
+                      <SelectContent>
                         <SelectItem value="1">Active</SelectItem>
                         <SelectItem value="0">Inactive</SelectItem>
                       </SelectContent>
                     </Select>
                   )}
                 />
-                {errors?.chapters?.[chapterIndex]?.lessons?.[idx]?.status && (
-                  <span className="text-xs text-red-500 font-medium italic ml-1">
-                    {errors.chapters[chapterIndex]?.lessons?.[idx]?.status?.message}
-                  </span>
-                )}
+                <div className="min-h-5">
+                  {errors?.chapters?.[chapterIndex]?.lessons?.[idx]?.status && (
+                    <p className="text-red-500 text-sm">{errors.chapters[chapterIndex]?.lessons?.[idx]?.status?.message}</p>
+                  )}
+                </div>
               </div>
             </div>
           </div>
         ))}
       </div>
 
-      {/* Add Lesson Button */}
-      <div className="py-2">
+      <div className="pt-2">
         <Button
           type="button"
           size="sm"
           onClick={() => append({
             title: "",
+            description: "",
             duration: 0,
             type: "1",
             video_url: "",
-            is_preview: "0",
-            status: "1"
+            is_preview: 0,
+            status: 1,
+            order: fields.length + 1,
+            schedule_at: null
           })}
         >
-          <Plus /> Add Lesson
+          <Plus className="w-4 h-4 mr-2" />
+          Add Lesson
         </Button>
       </div>
     </div>

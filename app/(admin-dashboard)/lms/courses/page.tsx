@@ -11,7 +11,7 @@ export default async function CoursesPage({
 }: {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
-  const params = await searchParams;
+
 
   return (
     <div className="mx-auto space-y-6">
@@ -32,7 +32,7 @@ export default async function CoursesPage({
 
       {/* Table */}
       <Suspense fallback={<TableSkeleton rows={10} columns={8} />}>
-        <CoursesData searchParams={params} />
+        <CoursesData searchParams={searchParams} />
       </Suspense>
     </div>
   );

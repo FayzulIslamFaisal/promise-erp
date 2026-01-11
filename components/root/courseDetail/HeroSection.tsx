@@ -7,8 +7,6 @@ import RatingStars from "@/components/common/RatingStars";
 import dynamic from "next/dynamic";
 const EnrollButton = dynamic(() => import('./EnrollButton'));
 
-const PLACEHOLDER_IMAGE = "https://placehold.co/600x400/4f46e5/ffffff/png?text=Course+Image";
-
 interface HeroSectionProps {
   course: CourseDetail;
 }
@@ -21,7 +19,7 @@ export const HeroSection = ({ course }: HeroSectionProps) => {
   const discount = course.batch?.discount || 0;
   const hasDiscount = discount > 0 && originalPrice > price;
   const discount_percentage = course.batch?.discount_percentage || 0;
-
+  const batchId = course?.batch?.id 
   return (
     <div className="grid lg:grid-cols-2 gap-12 items-center">
       {/* Left Column - Course Info */}
@@ -97,7 +95,7 @@ export const HeroSection = ({ course }: HeroSectionProps) => {
           </div>
         </div>
 
-        <EnrollButton slug={course?.slug} />
+        <EnrollButton slug={course?.slug} batchId={batchId} />
       </div>
 
       {/* Right Column - About Course */}

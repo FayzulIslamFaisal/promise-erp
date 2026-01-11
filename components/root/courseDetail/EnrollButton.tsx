@@ -1,29 +1,61 @@
-"use client"
+"use client";
 
-import { useSession } from "next-auth/react"
-import { useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
+import { useEffect, useState, useTransition } from "react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { checkBatchEnrollment } from "@/apiServices/courseDetailPublicService";
 
 interface EnrollButtonProps {
-    slug: string;
-}
-const EnrollButton = ({ slug }: EnrollButtonProps) => {
-    const { data: session } = useSession();
-    const router = useRouter();
-
-    const handleEnroll = () => {
-        if (!session?.accessToken) {
-            router.push(`/login?redirect=/enrollment/${slug}`);
-        } else {
-            router.push(`/enrollment/${slug}`);
-        }
-    };
-
-    return (
-        <Button onClick={handleEnroll} className=" max-w-full w-full sm:w-[350px]">
-            Enroll Now
-        </Button>
-    );
+  slug: string;
+  batchId: number;
 }
 
-export default EnrollButton
+const EnrollButton = ({ slug, batchId }: EnrollButtonProps) => {
+  const { data: session, status } = useSession();
+  const router = useRouter();
+
+  const [isEnrolled, setIsEnrolled] = useState<boolean | null>(null);
+  const [isPending, startTransition] = useTransition();
+
+  useEffect(() => {
+    if (!session?.accessToken || !batchId) return;
+
+    startTransition(async () => {
+      try {
+        const res = await checkBatchEnrollment(batchId);
+        setIsEnrolled(res.data?.is_enrolled ?? false);
+      } catch {
+        setIsEnrolled(false);
+      }
+    });
+  }, [session?.accessToken, batchId]);
+
+  const handleClick = () => {
+    if (!session?.accessToken) {
+      router.push(`/login?redirect=/enrollment/${slug}`);
+      return;
+    }
+
+    if (isEnrolled) {
+      router.push("/student/dashboard");
+      return;
+    }
+
+    router.push(`/enrollment/${slug}`);
+  };
+
+  if (status === "loading") return null;
+
+  return (
+    <Button
+      onClick={handleClick}
+      disabled={isPending}
+      className="max-w-full w-full sm:w-[350px]"
+    >
+      {isEnrolled ? "Continue Course" : "Enroll Now"}
+    </Button>
+  );
+};
+
+export default EnrollButton;

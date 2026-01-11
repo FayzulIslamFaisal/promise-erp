@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState, useTransition } from "react";
-const StatsForm = dynamic(() => import('@/components/lms/stats/StatsForm'), {
+const StatsForm = dynamic(() => import('@/components/web-content/stats/StatsForm'), {
   ssr: false,
 });
 import { Branch, BranchResponse, getBranches } from "@/apiServices/branchService";

@@ -19,11 +19,11 @@ export const InstructorsSection = ({ course }: InstructorsSectionProps) => {
       <CardContent className="p-8">
         <h2 className="text-3xl font-bold text-center mb-8 animate-in fade-in duration-500">Instructors</h2>
 
-        <Carousel className="w-full max-w-full">
+        <Carousel opts={{align: "start", loop: true}} className="w-full max-w-full">
           <CarouselContent>
             {instructors.map((instructor, index) => (
-              <CarouselItem key={index} className="md:basis-1/1 lg:basis-1/2">
-                <Card className="shadow-md animate-in fade-in duration-500 hover:scale-95 transition-transform">
+              <CarouselItem key={index} className="basis-full sm:basis-1/1 lg:basis-1/2">
+                <Card className="shadow-md animate-in fade-in duration-500 hover:scale-95 transition-transform p-0">
                   <CardContent className="p-6 space-y-4 sm:flex gap-6">
                     <div className="bg-muted rounded-lg overflow-hidden shrink-0">
                       <Image
@@ -31,7 +31,7 @@ export const InstructorsSection = ({ course }: InstructorsSectionProps) => {
                         alt={instructor.name}
                         width={200}
                         height={200}
-                        className="object-cover"
+                        className="object-cover aspect-square"
                       />
                     </div>
 
@@ -51,7 +51,7 @@ export const InstructorsSection = ({ course }: InstructorsSectionProps) => {
                             width={36}
                             height={36}
                             key={idx}
-                            className="rounded"
+                            className="rounded h-10 w-10 object-cover"
                           >
 
                           </Image>

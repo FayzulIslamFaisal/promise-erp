@@ -84,12 +84,12 @@ const VideoGalleryData = async ({
                 <Table>
                     <TableHeader>
                         <TableRow>
-                            <TableHead className="w-[50px]">Sl</TableHead>
+                            <TableHead className="w-[50px] text-center">Sl</TableHead>
+                            <TableHead className="text-center">Action</TableHead>
                             <TableHead>Thumbnail</TableHead>
                             <TableHead>YouTube Link</TableHead>
                             <TableHead>Type</TableHead>
                             <TableHead>Status</TableHead>
-                            <TableHead className="text-right">Action</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -99,7 +99,36 @@ const VideoGalleryData = async ({
 
                             return (
                                 <TableRow key={item.id}>
-                                    <TableCell>{(page - 1) * 15 + index + 1}</TableCell>
+                                    <TableCell className="text-center">{(page - 1) * 15 + index + 1}</TableCell>
+                                    <TableCell className="text-center">
+                                        <DropdownMenu>
+                                            <DropdownMenuTrigger asChild>
+                                                <Badge
+                                                    variant="default"
+                                                    role="button"
+                                                    tabIndex={0}
+                                                    className="cursor-pointer select-none"
+                                                >
+                                                    Action
+                                                </Badge>
+                                            </DropdownMenuTrigger>
+                                            <DropdownMenuContent align="end">
+                                                <DropdownMenuItem asChild>
+                                                    <Link
+                                                        href={`/web-content/video-galleries/${item.id}/edit`}
+                                                        className="flex items-center cursor-pointer w-full"
+                                                    >
+                                                        <Pencil className="mr-2 h-4 w-4" />
+                                                        Manage
+                                                    </Link>
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem className="text-destructive focus:text-destructive">
+                                                    <DeleteButton id={item.id} />
+                                                </DropdownMenuItem>
+                                            </DropdownMenuContent>
+                                        </DropdownMenu>
+                                    </TableCell>
+
                                     <TableCell>
                                         {displayThumbnail ? (
                                             <div className="relative h-12 w-20 border rounded overflow-hidden">
@@ -131,34 +160,7 @@ const VideoGalleryData = async ({
                                             {item.status === 1 ? "Active" : "Inactive"}
                                         </Badge>
                                     </TableCell>
-                                    <TableCell className="text-right">
-                                        <DropdownMenu>
-                                            <DropdownMenuTrigger asChild>
-                                                <Badge
-                                                    variant="default"
-                                                    role="button"
-                                                    tabIndex={0}
-                                                    className="cursor-pointer select-none"
-                                                >
-                                                    Action
-                                                </Badge>
-                                            </DropdownMenuTrigger>
-                                            <DropdownMenuContent align="end">
-                                                <DropdownMenuItem asChild>
-                                                    <Link
-                                                        href={`/web-content/video-galleries/${item.id}/edit`}
-                                                        className="flex items-center cursor-pointer w-full"
-                                                    >
-                                                        <Pencil className="mr-2 h-4 w-4" />
-                                                        Manage
-                                                    </Link>
-                                                </DropdownMenuItem>
-                                                <DropdownMenuItem className="text-destructive focus:text-destructive">
-                                                    <DeleteButton id={item.id} />
-                                                </DropdownMenuItem>
-                                            </DropdownMenuContent>
-                                        </DropdownMenu>
-                                    </TableCell>
+
                                 </TableRow>
                             );
                         })}

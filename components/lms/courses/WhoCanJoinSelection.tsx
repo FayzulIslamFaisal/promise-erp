@@ -109,13 +109,7 @@ export default function WhoCanJoinSelection({
                 const response: AssignedJoinsResponse = await getCourseJoins(courseId);
 
                 if (response.success && response.data) {
-                    let joinsList: JoinType[] = [];
-
-                    if (Array.isArray(response.data)) {
-                        joinsList = response.data;
-                    } else if ('joins' in response.data && Array.isArray(response.data.joins)) {
-                        joinsList = response.data.joins;
-                    }
+                    let joinsList: JoinType[] = response.data;
 
                     if (joinsList.length > 0) {
                         const assignedJoinIds = joinsList.map((join) => join.id);

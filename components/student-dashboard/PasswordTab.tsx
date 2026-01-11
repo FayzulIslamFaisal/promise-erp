@@ -9,8 +9,7 @@ import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { Eye, EyeOff } from "lucide-react"
 import { toast } from "sonner"
-
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api/v1"
+import { changeStudentPasswordClient } from "@/apiServices/studentDashboardService"
 
 interface PasswordFormData {
   current_password: string
@@ -30,7 +29,7 @@ const PasswordTab = () => {
   const [showCurrentPassword, setShowCurrentPassword] = useState(false)
   const [showNewPassword, setShowNewPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const {
     register,
@@ -53,25 +52,17 @@ const PasswordTab = () => {
       return
     }
 
-    setIsLoading(true)
+    setIsSubmitting(true)
 
     try {
-      // Convert to URL-encoded format
-      const formData = new URLSearchParams()
-      formData.append("current_password", data.current_password)
-      formData.append("password", data.password)
-      formData.append("password_confirmation", data.password_confirmation)
-
-      const res = await fetch(`${API_BASE}/student-panel/profile/change-password`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${session.accessToken}`,
-          "Content-Type": "application/x-www-form-urlencoded",
+      const response = await changeStudentPasswordClient(
+        {
+          current_password: data.current_password,
+          password: data.password,
+          password_confirmation: data.password_confirmation,
         },
-        body: formData.toString(),
-      })
-
-      const response = await res.json()
+        session.accessToken
+      )
 
       if (response.success) {
         toast.success(response.message || "Password changed successfully!")
@@ -87,15 +78,11 @@ const PasswordTab = () => {
         toast.error(response.message || "Validation failed")
 
         Object.entries(response.errors).forEach(([field, messages]) => {
-          const mappedField = fieldMapping[field] || (field as keyof PasswordFormData)
           const errorMessage = Array.isArray(messages) ? messages[0] : messages
-
-          if (mappedField && errorMessage) {
-            setError(mappedField, {
-              type: "server",
-              message: errorMessage as string,
-            })
-          }
+          setError(field as keyof PasswordFormData, {
+            type: "server",
+            message: errorMessage as string,
+          })
         })
         return
       }
@@ -110,7 +97,7 @@ const PasswordTab = () => {
         toast.error("An unexpected error occurred")
       }
     } finally {
-      setIsLoading(false)
+      setIsSubmitting(false)
     }
   }
 
@@ -208,8 +195,8 @@ const PasswordTab = () => {
 
             {/* Submit Button */}
             <div className="flex justify-end pt-2">
-              <Button type="submit" className="px-6" disabled={isLoading}>
-                {isLoading ? "Changing Password..." : "Change Password"}
+              <Button type="submit" className="px-6" disabled={isSubmitting}>
+                {isSubmitting ? "Changing Password..." : "Change Password"}
               </Button>
             </div>
           </div>

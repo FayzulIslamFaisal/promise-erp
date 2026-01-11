@@ -43,7 +43,7 @@ const EarningAllListTable = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const searchParams = useSearchParams();
   const { data: session } = useSession();
-    const token = session?.accessToken;
+  const token = session?.accessToken;
 
   const handleImageClick = (images: string[]) => {
     setSelectedImages(images);
@@ -67,7 +67,7 @@ const EarningAllListTable = () => {
             page: Number(searchParams.get("page")) || 1,
           };
 
-          const res = await getStudentEarningList( { params, token });
+          const res = await getStudentEarningList({ params, token });
 
           if (res.success) {
             setEarningsData(res);
@@ -92,7 +92,12 @@ const EarningAllListTable = () => {
     return <TableSkeleton columns={9} rows={15} className="mt-4" />;
   }
   if (earnings.length === 0 && !isPending) {
-    return <NotFoundComponent message={earningsData?.message || "No Earning Data Found"} title="Earning List" />;
+    return (
+      <NotFoundComponent
+        message={earningsData?.message || "No Earning Data Found"}
+        title="Earning List"
+      />
+    );
   }
 
   return (
@@ -166,7 +171,7 @@ const EarningAllListTable = () => {
                                 Views
                               </Link>
                             </DropdownMenuItem>
-                            
+
                             <DropdownMenuItem asChild>
                               <EarningDeleteButton id={earning?.id} />
                             </DropdownMenuItem>

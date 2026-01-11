@@ -20,6 +20,7 @@ import { Search, FilterX } from "lucide-react"
 interface FilterFormValues {
   search?: string
   sort_order?: string
+  level?: string
   division_id?: string
   branch_id?: string
   category_id?: string
@@ -43,6 +44,7 @@ export default function CourseFilter({
     defaultValues: {
       search: searchParams.get("search") || "",
       sort_order: searchParams.get("sort_order") || "",
+      level: searchParams.get("level") || "",
       division_id: searchParams.get("division_id") || "",
       branch_id: searchParams.get("branch_id") || "",
       category_id: searchParams.get("category_id") || "",
@@ -72,6 +74,7 @@ export default function CourseFilter({
     reset({
       search: "",
       sort_order: "",
+      level: "",
       division_id: "",
       branch_id: "",
       category_id: "",
@@ -124,6 +127,24 @@ export default function CourseFilter({
               <SelectContent>
                 <SelectItem value="asc">ASC</SelectItem>
                 <SelectItem value="desc">DESC</SelectItem>
+              </SelectContent>
+            </Select>
+          )}
+        />
+
+        {/* Level */}
+        <Controller
+          name="level"
+          control={control}
+          render={({ field }) => (
+            <Select onValueChange={field.onChange} value={field.value}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Level" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="beginner">Beginner</SelectItem>
+                <SelectItem value="intermediate">Intermediate</SelectItem>
+                <SelectItem value="advanced">Advanced</SelectItem>
               </SelectContent>
             </Select>
           )}
@@ -191,6 +212,6 @@ export default function CourseFilter({
           )}
         />
       </div>
-    </div>
+    </div >
   )
 }

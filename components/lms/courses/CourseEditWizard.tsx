@@ -90,6 +90,12 @@ export default function CourseEditWizard({ courseId }: CourseEditWizardProps) {
               <CourseAddForm
                 title="Edit Course Details"
                 initialData={courseData}
+                onSuccess={async () => {
+                  const res = await getCourseById(courseId);
+                  if (res.success && res.data) {
+                    setCourseData(res.data);
+                  }
+                }}
               />
             </AccordionContent>
           </AccordionItem>
@@ -100,7 +106,7 @@ export default function CourseEditWizard({ courseId }: CourseEditWizardProps) {
             <AccordionContent className="pt-4">
               <ChapterLessonAddForm
                 courseId={Number(courseId)}
-                onSuccess={() => { }} 
+                onSuccess={() => { }}
                 isEdit={true}
               />
             </AccordionContent>
