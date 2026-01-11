@@ -6,9 +6,8 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
-import { postEnrollmentSubmit } from "@/apiServices/EnrollmentService";
-import { EnrollmentsData } from "@/apiServices/EnrollmentService";
 import { useRouter } from "next/navigation";
+import { EnrollmentsData, postEnrollmentSubmit } from "@/apiServices/studentEnrollmentService";
 
 type PaymentGateway = "paylater" | "rocket" | "nagad" | "bkash";
 /**

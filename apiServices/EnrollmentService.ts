@@ -1,246 +1,126 @@
+"use server"
 
-const API_BASE =
-  process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api/v1";
+import { authOptions } from "@/lib/auth";
+import { getServerSession } from "next-auth";
+import { PaginationType } from "./studentService";
 
-// start get enrollment details
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api/v1";
 
-export type DiscountType = "fixed" | "percentage";
+// ==========================
+// Interfaces
+// ==========================
 
-// batch info
+export interface EnrollmentUser {
+  id: number;
+  name: string;
+  email: string;
+  phone: string;
+}
+
 export interface EnrollmentBatch {
   id: number;
-  price: number;
-  discount: number;
-  discount_type: DiscountType;
-  after_discount: number;
-  batch_discount_amount: number;
-  coupon_discount_amount: number;
-  total_discount_amount: number;
-  batch_discount_percentage: number;
-  coupon_discount_percentage: number;
-  discount_percentage: number;
-  total_discount_percentage: number;
-}
-
-// main data
-export interface EnrollmentsData {
-  id: number;
-  category_id: number;
-  title: string;
-  slug: string;
-  featured_image: string | null;
-  batch: EnrollmentBatch;
-}
-
-// API response
-export interface EnrollmentResponse {
-  success: boolean;
-  message: string;
-  code: number;
-  data: EnrollmentsData;
-  errors?: Record<string, string[]>;
-}
-
-// end get enrollment details
-
-// start for coupon apply
-export interface EnrollmentCouponRequest {
-  batch: number;
-  coupon_code: string;
-}
-export interface EnrollmentData {
-  valid: boolean;
-  original_price: number;
-  discount_percentage: number;
-  discount_amount: number;
-  final_price: number;
-  coupon: {
+  name: string;
+  course: {
     id: number;
-    coupon_code: string;
-    discount_percentage: number;
+    title: string;
+    slug: string;
+    featured_image: string;
   };
 }
 
-export interface EnrollmentCouponResponse {
-  success: boolean;
-  message: string;
-  code: number;
-  data: EnrollmentData;
-  errors?: Record<string, string[]>;
-}
-// end for coupon apply
-
-// start post enrollment Submition
-export enum PaymentMethodSubmit {
-  PAYLATER = 0, // default
-  ROCKET = 1,
-  NAGAD = 2,
-  BKASH = 3,
-}
-
-// payment_type
-export enum PaymentTypeSubmit {
-  FULL = 0,
-  PARTIAL = 1, // optional
-}
-export interface EnrollmentBatchSubmit {
+export interface EnrollmentApprovedBy {
   id: number;
   name: string;
 }
 
-export interface EnrollmentCouponSubmit {
+export interface EnrollmentCoupon {
   id: number;
   coupon_code: string;
+  discount_percentage: number;
 }
 
-export interface EnrollmentSubmit {
+export interface Enrollment {
   id: number;
+  uuid: string;
+  user_id: number;
   batch_id: number;
-  payment_method: PaymentMethodSubmit;
-  payment_type: PaymentTypeSubmit;
-  partial_payment_amount: number | null;
-  batch: EnrollmentBatchSubmit;
-  coupon: EnrollmentCouponSubmit | null;
-}
-
-export interface EnrollmentPricing {
+  coupon_id: number | null;
   original_price: number;
   discount_amount: number;
   final_price: number;
-  coupon_applied: boolean;
-  payment_type: PaymentTypeSubmit;
-  partial_payment_amount: number | null;
+  enrollment_date: string;
+  expired_at: string;
+  approved_by: number | null;
+  certificate_link: string | null;
+  is_certificate_avail: boolean;
+  total_completed_lessons: number;
+  status: number;
+  status_label: string;
+  payment_method: number;
+  payment_method_label: string;
+  payment_status: number;
+  payment_status_label: string;
+  payment_type: number;
+  payment_type_label: string;
+  partial_payment_amount: number;
   due_amount: number;
+  payment_reference: string | null;
+  created_at: string;
+  updated_at: string;
+  user: EnrollmentUser;
+  batch: EnrollmentBatch;
+  approved_by_user: EnrollmentApprovedBy | null;
+  coupon: EnrollmentCoupon | null;
 }
 
-export interface EnrollmentSubmitResponse {
+export interface EnrollmentResponse {
   success: boolean;
   message: string;
-  code: number;
   data: {
-    enrollment: EnrollmentSubmit;
-    pricing: EnrollmentPricing;
-    message: string;
+    enrollments: Enrollment[];
+    pagination: PaginationType;
   };
-  errors?: Record<string, string[]>;
 }
-interface EnrollmentSubmitPayload {
-  batch_id: number,
-  coupon_code: string | null,
-  payment_method: number | string,
-  payment_type: number | null,
-  partial_payment_amount: number | null,
-}
-// End post enrollment Submition
 
+// ==========================
+// Get Enrollments
+// ==========================
 
-// get enrollment details ==> getEnrollmentDetails
-export async function getEnrollmentDetails(slug: string,  token: string): Promise<EnrollmentResponse | null> {
+export async function getEnrollments(
+  params: Record<string, unknown> = {}
+): Promise<EnrollmentResponse> {
   try {
-    const res = await fetch(
-      `${API_BASE}/courses/${slug}/enrollment-details`,
-      {
-       cache: "no-store",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
-
-
-    if (!res.ok) {
-      throw new Error(`Failed to fetch enrollment details ${res.status} (${res.statusText}`);
-    }
-
-    const data: EnrollmentResponse | null = await res.json();
-    return data;
-  } catch (error:unknown) {
-    if (error instanceof Error) {
-      console.error("Enrollment API Error:", error);
-      throw new Error(error.message);
-    }
-    throw new Error("Failed to fetch enrollment details");;
-  }
-}
-
-// function for postEnrollmentCoupon
-export async function postEnrollmentCoupon(batchId: number,couponCode: string, token: string): Promise<EnrollmentCouponResponse> {
-  try {
-    if (!token) {
-      throw new Error("No valid session or access token found.");
-    }
-
-    const response = await fetch(
-      `${API_BASE}/batches/${batchId}/validate-coupon`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          batch: batchId,
-          coupon_code: couponCode,
-        }),
-      }
-    );
-
-    if (!response.ok) {
-      throw new Error(
-        `Failed to validate coupon ${response.status} (${response.statusText})`
-      );
-    }
-    const data: EnrollmentCouponResponse = await response.json();
-    return data;
-
-  } catch (error:unknown) {
-    if (error instanceof Error) {
-      console.error("Enrollment API Error:", error);
-      throw new Error(error.message);
-    }
-    throw new Error("Failed to fetch enrollment details");;
-  }
-}
-
-// function for postEnrollmentSubmit
-
-export async function postEnrollmentSubmit(
-  payload: EnrollmentSubmitPayload,
-  token: string
-): Promise<EnrollmentSubmitResponse> {
-  try {
+    const session = await getServerSession(authOptions);
+    const token = session?.accessToken;
 
     if (!token) {
       throw new Error("No valid session or access token found.");
     }
 
-  const { batch_id,payment_method,coupon_code,payment_type,partial_payment_amount} = payload;
+    const urlParams = new URLSearchParams();
 
-  const body = {
-    coupon_code,
-    payment_method,
-    payment_type,
-    partial_payment_amount,
-  };
+    for (const key in params) {
+      if (params[key] !== undefined && params[key] !== null) {
+        urlParams.append(key, params[key].toString());
+      }
+    }
 
-    const response = await fetch(`${API_BASE}/batches/${batch_id}/enroll`, {
-      method: "POST",
+    const res = await fetch(`${API_BASE}/enrollments?${urlParams.toString()}`, {
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify(body),
+      next: {
+        tags: ["enrollments-list"], // cache tag
+      },
     });
-
-    const data: EnrollmentSubmitResponse = await response.json();
-    return data;
-  } catch (error:unknown) {
-    if (error instanceof Error) {
-      console.error("Enrollment API Error:", error);
-      throw new Error(error.message);
+    const result = await res.json();
+    if (!result.success) {
+      throw new Error(result.message || "Failed to fetch enrollments.");
     }
-    throw new Error("Failed to fetch enrollment details");;
+    return result;
+  } catch (error) {
+    console.error("Error in getEnrollments:", error);
+    throw error;
   }
 }
-

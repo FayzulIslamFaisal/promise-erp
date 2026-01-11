@@ -1,16 +1,12 @@
 "use client";
 
 import { useState, useTransition, useEffect } from "react";
-import {
-  EnrollmentResponse,
-  getEnrollmentDetails,
-  postEnrollmentCoupon,
-} from "@/apiServices/EnrollmentService";
 import EnrollPaymentSummary from "./EnrollPaymentSummary";
 import EnrollPaymentMethod from "./EnrollPaymentMethod";
 import { toast } from "sonner";
 import EnrollmentWrapperSkeleton from "./EnrollmentWrapperSkeleton";
 import { useSession } from "next-auth/react";
+import { EnrollmentResponse, getEnrollmentDetails, postEnrollmentCoupon } from "@/apiServices/studentEnrollmentService";
 
 interface Props {
   slug: string;

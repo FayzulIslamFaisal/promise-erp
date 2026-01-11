@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
-import { EnrollmentsData } from "@/apiServices/EnrollmentService";
+import { EnrollmentsData } from "@/apiServices/studentEnrollmentService";
 
 interface Props {
     enrollmentDetails: EnrollmentsData;
