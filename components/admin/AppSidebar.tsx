@@ -169,7 +169,7 @@ const data = {
       items: [
         {
           title: "Enrollments",
-          url: "#",
+          url: "/lms/enrollments",
         },
         {
           title: "Invoices",
