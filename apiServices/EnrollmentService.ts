@@ -109,9 +109,6 @@ export async function getEnrollments(
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
-      next: {
-        tags: ["enrollments-list"], // cache tag
-      },
     });
     const result = await res.json();
     if (!result.success) {

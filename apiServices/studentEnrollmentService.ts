@@ -1,6 +1,5 @@
 
-const API_BASE =
-  process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api/v1";
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api/v1";
 
 // start get enrollment details
 
@@ -135,12 +134,12 @@ interface EnrollmentSubmitPayload {
 
 
 // get enrollment details ==> getEnrollmentDetails
-export async function getEnrollmentDetails(slug: string,  token: string): Promise<EnrollmentResponse | null> {
+export async function getEnrollmentDetails(slug: string, token: string): Promise<EnrollmentResponse | null> {
+  if (!token) { throw new Error("No valid session or access token found.")}
   try {
-    const res = await fetch(
-      `${API_BASE}/courses/${slug}/enrollment-details`,
+    const res = await fetch(`${API_BASE}/courses/${slug}/enrollment-details`,
       {
-       cache: "no-store",
+        cache: "no-store",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
@@ -155,7 +154,7 @@ export async function getEnrollmentDetails(slug: string,  token: string): Promis
 
     const data: EnrollmentResponse | null = await res.json();
     return data;
-  } catch (error:unknown) {
+  } catch (error: unknown) {
     if (error instanceof Error) {
       console.error("Enrollment API Error:", error);
       throw new Error(error.message);
@@ -165,14 +164,11 @@ export async function getEnrollmentDetails(slug: string,  token: string): Promis
 }
 
 // function for postEnrollmentCoupon
-export async function postEnrollmentCoupon(batchId: number,couponCode: string, token: string): Promise<EnrollmentCouponResponse> {
+export async function postEnrollmentCoupon(batchId: number, couponCode: string, token: string): Promise<EnrollmentCouponResponse> {
+  if (!token) { throw new Error("No valid session or access token found.")}
   try {
-    if (!token) {
-      throw new Error("No valid session or access token found.");
-    }
 
-    const response = await fetch(
-      `${API_BASE}/batches/${batchId}/validate-coupon`,
+    const response = await fetch(`${API_BASE}/batches/${batchId}/validate-coupon`,
       {
         method: "POST",
         headers: {
@@ -187,14 +183,12 @@ export async function postEnrollmentCoupon(batchId: number,couponCode: string, t
     );
 
     if (!response.ok) {
-      throw new Error(
-        `Failed to validate coupon ${response.status} (${response.statusText})`
-      );
+      throw new Error(`Failed to validate coupon ${response.status} (${response.statusText})`);
     }
     const data: EnrollmentCouponResponse = await response.json();
     return data;
 
-  } catch (error:unknown) {
+  } catch (error: unknown) {
     if (error instanceof Error) {
       console.error("Enrollment API Error:", error);
       throw new Error(error.message);
@@ -209,20 +203,18 @@ export async function postEnrollmentSubmit(
   payload: EnrollmentSubmitPayload,
   token: string
 ): Promise<EnrollmentSubmitResponse> {
+
+  if (!token) { throw new Error("No valid session or access token found.") }
+
   try {
+    const { batch_id, payment_method, coupon_code, payment_type, partial_payment_amount } = payload;
 
-    if (!token) {
-      throw new Error("No valid session or access token found.");
-    }
-
-  const { batch_id,payment_method,coupon_code,payment_type,partial_payment_amount} = payload;
-
-  const body = {
-    coupon_code,
-    payment_method,
-    payment_type,
-    partial_payment_amount,
-  };
+    const body = {
+      coupon_code,
+      payment_method,
+      payment_type,
+      partial_payment_amount,
+    };
 
     const response = await fetch(`${API_BASE}/batches/${batch_id}/enroll`, {
       method: "POST",
@@ -235,7 +227,7 @@ export async function postEnrollmentSubmit(
 
     const data: EnrollmentSubmitResponse = await response.json();
     return data;
-  } catch (error:unknown) {
+  } catch (error: unknown) {
     if (error instanceof Error) {
       console.error("Enrollment API Error:", error);
       throw new Error(error.message);
