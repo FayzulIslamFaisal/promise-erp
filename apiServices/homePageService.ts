@@ -2,7 +2,7 @@
 
 const API_BASE =
   process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api/v1";
-import { PaginationType } from "./studentService";
+import { PaginationType } from "@/types/pagination";
 
 // ---Start Interfaces home page hero section ---
 export interface HeroSection {

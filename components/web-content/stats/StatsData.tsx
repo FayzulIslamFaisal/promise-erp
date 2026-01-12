@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useTransition } from "react";
 import { useSearchParams } from "next/navigation";
-import { getStats, Pagination, Stats } from "@/apiServices/statsService";
+import { getStats, Stats } from "@/apiServices/statsService";
+import { PaginationType } from "@/types/pagination";
 import ErrorComponent from "@/components/common/ErrorComponent";
 import NotFoundComponent from "@/components/common/NotFoundComponent";
 import { Badge } from "@/components/ui/badge";
@@ -31,7 +32,7 @@ import { useSession } from "next-auth/react";
 const StatsData = () => {
   const searchParams = useSearchParams();
   const [stats, setStats] = useState<Stats[]>([]);
-  const [pagination, setPagination] = useState<Pagination | null>(null);
+  const [pagination, setPagination] = useState<PaginationType | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const { data: session, status } = useSession();

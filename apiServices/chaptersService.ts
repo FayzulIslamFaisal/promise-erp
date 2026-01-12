@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth";
 import { getServerSession } from "next-auth";
 import { cacheTag, updateTag } from "next/cache";
 import { handleApiError, processApiResponse } from "@/lib/apiErrorHandler";
+import { PaginationType } from "@/types/pagination";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api/v1";
 
@@ -48,17 +49,6 @@ export interface SimpleChapter {
   bn_title: string;
 }
 
-// Pagination
-export interface ChapterPagination {
-  current_page: number;
-  last_page: number;
-  per_page: number;
-  total: number;
-  from: number;
-  to: number;
-  has_more_pages: boolean;
-}
-
 // GET Chapters Response
 export interface ChaptersResponse {
   success: boolean;
@@ -67,7 +57,7 @@ export interface ChaptersResponse {
   data: {
     total_chapters: number;
     chapters: Chapter[];
-    pagination: ChapterPagination;
+    pagination: PaginationType;
   };
   errors?: Record<string, string[]>;
 }

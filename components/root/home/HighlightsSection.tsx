@@ -7,7 +7,7 @@ import { cacheTag } from "next/cache";
 
 const HighlightsSection = async () => {
   "use cache";
-  cacheTag("count-down-list");
+  cacheTag("stats-list");
   let stats = [];
   try {
   const countDownData = await getLatestCountDown();

@@ -6,7 +6,7 @@ import { getServerSession } from "next-auth";
 
 import { cacheTag, updateTag } from "next/cache";
 import { handleApiError, processApiResponse } from "@/lib/apiErrorHandler";
-import { PaginationType } from "./studentService";
+import { PaginationType } from "@/types/pagination";
 
 const API_BASE =
   process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api/v1";

@@ -9,11 +9,11 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination"
-import { PaginationType as IPagination } from "@/apiServices/studentService"
+import { PaginationType } from "@/types/pagination"
 import { usePathname, useSearchParams } from "next/navigation"
 
 interface PaginationProps {
-  pagination: IPagination
+  pagination: PaginationType
 }
 
 export default function Pagination({ pagination }: PaginationProps) {

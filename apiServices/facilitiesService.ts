@@ -3,7 +3,7 @@
 import { authOptions } from "@/lib/auth";
 import { getServerSession } from "next-auth";
 import { cacheTag, updateTag } from "next/cache";
-import { PaginationType } from "./studentService";
+import { PaginationType } from "@/types/pagination";
 import { handleApiError, processApiResponse } from "@/lib/apiErrorHandler";
 
 const API_BASE =

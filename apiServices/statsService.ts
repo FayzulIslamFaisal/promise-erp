@@ -3,6 +3,7 @@ import { authOptions } from "@/lib/auth";
 import { getServerSession } from "next-auth";
 import { updateTag, cacheTag } from "next/cache";
 import { handleApiError, processApiResponse } from "@/lib/apiErrorHandler";
+import { PaginationType } from "@/types/pagination";
 
 const API_BASE =
   process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api/v1";
@@ -19,15 +20,6 @@ export interface Stats {
   };
 }
 
-export interface Pagination {
-  current_page: number;
-  last_page: number;
-  per_page: number;
-  total: number;
-  from?: number;
-  to?: number;
-  has_more_pages?: boolean;
-}
 
 export interface StatsResponse {
   success: boolean;
@@ -35,7 +27,7 @@ export interface StatsResponse {
   data: {
     total_stats?: number;
     stats: Stats[];
-    pagination: Pagination;
+    pagination: PaginationType;
   };
 }
 export interface StatsResponseType {

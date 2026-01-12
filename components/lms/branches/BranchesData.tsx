@@ -3,6 +3,7 @@ import ErrorComponent from "@/components/common/ErrorComponent";
 import NotFoundComponent from "@/components/common/NotFoundComponent";
 import { Badge } from "@/components/ui/badge";
 import { Branch } from "@/apiServices/branchService";
+import { PaginationType } from "@/types/pagination";
 
 import {
   DropdownMenu,
@@ -30,15 +31,6 @@ export interface District {
   name: string;
 }
 
-export interface Pagination {
-  current_page: number;
-  last_page: number;
-  per_page: number;
-  total: number;
-  from?: number;
-  to?: number;
-  has_more_pages?: boolean;
-}
 
 /* ---------------------- Component ---------------------- */
 
@@ -62,7 +54,7 @@ export default async function BranchesData({
   }
 
   const branches: Branch[] = data?.data?.branches ?? [];
-  const pagination: Pagination = data?.data?.pagination ?? {};
+  const pagination: PaginationType = data?.data?.pagination ?? {};
 
   if (branches.length === 0) {
     return <NotFoundComponent message={data?.message} title="Branch List" />;
