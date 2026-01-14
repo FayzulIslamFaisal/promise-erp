@@ -163,7 +163,7 @@ const data = {
     },
 
     {
-      title: "Enrollments & Payments",
+      title: "Enroll & Payments",
       url: "#",
       icon: DollarSignIcon,
       items: [

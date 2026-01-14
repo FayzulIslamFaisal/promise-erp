@@ -62,6 +62,7 @@ export interface Enrollment {
   payment_status_label: string;
   payment_type: number;
   payment_type_label: string;
+  payment_amount: number;
   partial_payment_amount: number;
   due_amount: number;
   payment_reference: string | null;
@@ -80,6 +81,60 @@ export interface EnrollmentResponse {
     enrollments: Enrollment[];
     pagination: PaginationType;
   };
+}
+
+export interface EnrollmentPaymentDetails {
+  pre_amount?: number;
+  paid_amount?: number;
+  due_amount?: number;
+  payment_method_name?: string;
+  payment_status_name?: string;
+  payment_type_name?: string;
+  installment_type_name?: string;
+}
+
+export interface EnrollmentPaymentHistory {
+  id: number;
+  uuid: string;
+  organization_id?: string | number;
+  payment_details?: EnrollmentPaymentDetails;
+  approved_by?: number | null;
+  additional_info?: {
+    comment?: string;
+    [key: string]: unknown;
+  };
+}
+
+export interface EnrollmentDetail {
+  id: number;
+  uuid: string;
+  user_id: number | string;
+  batch_id: number | string;
+  coupon_id: number | null;
+  original_price: number;
+  discount_amount: number;
+  final_price: number;
+  enrollment_date: string;
+  total_completed_lessons?: number | string;
+  status_label?: string;
+  payment_method_label?: string;
+  payment_status_label?: string;
+  payment_type_label?: string | null;
+  payment_amount?: number | null;
+  partial_payment_amount?: number | null;
+  due_amount?: number | null;
+  payment_reference?: string | null;
+  user?: EnrollmentUser;
+  batch?: EnrollmentBatch;
+  approved_by?: number | null;
+  coupon?: EnrollmentCoupon | null;
+  payment_histories?: EnrollmentPaymentHistory[];
+}
+
+export interface EnrollmentDetailResponse {
+  success: boolean;
+  message: string;
+  data: EnrollmentDetail;
 }
 
 // ==========================
@@ -117,6 +172,42 @@ export async function getEnrollments(
     return result;
   } catch (error) {
     console.error("Error in getEnrollments:", error);
+    throw error;
+  }
+}
+
+// ==========================
+// Get Single Enrollment
+// ==========================
+
+export async function getEnrollmentById(
+  enrollmentId: string | number
+): Promise<EnrollmentDetailResponse> {
+  try {
+    const session = await getServerSession(authOptions);
+    const token = session?.accessToken;
+
+    if (!token) {
+      throw new Error("No valid session or access token found.");
+    }
+
+    const res = await fetch(`${API_BASE}/enrollments/${enrollmentId}`, {
+      cache: "no-store",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const result = await res.json();
+
+    if (!res.ok || !result.success) {
+      throw new Error(result.message || "Failed to fetch enrollment details.");
+    }
+
+    return result;
+  } catch (error) {
+    console.error("Error in getEnrollmentById:", error);
     throw error;
   }
 }

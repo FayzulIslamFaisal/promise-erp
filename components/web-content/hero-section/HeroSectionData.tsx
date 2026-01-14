@@ -77,7 +77,7 @@ const HeroSectionData = async ({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>#</TableHead>
+              <TableHead>Sl</TableHead>
               <TableHead>Action</TableHead>
               <TableHead>Image / Video</TableHead>
               <TableHead>Branch</TableHead>

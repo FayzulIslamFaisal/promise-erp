@@ -16,8 +16,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
-import DeleteVideoGalleryAction from "@/actions/DeleteVideoGallery";
-import { SingleVideoGalleryResponse } from "@/apiServices/homePageAdminService";
+import { deleteVideoGallery, SingleVideoGalleryResponse } from "@/apiServices/homePageAdminService";
 interface DeleteButtonProps {
     id: number;
 }
@@ -29,7 +28,7 @@ const DeleteButton = ({ id }: DeleteButtonProps) => {
     const handleDelete = () => {
     startTransition(async () => {
       try { 
-        const res: SingleVideoGalleryResponse = await DeleteVideoGalleryAction(id);
+        const res: SingleVideoGalleryResponse = await deleteVideoGallery(id);
         if (res.success) {
             toast.success(res.message || "Video gallery deleted successfully");
             router.refresh();
@@ -37,12 +36,13 @@ const DeleteButton = ({ id }: DeleteButtonProps) => {
         else {
             toast.error(res.message || "Delete failed");
         }
-      } catch (error) {
-        const message =
-          error instanceof Error
-            ? error.message
-            : "An unexpected error occurred.";
-        toast.error(message);
+      } catch (error: unknown) {
+        console.error("Video gallery delete failed:", error);
+        if (error instanceof Error) {
+          toast.error(error.message);
+        } else {
+          toast.error("An unknown error occurred while deleting video gallery");
+        }
       } 
     });
   };

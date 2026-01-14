@@ -6,9 +6,10 @@ import { Suspense } from "react";
 const navLinks: NavLink[] = [
   { name: "Home", href: "/" },
   { name: "Courses", href: "/course", hasDropdown: true },
-  { name: "Instructors", href: "/instructors" },
   { name: "Branch", href: "/branch" },
   { name: "Blog", href: "/blog" },
+  { name: "Our Officers", href: "/our-officers" },
+  { name: "Careers", href: "/job-circulars" },
   { name: "Contact", href: "/contact" },
 ];
 

@@ -6,8 +6,7 @@ import { cacheTag, updateTag } from "next/cache";
 import { handleApiError, processApiResponse } from "@/lib/apiErrorHandler";
 import { PaginationType } from "@/types/pagination";
 
-const API_BASE =
-  process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api/v1";
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api/v1";
 
 // ============================================================
 // Interfaces 
@@ -23,11 +22,11 @@ export interface HeroSection {
   branch: Branch;
   title: string;
   subtitle: string;
-  description?: string;
-  button_text_one?: string;
-  button_link_one?: string;
-  button_text_two?: string;
-  button_link_two?: string;
+  description: string;
+  button_text_one: string;
+  button_link_one: string;
+  button_text_two: string;
+  button_link_two: string;
   background_image?: string | null;
   video_url?: string | null;
   status: number;
@@ -51,24 +50,6 @@ export interface SingleHeroSectionResponse {
   code?: number;
   data?: HeroSection | null;
   errors?: Record<string, string[] | string>;
-}
-
-export interface CreateHeroSectionRequest {
-  branch_id: number;
-  title: string;
-  subtitle: string;
-  description?: string;
-  button_text_one?: string;
-  button_link_one?: string;
-  button_text_two?: string;
-  button_link_two?: string;
-  background_image?: File | null;
-  video_url?: string | null;
-  status: number;
-}
-
-export interface UpdateHeroSectionRequest extends Partial<CreateHeroSectionRequest> {
-  _method?: string;
 }
 
 // ============================================================
@@ -103,12 +84,13 @@ export async function getHeroSectionsCached(
 
     const data: HeroSectionsResponse = await res.json();
     return data;
-  } catch (error) {
-    throw new Error(
-      error instanceof Error
-        ? error.message
-        : "Unknown error occurred while fetching Hero Sections"
-    );
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("Error in getHeroSectionsCached:", error.message);
+      throw new Error("Error fetching hero sections");
+    } else {
+      throw new Error("Error fetching hero sections");
+    }
   }
 }
 
@@ -121,12 +103,13 @@ export async function getHeroSections(
     if (!token) throw new Error("No valid session or access token found.");
 
     return await getHeroSectionsCached( token, params);
-  } catch (error) {
-    throw new Error(
-      error instanceof Error
-        ? error.message
-        : "Failed to get Hero Sections"
-    );
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("Error in getHeroSections:", error.message);
+      throw new Error("Error fetching hero sections");
+    } else {
+      throw new Error("Error fetching hero sections");
+    }
   }
 }
 
@@ -151,12 +134,13 @@ export async function getHeroSectionById(
 
     const data: SingleHeroSectionResponse = await res.json();
     return data;
-  } catch (error) {
-    throw new Error(
-      error instanceof Error
-        ? error.message
-        : "Unknown error occurred while fetching Hero Section by ID"
-    );
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("Error in getHeroSectionById:", error.message);
+      throw new Error("Error fetching hero section");
+    } else {
+      throw new Error("Error fetching hero section");
+    }
   }
 }
 
@@ -208,16 +192,13 @@ export async function createHeroSection(
       data: result.data,
       code: result.code,
     };
-  } catch (error) {
-    const errorResult = await handleApiError(
-      error,
-      "Failed to create hero section"
-    );
-    return {
-      success: false,
-      message: errorResult.message,
-      code: errorResult.code,
-    };
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("Error in createHeroSection:", error.message);
+      throw new Error("Error creating hero section");
+    } else {
+      throw new Error("Error creating hero section");
+    }
   }
 }
 
@@ -239,7 +220,7 @@ export async function updateHeroSection(
         code: 401,
       };
 
-    formData.append("_method", "PATCH");
+    formData.append("_method", "PUT");
 
     const res = await fetch(`${API_BASE}/hero-sections/${id}`, {
       method: "POST",
@@ -271,16 +252,13 @@ export async function updateHeroSection(
       data: result.data,
       code: result.code,
     };
-  } catch (error) {
-    const errorResult = await handleApiError(
-      error,
-      "Failed to update hero section"
-    );
-    return {
-      success: false,
-      message: errorResult.message,
-      code: errorResult.code,
-    };
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("Error in updateHeroSection:", error.message);
+      throw new Error("Error updating hero section");
+    } else {
+      throw new Error("Error updating hero section");
+    }
   }
 }
 
@@ -330,16 +308,13 @@ export async function deleteHeroSection(
       data: result.data,
       code: result.code,
     };
-  } catch (error) {
-    const errorResult = await handleApiError(
-      error,
-      "Failed to delete hero section"
-    );
-    return {
-      success: false,
-      message: errorResult.message,
-      code: errorResult.code,
-    };
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("Error in deleteHeroSection:", error.message);
+      throw new Error("Error deleting hero section");
+    } else {
+      throw new Error("Error deleting hero section");
+    }
   }
 }
 
@@ -361,8 +336,13 @@ export async function getHomeHeroSections(): Promise<HeroSectionsResponse> {
     }
 
     return await res.json();
-  } catch (error) {
-    throw new Error("Error fetching home hero sections");
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("Error in getHomeHeroSections:", error.message);
+      throw new Error("Error fetching home hero sections");
+    } else {
+      throw new Error("Error fetching home hero sections");
+    }
   }
 }
 //video gallery service ts file started here
@@ -400,16 +380,14 @@ export interface SingleVideoGalleryResponse {
 // ============================================================
 
 export async function getVideoGalleriesCached(
-  page = 1,
-  token: string,
+token: string,
   params: Record<string, unknown> = {}
 ): Promise<VideoGalleriesResponse> {
   "use cache";
-  cacheTag("video-galleries-list");
+  cacheTag("public-reviews");
 
   try {
     const urlParams = new URLSearchParams();
-    urlParams.append("page", page.toString());
 
     for (const key in params) {
       if (params[key] !== undefined && params[key] !== null) {
@@ -429,17 +407,17 @@ export async function getVideoGalleriesCached(
 
     const data: VideoGalleriesResponse = await res.json();
     return data;
-  } catch (error) {
-    throw new Error(
-      error instanceof Error
-        ? error.message
-        : "Unknown error occurred while fetching Video Galleries"
-    );
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("Error in getVideoGalleriesCached:", error.message);
+      throw new Error("Error fetching video galleries");
+    } else {
+      throw new Error("Error fetching video galleries");
+    }
   }
 }
 
 export async function getVideoGalleries(
-  page = 1,
   params: Record<string, unknown> = {}
 ): Promise<VideoGalleriesResponse> {
   try {
@@ -447,13 +425,14 @@ export async function getVideoGalleries(
     const token = session?.accessToken;
     if (!token) throw new Error("No valid session or access token found.");
 
-    return await getVideoGalleriesCached(page, token, params);
-  } catch (error) {
-    throw new Error(
-      error instanceof Error
-        ? error.message
-        : "Failed to get Video Galleries"
-    );
+    return await getVideoGalleriesCached(token, params);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("Error in getVideoGalleries:", error.message);
+      throw new Error("Error fetching video galleries");
+    } else {
+      throw new Error("Error fetching video galleries");
+    }
   }
 }
 
@@ -474,12 +453,13 @@ export async function getVideoGalleryById(id: number): Promise<SingleVideoGaller
 
     const data: SingleVideoGalleryResponse = await res.json();
     return data;
-  } catch (error) {
-    throw new Error(
-      error instanceof Error
-        ? error.message
-        : "Failed to get Video Gallery"
-    );
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("Error in getVideoGalleryById:", error.message);
+      throw new Error("Error fetching video gallery");
+    } else {
+      throw new Error("Error fetching video gallery");
+    }
   }
 }
 // ============================================================
@@ -515,24 +495,20 @@ export async function createVideoGallery(formData: FormData): Promise<SingleVide
         code: result.code,
       };
     }
-    updateTag("video-galleries-list");
+    updateTag("public-reviews");
     return {
       success: true,
       message: result.message || "Video gallery created successfully",
       data: result.data,
       code: result.code,
     };
-  }
-  catch (error) {
-    const errorResult = await handleApiError(
-      error,
-      "Failed to create video gallery"
-    );
-    return {
-      success: false,
-      message: errorResult.message,
-      code: errorResult.code,
-    };
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("Error in createVideoGallery:", error.message);
+      throw new Error("Error creating video gallery");
+    } else {
+      throw new Error("Error creating video gallery");
+    }
   }
 }
 // ============================================================
@@ -551,7 +527,7 @@ export async function updateVideoGallery(
         message: "No valid session or access token found.",
         code: 401,
       };
-    formData.append("_method", "PATCH");
+    formData.append("_method", "PUT");
     const res = await fetch(`${API_BASE}/video-galleries/${id}`, {
       method: "POST",
       headers: {
@@ -571,23 +547,20 @@ export async function updateVideoGallery(
         code: result.code,
       };
     }
-    updateTag("video-galleries-list");
+    updateTag("public-reviews");
     return {
       success: true,
       message: result.message || "Video gallery updated successfully",
       data: result.data,
       code: result.code,
     };
-  } catch (error) {
-    const errorResult = await handleApiError(
-      error,
-      "Failed to update video gallery"
-    );
-    return {
-      success: false,
-      message: errorResult.message,
-      code: errorResult.code,
-    };
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("Error in updateVideoGallery:", error.message);
+      throw new Error("Error updating video gallery");
+    } else {
+      throw new Error("Error updating video gallery");
+    }
   }
 }
 
@@ -624,41 +597,21 @@ export async function deleteVideoGallery(
         code: result.code,
       };
     }
-    updateTag("video-galleries-list");
+    updateTag("public-reviews");
     return {
       success: true,
       message: result.message || "Video gallery deleted successfully",
       data: result.data,
       code: result.code,
     };
-  } catch (error) {
-    const errorResult = await handleApiError(
-      error,
-      "Failed to delete video gallery"
-    );
-    return {
-      success: false,
-      message: errorResult.message,
-      code: errorResult.code,
-    };
-  }
-}
-// ============================================================
-// PUBLIC API for Home Page (Video Galleries)
-// ============================================================
-export async function getHomeVideoGalleries(): Promise<VideoGalleriesResponse> {
-  "use cache";
-  cacheTag("public-video-galleries");
-  try {
-    const res = await fetch(`${API_BASE}/public/video-galleries`);
-    if (!res.ok) {
-      throw new Error(
-        `Home Video Galleries API failed: ${res.status} ${res.statusText}`
-      );
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("Error in deleteVideoGallery:", error.message);
+      throw new Error("Error deleting video gallery");
+    } else {
+      throw new Error("Error deleting video gallery");
     }
-    return await res.json();
-  } catch (error) {
-    throw new Error("Error fetching home video galleries");
   }
 }
+
 //video gallery service ts file ended here

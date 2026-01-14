@@ -1,61 +1,33 @@
-'use client'
-
-import { getVideoGalleryById, updateVideoGallery, VideoGallery } from '@/apiServices/homePageAdminService'
+import { getVideoGalleryById, VideoGallery } from '@/apiServices/homePageAdminService'
+import ErrorComponent from '@/components/common/ErrorComponent'
+import NotFoundComponent from '@/components/common/NotFoundComponent'
 import VideoGalleryForm from '@/components/web-content/video-galleries/VideoGalleryForm'
-import { useRouter } from 'next/navigation'
-import { useEffect, useState, use } from 'react'
-import { handleFormErrors, handleFormSuccess } from '@/lib/formErrorHandler'
-import { UseFormSetError } from 'react-hook-form'
-import { ApiErrorResponse } from '@/lib/apiErrorHandler'
 
-export default function EditVideoGalleryPage({ params }: { params: Promise<{ id: string }> }) {
-    const router = useRouter()
-    const resolvedParams = use(params)
-    const [videoGallery, setVideoGallery] = useState<VideoGallery | null>(null)
-    const [error, setError] = useState<string | null>(null)
+interface PageProps {
+  params: Promise<{
+    id: string
+  }>
+}
 
-    useEffect(() => {
-        const fetchVideoGallery = async () => {
-            try {
-                const response = await getVideoGalleryById(Number(resolvedParams.id))
-                if (response?.data) {
-                    setVideoGallery(response.data)
-                } else {
-                    setError('Video gallery not found')
-                }
-            } catch (error: unknown) {
-                if (error instanceof Error) {
-                    setError(error.message)
-                } else {
-                    setError('An unexpected error occurred.')
-                }
-            }
-        }
+export default async function EditVideoGalleryPage({ params }: PageProps) {
+  const { id } = await params
 
-        fetchVideoGallery()
-    }, [resolvedParams.id])
+  const response = await getVideoGalleryById(Number(id))
 
-    const handleSubmit = async (
-        formData: FormData,
-        setFormError: (field: string, message: string) => void
-    ) => {
-        const res = await updateVideoGallery(Number(resolvedParams.id), formData)
+  if (!response?.data) {
+    return <NotFoundComponent message={response.message || "No video galleries found."} />
+  }
 
-        if (res.success) {
-            handleFormSuccess(res.message || 'Video gallery updated successfully!')
-            router.push('/web-content/video-galleries')
-        } else {
-            handleFormErrors(res as ApiErrorResponse, setFormError as UseFormSetError<any>)
-        }
-    }
+  if (!response.success) {
+    return <ErrorComponent message={response.message || "Failed to load video gallery."} />
+  }
 
-    if (error) {
-        return <div className="p-8 text-center text-red-500">Error: {error}</div>
-    }
+  const videoGallery: VideoGallery = response?.data
 
-    if (!videoGallery) {
-        return <div className="p-8 text-center">Loading...</div>
-    }
-
-    return <VideoGalleryForm title="Edit Video Gallery" onSubmit={handleSubmit} videoGallery={videoGallery} />
+  return (
+    <VideoGalleryForm
+      title="Edit Video Gallery"
+      videoGallery={videoGallery}
+    />
+  )
 }
