@@ -2,7 +2,6 @@
 import { authOptions } from "@/lib/auth";
 import { getServerSession } from "next-auth";
 import { updateTag, cacheTag } from "next/cache";
-import { handleApiError, processApiResponse } from "@/lib/apiErrorHandler";
 import { PaginationType } from "@/types/pagination";
 
 const API_BASE =
@@ -11,13 +10,9 @@ const API_BASE =
 export interface Stats {
   id: number;
   title: string;
-  count: string;
-  image: string;
+  count: number;
+  image?: string;
   status: number;
-  branch: {
-    id: number;
-    name: string;
-  };
 }
 
 
@@ -25,17 +20,17 @@ export interface StatsResponse {
   success: boolean;
   message: string;
   data: {
-    total_stats?: number;
+    total_stats: number;
     stats: Stats[];
     pagination: PaginationType;
   };
 }
 export interface StatsResponseType {
   success: boolean;
-  message?: string;
+  message: string;
   errors?: Record<string, string[] | string>;
-  data?: Stats;
-  code?: number;
+  data: Stats | null;
+  code: number;
 }
 export interface SingleStatsResponse {
   success: boolean;
@@ -50,13 +45,7 @@ export async function addStats(formData: FormData): Promise<StatsResponseType> {
     const session = await getServerSession(authOptions);
     const token = session?.accessToken;
 
-    if (!token) {
-      return {
-        success: false,
-        message: "No valid session or access token found.",
-        code: 401,
-      };
-    }
+    if (!token) throw new Error("No valid session or access token found.");
 
     const res = await fetch(`${API_BASE}/stats`, {
       method: "POST",
@@ -66,21 +55,16 @@ export async function addStats(formData: FormData): Promise<StatsResponseType> {
       body: formData,
     });
 
-    const result = await processApiResponse(res, "Failed to add statistics.");
-
-    if (!result.success) {
-      return result;
-    }
-
+    const result = await res.json();
     updateTag("stats-list");
-    return {
-      success: true,
-      message: result.message || "Statistics added successfully.",
-      data: result.data,
-      code: result.code,
-    };
-  } catch (error) {
-    return await handleApiError(error, "Failed to add statistics.");
+    return result;
+  } catch (error: unknown) {
+    console.error("Error in addStats:", error);
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    } else {
+      throw new Error("An unexpected error occurred.");
+    }
   }
 }
 
@@ -88,43 +72,59 @@ async function getStatsCached(
   token: string,
   params: Record<string, unknown> = {}
 ): Promise<StatsResponse> {
-  "use cache";
-  cacheTag("stats-list");
+  try {
+    const urlParams = new URLSearchParams();
 
-  const urlParams = new URLSearchParams();
+    for (const key in params) {
+      if (
+        params.hasOwnProperty(key) &&
+        params[key] !== undefined &&
+        params[key] !== null
+      ) {
+        urlParams.append(key, params[key].toString());
+      }
+    }
 
-  for (const key in params) {
-    if (
-      params.hasOwnProperty(key) &&
-      params[key] !== undefined &&
-      params[key] !== null
-    ) {
-      urlParams.append(key, params[key].toString());
+    const res = await fetch(`${API_BASE}/stats?${urlParams.toString()}`, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!res.ok) {
+      const errorData = await res.json().catch(() => ({}));
+      throw new Error(`Message: ${errorData.message || "Unknown error"}`);
+    }
+
+    return await res.json();
+  } catch (error: unknown) {
+    console.error("Error in getStatsCached:", error);
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    } else {
+      throw new Error("An unexpected error occurred.");
     }
   }
-
-  const res = await fetch(`${API_BASE}/stats?${urlParams.toString()}`, {
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-  });
-
-  if (!res.ok) {
-    const errorData = await res.json().catch(() => ({}));
-    throw new Error(`Message: ${errorData.message || "Unknown error"}`);
-  }
-
-  return res.json();
 }
 
 // Get Stats
 export async function getStats(
-  token: string,
   params: Record<string, unknown> = {}
 ): Promise<StatsResponse> {
-  if (!token) throw new Error("No valid session or access token found.");
-  return await getStatsCached(token, params);
+  try {
+    const session = await getServerSession(authOptions);
+    const token = session?.accessToken;
+    if (!token) throw new Error("No valid session or access token found.");
+    return await getStatsCached(token, params);
+  } catch (error: unknown) {
+    console.error("Error in getStats:", error);
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    } else {
+      throw new Error("An unexpected error occurred.");
+    }
+  }
 }
 
 export interface StatsSingleResponse {
@@ -146,11 +146,7 @@ export async function updateStats(
     const token = session?.accessToken;
 
     if (!token) {
-      return {
-        success: false,
-        message: "No valid session or access token found.",
-        code: 401,
-      };
+      throw new Error("No valid session or access token found.");
     }
 
     formData.append("_method", "PATCH");
@@ -163,25 +159,17 @@ export async function updateStats(
       body: formData,
     });
 
-    const result = await processApiResponse(
-      res,
-      "Failed to update statistics."
-    );
-
-    if (!result.success) {
-      return result;
-    }
-
+    const result = await res.json();
     updateTag("stats-list");
-    updateTag(`stats-${id}`);
-    return {
-      success: true,
-      message: result.message || "Statistics updated successfully.",
-      data: result.data,
-      code: result.code,
-    };
-  } catch (error) {
-    return await handleApiError(error, "Failed to update statistics.");
+    return result;
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("Error in updateStats:", error);
+      throw new Error(error.message);
+    } else {
+      console.error("An unexpected error occurred in updateStats:", error);
+      throw new Error("An unexpected error occurred.");
+    }
   }
 }
 
@@ -190,22 +178,31 @@ export async function updateStats(
 // =======================
 
 export async function getStatsById(id: string): Promise<StatsSingleResponse> {
-  const session = await getServerSession(authOptions);
-  const token = session?.accessToken;
-  if (!token) throw new Error("No valid session or access token found.");
+  try {
+    const session = await getServerSession(authOptions);
+    const token = session?.accessToken;
+    if (!token) throw new Error("No valid session or access token found.");
 
-  const res = await fetch(`${API_BASE}/stats/${id}`, {
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-  });
+    const res = await fetch(`${API_BASE}/stats/${id}`, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
 
-  if (!res.ok) {
-    throw new Error(`Failed to fetch statistics: ${res.statusText}`);
+    if (!res.ok) {
+      throw new Error(`Failed to fetch statistics: ${res.statusText}`);
+    }
+
+    return await res.json();
+  } catch (error: unknown) {
+    console.error("Error in getStatsById:", error);
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    } else {
+      throw new Error("An unexpected error occurred.");
+    }
   }
-
-  return res.json();
 }
 
 // =======================
@@ -228,30 +225,16 @@ export async function deleteStats(id: number): Promise<SingleStatsResponse> {
       },
     });
 
-    const result = await processApiResponse(
-      res,
-      "Failed to delete statistics."
-    );
-
-    if (!result.success) {
-      return { success: false, message: result.message, code: result.code };
-    }
+    const result = await res.json();
 
     updateTag("stats-list");
-    return {
-      success: true,
-      message: result.message || "Statistics deleted successfully",
-      code: result.code || 200,
-    };
-  } catch (error) {
-    const errorResult = await handleApiError(
-      error,
-      "Failed to delete statistics."
-    );
-    return {
-      success: false,
-      message: errorResult.message,
-      code: errorResult.code,
-    };
+    return result;
+  } catch (error: unknown) {
+    console.error("Error in deleteStats:", error);
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    } else {
+      throw new Error("An unexpected error occurred.");
+    }
   }
 }

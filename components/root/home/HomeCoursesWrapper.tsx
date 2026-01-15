@@ -7,12 +7,11 @@ import {
 } from "@/apiServices/courseListPublicService";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
-import { toast } from "sonner";
+import HomeCourseSkeleton from "@/components/common/HomeCourseSkeleton";
 
 const HomeCoursesWrapper = () => {
   const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
-
   const [coursesData, setCoursesData] = useState<ApiResponse | null>(null);
 
   useEffect(() => {
@@ -30,11 +29,10 @@ const HomeCoursesWrapper = () => {
           };
 
           const res = await getPublicCoursesList({ params });
-          if (!res.success) {
-            toast.error(res.message);
-            return;
-          } else {
+          if (res.success) {
             setCoursesData(res ?? null);
+          } else {
+            console.error("Failed to fetch public courses:", res.message);
           }
         } catch (error) {
           console.error("Failed to fetch public courses:", error);
@@ -46,6 +44,10 @@ const HomeCoursesWrapper = () => {
     });
   }, [searchParams]);
 
+  if (isPending) {
+    return <HomeCourseSkeleton />;
+  }
+
   return (
     <section className="bg-white py-8 md:py-14">
       <div className="container mx-auto px-4">
@@ -54,7 +56,7 @@ const HomeCoursesWrapper = () => {
           subtitle={coursesData?.data?.section_subtitle}
           iswhite={false}
         />
-        <HomeCourses coursesData={coursesData} isPending={isPending} />
+        <HomeCourses coursesData={coursesData} />
       </div>
     </section>
   );

@@ -31,7 +31,6 @@ import NewsfeedsArchiveSkeleton from "@/components/common/NewsfeedsArchiveSkelet
 import NewsletterSkeleton from "@/components/common/NewsletterSkeleton";
 
 const HomePage = () => {
-
   return (
     <>
       <Suspense fallback={<HomeHeroSkeleton />}>
@@ -43,11 +42,11 @@ const HomePage = () => {
       <Suspense fallback={<CourseCategorySkeleton />}>
         <CourseCategoriesWrapper />
       </Suspense>
-      <Suspense fallback={<ServicesSkeleton />}>
-        <HomeServiceList />
-      </Suspense>
       <Suspense fallback={<HomeCourseSkeleton />}>
         <HomeCoursesWrapper />
+      </Suspense>
+      <Suspense fallback={<ServicesSkeleton />}>
+        <HomeServiceList />
       </Suspense>
       <Suspense fallback={<GovtCourseSkeleton />}>
         <HomeGovtCourse />

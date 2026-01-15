@@ -4,7 +4,7 @@ import { useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Trash2, Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import DeleteStatsAction from "@/actions/DeleteStatsAction"; // This will be created later
+import { deleteStats } from "@/apiServices/statsService";
 import {
   AlertDialog,
   AlertDialogTrigger,
@@ -22,10 +22,6 @@ import { Spinner } from "@/components/ui/spinner"
 interface DeleteButtonProps {
   id: number;
 }
-type ApiResponse = {
-  success: boolean;
-  message?: string;
-};
 
 const DeleteButton = ({ id }: DeleteButtonProps) => {
   const [isPending, startTransition] = useTransition();
@@ -34,19 +30,19 @@ const DeleteButton = ({ id }: DeleteButtonProps) => {
   const handleDelete = () => {
     startTransition(async () => {
       try {
-        const res: ApiResponse = await DeleteStatsAction(id);
+        const res = await deleteStats(id);
         if (res.success) {
           toast.success(res.message || "Statistics deleted successfully");
           router.refresh();
         } else {
           toast.error(res.message || "Delete failed");
         }
-      } catch (error) {
-        const message =
-          error instanceof Error
-            ? error.message
-            : "An unexpected error occurred.";
-        toast.error(message);
+      } catch (error: unknown) {
+        if (error instanceof Error) {
+          toast.error(error.message);
+        } else {
+          toast.error("An unexpected error occurred.");
+        }
       }
     });
   };

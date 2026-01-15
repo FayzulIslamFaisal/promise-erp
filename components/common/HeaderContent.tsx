@@ -34,7 +34,7 @@ import {
   AvatarFallback,
   AvatarImage,
 } from "@/components/ui/avatar";
-import { User, LogOut, LayoutDashboard, Settings } from "lucide-react";
+import { User, LogOut, LayoutDashboard } from "lucide-react";
 
 export interface NavLink {
   name: string;
@@ -350,7 +350,7 @@ const HeaderContent = ({ navLinks }: HeaderContentProps) => {
         <DialogContent className="max-w-lg z-99999 max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
-              Search Results for "{searchQuery}"
+              Search Results for {"'"} {searchQuery} {"'"}
               {isPending && (
                 <Loader2 className="ml-2 h-4 w-4 inline animate-spin" />
               )}
@@ -407,39 +407,7 @@ const HeaderContent = ({ navLinks }: HeaderContentProps) => {
                 </div>
               )}
 
-            {/* Categories */}
-            {!isPending &&
-              results?.data?.categories &&
-              results.data.categories.length > 0 && (
-                <div>
-                  <h3 className="font-semibold mt-4 mb-2 text-lg">
-                    Categories
-                  </h3>
-                  <div className="space-y-2">
-                    {results.data.categories.map((item) => (
-                      <div
-                        key={item.id}
-                        onClick={() => {
-                          setOpenModal(false);
-                          router.push(`/courses/${item.slug}`);
-                        }}
-                        className="p-2 border rounded-md cursor-pointer hover:bg-muted transition-colors"
-                      >
-                        <div className="flex items-center gap-2">
-                          <Image
-                            src={item.image || "/images/placeholder_img.jpg"}
-                            alt={item.title}
-                            width={50}
-                            height={50}
-                            className="object-cover rounded-full"
-                          />
-                          <span className="font-base">{item.title}</span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
+            
           </div>
         </DialogContent>
       </Dialog>

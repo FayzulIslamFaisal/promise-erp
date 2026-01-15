@@ -3,7 +3,7 @@
 import { authOptions } from "@/lib/auth";
 import { getServerSession } from "next-auth";
 import { cacheTag, updateTag } from "next/cache";
-import { handleApiError, processApiResponse } from "@/lib/apiErrorHandler";
+import { processApiResponse } from "@/lib/apiErrorHandler";
 import { PaginationType } from "@/types/pagination";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api/v1";
@@ -102,7 +102,7 @@ export async function getHeroSections(
     const token = session?.accessToken;
     if (!token) throw new Error("No valid session or access token found.");
 
-    return await getHeroSectionsCached( token, params);
+    return await getHeroSectionsCached(token, params);
   } catch (error: unknown) {
     if (error instanceof Error) {
       console.error("Error in getHeroSections:", error.message);
@@ -154,12 +154,7 @@ export async function createHeroSection(
   try {
     const session = await getServerSession(authOptions);
     const token = session?.accessToken;
-    if (!token)
-      return {
-        success: false,
-        message: "No valid session or access token found.",
-        code: 401,
-      };
+    if (!token) throw new Error("No valid session or access token found.");
 
     const url = `${API_BASE}/hero-sections`;
     const response = await fetch(url, {
@@ -170,28 +165,10 @@ export async function createHeroSection(
       body: formData,
     });
 
-    const result = await processApiResponse(
-      response,
-      "Failed to create hero section"
-    );
-
-    if (!result.success) {
-      return {
-        success: false,
-        message: result.message,
-        errors: result.errors,
-        code: result.code,
-      };
-    }
-
+    const result = await response.json();
     updateTag("hero-sections-list");
 
-    return {
-      success: true,
-      message: result.message || "Hero section created successfully",
-      data: result.data,
-      code: result.code,
-    };
+    return result;
   } catch (error: unknown) {
     if (error instanceof Error) {
       console.error("Error in createHeroSection:", error.message);
@@ -213,12 +190,7 @@ export async function updateHeroSection(
   try {
     const session = await getServerSession(authOptions);
     const token = session?.accessToken;
-    if (!token)
-      return {
-        success: false,
-        message: "No valid session or access token found.",
-        code: 401,
-      };
+    if (!token) throw new Error("No valid session or access token found.");
 
     formData.append("_method", "PUT");
 
@@ -230,28 +202,11 @@ export async function updateHeroSection(
       body: formData,
     });
 
-    const result = await processApiResponse(
-      res,
-      "Failed to update hero section"
-    );
-
-    if (!result.success) {
-      return {
-        success: false,
-        message: result.message,
-        errors: result.errors,
-        code: result.code,
-      };
-    }
+    const result = await res.json();
 
     updateTag("hero-sections-list");
 
-    return {
-      success: true,
-      message: result.message || "Hero section updated successfully",
-      data: result.data,
-      code: result.code,
-    };
+    return result;
   } catch (error: unknown) {
     if (error instanceof Error) {
       console.error("Error in updateHeroSection:", error.message);
@@ -272,12 +227,7 @@ export async function deleteHeroSection(
   try {
     const session = await getServerSession(authOptions);
     const token = session?.accessToken;
-    if (!token)
-      return {
-        success: false,
-        message: "No valid session or access token found.",
-        code: 401,
-      };
+    if (!token) throw new Error("No valid session or access token found.");
 
     const res = await fetch(`${API_BASE}/hero-sections/${id}`, {
       method: "DELETE",
@@ -287,30 +237,14 @@ export async function deleteHeroSection(
       },
     });
 
-    const result = await processApiResponse(
-      res,
-      "Failed to delete hero section"
-    );
-
-    if (!result.success) {
-      return {
-        success: false,
-        message: result.message,
-        code: result.code,
-      };
-    }
+    const result = await res.json();
 
     updateTag("hero-sections-list");
 
-    return {
-      success: true,
-      message: result.message || "Hero section deleted successfully",
-      data: result.data,
-      code: result.code,
-    };
+    return result;
   } catch (error: unknown) {
+    console.error("Error in deleteHeroSection:", error);
     if (error instanceof Error) {
-      console.error("Error in deleteHeroSection:", error.message);
       throw new Error("Error deleting hero section");
     } else {
       throw new Error("Error deleting hero section");
@@ -318,33 +252,7 @@ export async function deleteHeroSection(
   }
 }
 
-// ============================================================
-// PUBLIC API for Home Page (Hero Section)
-// ============================================================
 
-export async function getHomeHeroSections(): Promise<HeroSectionsResponse> {
-  "use cache";
-  cacheTag("public-hero-sections");
-
-  try {
-    const res = await fetch(`${API_BASE}/public/hero-sections`);
-
-    if (!res.ok) {
-      throw new Error(
-        `Home Hero Sections API failed: ${res.status} ${res.statusText}`
-      );
-    }
-
-    return await res.json();
-  } catch (error: unknown) {
-    if (error instanceof Error) {
-      console.error("Error in getHomeHeroSections:", error.message);
-      throw new Error("Error fetching home hero sections");
-    } else {
-      throw new Error("Error fetching home hero sections");
-    }
-  }
-}
 //video gallery service ts file started here
 
 // ============================================================
@@ -380,7 +288,7 @@ export interface SingleVideoGalleryResponse {
 // ============================================================
 
 export async function getVideoGalleriesCached(
-token: string,
+  token: string,
   params: Record<string, unknown> = {}
 ): Promise<VideoGalleriesResponse> {
   "use cache";
@@ -408,8 +316,8 @@ token: string,
     const data: VideoGalleriesResponse = await res.json();
     return data;
   } catch (error: unknown) {
+    console.error("Error in getVideoGalleriesCached:", error);
     if (error instanceof Error) {
-      console.error("Error in getVideoGalleriesCached:", error.message);
       throw new Error("Error fetching video galleries");
     } else {
       throw new Error("Error fetching video galleries");
@@ -427,8 +335,8 @@ export async function getVideoGalleries(
 
     return await getVideoGalleriesCached(token, params);
   } catch (error: unknown) {
+    console.error("Error in getVideoGalleries:", error);
     if (error instanceof Error) {
-      console.error("Error in getVideoGalleries:", error.message);
       throw new Error("Error fetching video galleries");
     } else {
       throw new Error("Error fetching video galleries");
@@ -454,8 +362,8 @@ export async function getVideoGalleryById(id: number): Promise<SingleVideoGaller
     const data: SingleVideoGalleryResponse = await res.json();
     return data;
   } catch (error: unknown) {
+    console.error("Error in getVideoGalleryById:", error);
     if (error instanceof Error) {
-      console.error("Error in getVideoGalleryById:", error.message);
       throw new Error("Error fetching video gallery");
     } else {
       throw new Error("Error fetching video gallery");
@@ -469,12 +377,8 @@ export async function createVideoGallery(formData: FormData): Promise<SingleVide
   try {
     const session = await getServerSession(authOptions);
     const token = session?.accessToken;
-    if (!token)
-      return {
-        success: false,
-        message: "No valid session or access token found.",
-        code: 401,
-      };
+    if (!token) throw new Error("No valid session or access token found.");
+
     const url = `${API_BASE}/video-galleries`;
     const response = await fetch(url, {
       method: "POST",
@@ -483,28 +387,14 @@ export async function createVideoGallery(formData: FormData): Promise<SingleVide
       },
       body: formData,
     });
-    const result = await processApiResponse(
-      response,
-      "Failed to create video gallery"
-    );
-    if (!result.success) {
-      return {
-        success: false,
-        message: result.message,
-        errors: result.errors,
-        code: result.code,
-      };
-    }
+
+    const result = await response.json();
+  
     updateTag("public-reviews");
-    return {
-      success: true,
-      message: result.message || "Video gallery created successfully",
-      data: result.data,
-      code: result.code,
-    };
+    return result;
   } catch (error: unknown) {
+    console.error("Error in createVideoGallery:", error);
     if (error instanceof Error) {
-      console.error("Error in createVideoGallery:", error.message);
       throw new Error("Error creating video gallery");
     } else {
       throw new Error("Error creating video gallery");
@@ -521,12 +411,8 @@ export async function updateVideoGallery(
   try {
     const session = await getServerSession(authOptions);
     const token = session?.accessToken;
-    if (!token)
-      return {
-        success: false,
-        message: "No valid session or access token found.",
-        code: 401,
-      };
+    if (!token) throw new Error("No valid session or access token found.");
+
     formData.append("_method", "PUT");
     const res = await fetch(`${API_BASE}/video-galleries/${id}`, {
       method: "POST",
@@ -535,28 +421,15 @@ export async function updateVideoGallery(
       },
       body: formData,
     });
-    const result = await processApiResponse(
-      res,
-      "Failed to update video gallery"
-    );
-    if (!result.success) {
-      return {
-        success: false,
-        message: result.message,
-        errors: result.errors,
-        code: result.code,
-      };
-    }
+
+    const result = await res.json();
+    
     updateTag("public-reviews");
-    return {
-      success: true,
-      message: result.message || "Video gallery updated successfully",
-      data: result.data,
-      code: result.code,
-    };
+
+    return result;
   } catch (error: unknown) {
+    console.error("Error in updateVideoGallery:", error);
     if (error instanceof Error) {
-      console.error("Error in updateVideoGallery:", error.message);
       throw new Error("Error updating video gallery");
     } else {
       throw new Error("Error updating video gallery");
@@ -572,13 +445,10 @@ export async function deleteVideoGallery(
 ): Promise<SingleVideoGalleryResponse> {
   try {
     const session = await getServerSession(authOptions);
+
     const token = session?.accessToken;
-    if (!token)
-      return {
-        success: false,
-        message: "No valid session or access token found.",
-        code: 401,
-      };
+    if (!token) throw new Error("No valid session or access token found.");
+
     const res = await fetch(`${API_BASE}/video-galleries/${id}`, {
       method: "DELETE",
       headers: {
@@ -586,27 +456,13 @@ export async function deleteVideoGallery(
         "Content-Type": "application/json",
       },
     });
-    const result = await processApiResponse(
-      res,
-      "Failed to delete video gallery"
-    );
-    if (!result.success) {
-      return {
-        success: false,
-        message: result.message,
-        code: result.code,
-      };
-    }
+    const result = await res.json();
+
     updateTag("public-reviews");
-    return {
-      success: true,
-      message: result.message || "Video gallery deleted successfully",
-      data: result.data,
-      code: result.code,
-    };
+    return result;
   } catch (error: unknown) {
+    console.error("Error in deleteVideoGallery:", error);
     if (error instanceof Error) {
-      console.error("Error in deleteVideoGallery:", error.message);
       throw new Error("Error deleting video gallery");
     } else {
       throw new Error("Error deleting video gallery");
@@ -615,3 +471,537 @@ export async function deleteVideoGallery(
 }
 
 //video gallery service ts file ended here
+
+//common sections service ts file started here
+
+// ============================================================
+// Interfaces 
+// ============================================================
+
+export interface CommonSection {
+  id: number;
+  title: string;
+  sub_title: string;
+  type: string;
+  description: string | null;
+  image?: string | null;
+  video_link?: string | null;
+  button_text_one?: string | null;
+  button_link_one?: string | null;
+  button_text_two?: string | null;
+  button_link_two?: string | null;
+  status: number;
+}
+
+export interface CommonSectionsResponse {
+  success: boolean;
+  message: string;
+  code: number;
+  data: {
+    total_sections: number;
+    sections: CommonSection[];
+    pagination: PaginationType;
+  };
+  errors?: Record<string, string[]>;
+}
+
+export interface SingleCommonSectionResponse {
+  success: boolean;
+  message: string;
+  code: number;
+  data?: CommonSection | null;
+  errors?: Record<string, string[] | string>;
+}
+
+// ============================================================
+// GET Common Sections (Paginated)
+// ============================================================
+
+export async function getCommonSectionsCached(
+  token: string,
+  params: Record<string, unknown> = {}
+): Promise<CommonSectionsResponse> {
+  "use cache";
+  cacheTag("common-sections-list");
+
+  try {
+    const urlParams = new URLSearchParams();
+
+    for (const key in params) {
+      if (params[key] !== undefined && params[key] !== null) {
+        urlParams.append(key, params[key]!.toString());
+      }
+    }
+
+    const res = await fetch(
+      `${API_BASE}/sections?${urlParams.toString()}`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    if (!res.ok) {
+      throw new Error(`Failed to fetch common sections: ${res.status} ${res.statusText}`);
+    }
+
+    const data: CommonSectionsResponse = await res.json();
+    return data;
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("Error in getCommonSectionsCached:", error.message);
+      throw new Error("Error fetching common sections");
+    } else {
+      throw new Error("Error fetching common sections");
+    }
+  }
+}
+
+export async function getCommonSections(
+  params: Record<string, unknown> = {}
+): Promise<CommonSectionsResponse> {
+  try {
+    const session = await getServerSession(authOptions);
+    const token = session?.accessToken;
+    if (!token) throw new Error("No valid session or access token found.");
+
+    return await getCommonSectionsCached(token, params);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("Error in getCommonSections:", error.message);
+      throw new Error("Error fetching common sections");
+    } else {
+      throw new Error("Error fetching common sections");
+    }
+  }
+}
+
+// ============================================================
+// GET Common Section by ID
+// ============================================================
+
+export async function getCommonSectionById(
+  id: number
+): Promise<SingleCommonSectionResponse> {
+  try {
+    const session = await getServerSession(authOptions);
+    const token = session?.accessToken;
+    if (!token) throw new Error("No valid session or access token found.");
+
+    const res = await fetch(`${API_BASE}/sections/${id}`, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!res.ok) {
+      throw new Error(`Failed to fetch common section: ${res.status} ${res.statusText}`);
+    }
+
+    const data: SingleCommonSectionResponse = await res.json();
+    return data;
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("Error in getCommonSectionById:", error.message);
+      throw new Error("Error fetching common section");
+    } else {
+      throw new Error("Error fetching common section");
+    }
+  }
+}
+
+// ============================================================
+// CREATE Common Section
+// ============================================================
+
+export async function createCommonSection(
+  formData: FormData
+): Promise<SingleCommonSectionResponse> {
+  try {
+    const session = await getServerSession(authOptions);
+    const token = session?.accessToken;
+    if (!token) throw new Error("No valid session or access token found.");
+
+    const url = `${API_BASE}/sections`;
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData,
+    });
+
+    const result = await response.json();
+
+    updateTag("common-sections-list");
+    updateTag("categories-list");
+    updateTag("public-services");
+    updateTag("public-govt-course");
+    updateTag("public-opportunity");
+    updateTag("public-teachers");
+    updateTag("public-video-galleries");
+    updateTag("public-blog");
+    updateTag("public-reviews");
+    updateTag("public-news-feeds");
+    updateTag("affiliates-clients");
+    updateTag("public-branches");
+
+    return result
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("Error in createCommonSection:", error.message);
+      throw new Error(error.message);
+    } else {
+      throw new Error("Error creating common section");
+    }
+  }
+}
+
+// ============================================================
+// UPDATE Common Section
+// ============================================================
+
+export async function updateCommonSection(
+  id: number,
+  formData: FormData
+): Promise<SingleCommonSectionResponse> {
+  try {
+    const session = await getServerSession(authOptions);
+    const token = session?.accessToken;
+    if (!token) throw new Error("No valid session or access token found.");
+
+    formData.append("_method", "PUT");
+
+    const res = await fetch(`${API_BASE}/sections/${id}`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData,
+    });
+
+    const result = await res.json();
+
+    updateTag("common-sections-list");
+    updateTag("categories-list");
+    updateTag("public-services");
+    updateTag("public-govt-course");
+    updateTag("public-opportunity");
+    updateTag("public-teachers");
+    updateTag("public-video-galleries");
+    updateTag("public-blog");
+    updateTag("public-reviews");
+    updateTag("public-news-feeds");
+    updateTag("affiliates-clients");
+    updateTag("public-branches");
+
+    return result
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("Error in updateCommonSection:", error.message);
+      throw new Error(error.message);
+    } else {
+      throw new Error("Error updating common section");
+    }
+  }
+}
+
+// ============================================================
+// DELETE Common Section
+// ============================================================
+
+export async function deleteCommonSection(
+  id: number
+): Promise<SingleCommonSectionResponse> {
+  try {
+    const session = await getServerSession(authOptions);
+    const token = session?.accessToken;
+    if (!token) throw new Error("No valid session or access token found.");
+
+    const res = await fetch(`${API_BASE}/sections/${id}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    const result = await res.json();
+
+
+    updateTag("categories-list");
+    updateTag("public-services");
+    updateTag("public-govt-course");
+    updateTag("public-opportunity");
+    updateTag("public-teachers");
+    updateTag("public-video-galleries");
+    updateTag("public-blog");
+    updateTag("public-reviews");
+    updateTag("public-news-feeds");
+    updateTag("affiliates-clients");
+    updateTag("public-branches");
+
+    return result
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("Error in deleteCommonSection:", error.message);
+      throw new Error(error.message);
+    } else {
+      throw new Error("Error deleting common section");
+    }
+  }
+}
+
+//common sections service ts file ended here
+
+//Opportunities service ts file started here
+
+// ============================================================
+// Interfaces 
+// ============================================================
+
+export interface Opportunity {
+  id: number;
+  title: string;
+  sub_title: string;
+  image?: string | null;
+  status: number;
+}
+
+export interface OpportunitiesResponse {
+  success: boolean;
+  message: string;
+  code: number;
+  data: {
+    total_opportunities: number;
+    opportunities: Opportunity[];
+    pagination: PaginationType;
+  };
+  errors?: Record<string, string[]>;
+}
+
+export interface SingleOpportunityResponse {
+  success: boolean;
+  message: string;
+  code: number;
+  data?: Opportunity | null;
+  errors?: Record<string, string[] | string>;
+}
+
+// ============================================================
+// GET Opportunities (Paginated)
+// ============================================================
+
+export async function getOpportunitiesCached(
+  token: string,
+  params: Record<string, unknown> = {}
+): Promise<OpportunitiesResponse> {
+  "use cache";
+  cacheTag("opportunities-list");
+
+  try {
+    const urlParams = new URLSearchParams();
+
+    for (const key in params) {
+      if (params[key] !== undefined && params[key] !== null) {
+        urlParams.append(key, params[key]!.toString());
+      }
+    }
+
+    const res = await fetch(
+      `${API_BASE}/opportunities?${urlParams.toString()}`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    if (!res.ok) {
+      throw new Error(`Failed to fetch opportunities: ${res.status} ${res.statusText}`);
+    }
+
+    const data: OpportunitiesResponse = await res.json();
+    return data;
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("Error in getOpportunitiesCached:", error.message);
+      throw new Error("Error fetching opportunities");
+    } else {
+      throw new Error("Error fetching opportunities");
+    }
+  }
+}
+
+export async function getOpportunities(
+  params: Record<string, unknown> = {}
+): Promise<OpportunitiesResponse> {
+  try {
+    const session = await getServerSession(authOptions);
+    const token = session?.accessToken;
+    if (!token) throw new Error("No valid session or access token found.");
+
+    return await getOpportunitiesCached(token, params);
+  } catch (error: unknown) {
+    console.error("Error in getOpportunities:", error);
+    if (error instanceof Error) {
+      throw new Error("Error fetching opportunities");
+    } else {
+      throw new Error("Error fetching opportunities");
+    }
+  }
+}
+
+// ============================================================
+// GET Opportunity by ID
+// ============================================================
+
+export async function getOpportunityById(
+  id: number
+): Promise<SingleOpportunityResponse> {
+  try {
+    const session = await getServerSession(authOptions);
+    const token = session?.accessToken;
+    if (!token) throw new Error("No valid session or access token found.");
+
+    const res = await fetch(`${API_BASE}/opportunities/${id}`, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!res.ok) {
+      throw new Error(`Failed to fetch opportunity: ${res.status} ${res.statusText}`);
+    }
+
+    const data: SingleOpportunityResponse = await res.json();
+    
+    return data;
+  } catch (error: unknown) {
+    console.error("Error in getOpportunityById:", error);
+    if (error instanceof Error) {
+      throw new Error("Error fetching opportunity");
+    } else {
+      throw new Error("Error fetching opportunity");
+    }
+  }
+}
+
+// ============================================================
+// CREATE Opportunity
+// ============================================================
+
+export async function createOpportunity(
+  formData: FormData
+): Promise<SingleOpportunityResponse> {
+  try {
+    const session = await getServerSession(authOptions);
+    const token = session?.accessToken;
+    if (!token) throw new Error("No valid session or access token found.");
+
+    const url = `${API_BASE}/opportunities`;
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData,
+    });
+
+    const result = await response.json();
+
+    updateTag("opportunities-list");
+    updateTag("public-opportunity");
+
+    return result;
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("Error in createOpportunity:", error.message);
+      throw new Error(error.message);
+    } else {
+      throw new Error("Error creating opportunity");
+    }
+  }
+}
+
+// ============================================================
+// UPDATE Opportunity
+// ============================================================
+
+export async function updateOpportunity(
+  id: number,
+  formData: FormData
+): Promise<SingleOpportunityResponse> {
+  try {
+    const session = await getServerSession(authOptions);
+    const token = session?.accessToken;
+    if (!token) throw new Error("No valid session or access token found.");
+
+    formData.append("_method", "PUT");
+
+    const res = await fetch(`${API_BASE}/opportunities/${id}`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData,
+    });
+
+    const result = await res.json();
+
+    updateTag("opportunities-list");
+    updateTag("public-opportunity");
+
+    return result;
+  } catch (error: unknown) {
+    console.error("Error in updateOpportunity:", error);
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    } else {
+      throw new Error("Error updating opportunity");
+    }
+  }
+}
+
+// ============================================================
+// DELETE Opportunity
+// ============================================================
+
+export async function deleteOpportunity(
+  id: number
+): Promise<SingleOpportunityResponse> {
+  try {
+    const session = await getServerSession(authOptions);
+    const token = session?.accessToken;
+    if (!token) throw new Error("No valid session or access token found.");
+
+    const res = await fetch(`${API_BASE}/opportunities/${id}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    const result = await res.json();
+
+    updateTag("opportunities-list");
+    updateTag("public-opportunity");
+
+    return result;
+  } catch (error: unknown) {
+    console.error("Error in deleteOpportunity:", error);
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    } else {
+      throw new Error("Error deleting opportunity");
+    }
+  }
+}
+
+//Opportunities service ts file ended here

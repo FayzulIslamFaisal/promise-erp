@@ -13,23 +13,16 @@ import {
 } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
 import { Search, FilterX } from "lucide-react"
-import { Branch } from "@/apiServices/branchService"
 
 interface FilterFormValues {
   search?: string
   sort_order?: string
   status?: string
-  branch_id?: string
   type?: string
 }
 
-interface StatsFilterProps {
-  branches?: Branch[]
-}
 
-export default function StatsFilter({
-  branches = [],
-}: StatsFilterProps) {
+export default function StatsFilter() {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
@@ -38,7 +31,6 @@ export default function StatsFilter({
       search: searchParams.get("search") || "",
       sort_order: searchParams.get("sort_order") || "",
       status: searchParams.get("status") || "",
-      branch_id: searchParams.get("branch_id") || "",
       type: searchParams.get("type") || "",
     },
   })
@@ -70,7 +62,6 @@ export default function StatsFilter({
       search: "",
       sort_order: "",
       status: "",
-      branch_id: "",
       type: "",
     })
     router.replace(pathname)
@@ -98,9 +89,9 @@ export default function StatsFilter({
         )}
       </div>
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
         {/* Search Input */}
-        <div className="relative col-span-1 lg:col-span-1">
+        <div className="relative col-span-1">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Search statistics..."
@@ -125,26 +116,6 @@ export default function StatsFilter({
             </Select>
           )}
         />
-        {/* Branch */}
-        <Controller
-          name="branch_id"
-          control={control}
-          render={({ field }) => (
-            <Select onValueChange={field.onChange} value={field.value}>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Branch" />
-              </SelectTrigger>
-              <SelectContent>
-                {branches.map((branch) => (
-                  <SelectItem key={branch.id} value={String(branch.id)}>
-                    {branch.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          )}
-        />
-
         {/* Status */}
         <Controller
           name="status"

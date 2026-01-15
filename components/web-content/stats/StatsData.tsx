@@ -1,9 +1,4 @@
-"use client";
-
-import { useState, useEffect, useTransition } from "react";
-import { useSearchParams } from "next/navigation";
-import { getStats, Stats } from "@/apiServices/statsService";
-import { PaginationType } from "@/types/pagination";
+import { getStats, Stats } from "@/apiServices/statsService"; // This will be created later
 import ErrorComponent from "@/components/common/ErrorComponent";
 import NotFoundComponent from "@/components/common/NotFoundComponent";
 import { Badge } from "@/components/ui/badge";
@@ -23,69 +18,54 @@ import {
 } from "@/components/ui/table";
 import { Eye, Pencil } from "lucide-react";
 import Link from "next/link";
-import DeleteButton from "./DeleteButton";
-import PagePagination from "@/components/common/Pagination";
+import DeleteButton from "./DeleteButton"; // This will be created later
+import Pagination from "@/components/common/Pagination";
 import Image from "next/image";
-import { toast } from "sonner";
-import { useSession } from "next-auth/react";
+import { StatsSearchParamsProps } from "@/app/(admin-dashboard)/web-content/stats/page";
 
-const StatsData = () => {
-  const searchParams = useSearchParams();
-  const [stats, setStats] = useState<Stats[]>([]);
-  const [pagination, setPagination] = useState<PaginationType | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [isPending, startTransition] = useTransition();
-  const { data: session, status } = useSession();
+export default async function StatsData({
+  searchParams }: StatsSearchParamsProps) {
+  const resolvedSearchParams = await searchParams;
+  const page =
+    typeof resolvedSearchParams.page === "string" ? Number(resolvedSearchParams.page) : 1;
 
-  const fetchStats = async () => {
-    startTransition(async () => {
-      try {
-        const token = session?.accessToken; // or session?.user?.token if you stored it differently
-
-        if (!token) {
-          setError("No valid session or access token found.");
-          return;
-        }
-        const params = {
-          page: searchParams.get("page") ? Number(searchParams.get("page")) : 1,
-          search: searchParams.get("search") ?? undefined,
-          branch_id: searchParams.get("branch_id") ?? undefined,
-          sort_order: searchParams.get("sort_order") ?? undefined,
-          type: searchParams.get("type") ?? undefined,
-          status: searchParams.get("status") ?? undefined,
-        };
-
-        const response = await getStats(token, params);
-        if (response.success && response?.data?.stats) {
-          setStats(response?.data?.stats ?? []);
-          setPagination(response?.data?.pagination ?? null);
-        } else {
-          setError(response?.message || "Failed to fetch stats.");
-          toast.error(response?.message || "Failed to fetch stats.");
-        }
-      } catch (err) {
-        setError((err as Error).message);
-      }
-    });
+  const params = {
+    page,
+    search:
+      typeof resolvedSearchParams.search === "string"
+        ? resolvedSearchParams.search
+        : undefined,
+    sort_order:
+      typeof resolvedSearchParams.sort_order === "string"
+        ? resolvedSearchParams.sort_order
+        : undefined,
+    type:
+      typeof resolvedSearchParams.type === "string"
+        ? resolvedSearchParams.type
+        : undefined,
+    status:
+      typeof resolvedSearchParams.status === "string"
+        ? resolvedSearchParams.status
+        : undefined,
   };
 
-  useEffect(() => {
-    if (status === "loading") return;
-
-    if (session?.accessToken) {
-      fetchStats();
-    } else if (status === "authenticated" && !session?.accessToken) {
-      setError("No valid session or access token found.");
+  let data;
+  try {
+    data = await getStats(params);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      return <ErrorComponent message={error.message} />;
+    } else {
+      return <ErrorComponent message={data?.message ?? "An unexpected error occurred."} />;
     }
-    // searchParams এর কোন পরিবর্তন হলে আবার fetch করবে
-  }, [searchParams, session, status]);
-
-  if (error) return <ErrorComponent message={error} />;
-
-  if (!stats || stats.length === 0) {
-    return <NotFoundComponent message="No stats found." />;
   }
-  if (isPending) return <div className="text-center">Loading...</div>;
+
+  const stats = data?.data?.stats ?? [];
+  const pagination = data?.data?.pagination ?? {};
+
+  if (stats.length === 0) {
+    return <NotFoundComponent message={data?.message ?? "No stats found."} />;
+  }
 
   return (
     <>
@@ -98,7 +78,6 @@ const StatsData = () => {
               <TableHead>Title</TableHead>
               <TableHead>Count</TableHead>
               <TableHead>Image</TableHead>
-              <TableHead>Branch</TableHead>
               <TableHead>Status</TableHead>
             </TableRow>
           </TableHeader>
@@ -106,12 +85,7 @@ const StatsData = () => {
           <TableBody>
             {stats.map((statData: Stats, index: number) => (
               <TableRow key={statData?.id}>
-                <TableCell>
-                  {((pagination?.current_page ?? 1) - 1) *
-                    (pagination?.per_page ?? 10) +
-                    index +
-                    1}
-                </TableCell>
+                <TableCell>{(pagination.current_page - 1) * pagination.per_page + index + 1}</TableCell>
                 <TableCell className="text-center">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -141,7 +115,7 @@ const StatsData = () => {
                           className="flex items-center cursor-pointer"
                         >
                           <Pencil className="mr-2 h-4 w-4" />
-                          Edit
+                          Manage
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>
@@ -170,7 +144,6 @@ const StatsData = () => {
                     className="object-cover rounded-md border"
                   />
                 </TableCell>
-                <TableCell>{statData?.branch?.name ?? "-"}</TableCell>
                 <TableCell>
                   <Badge
                     className={
@@ -185,8 +158,7 @@ const StatsData = () => {
           </TableBody>
         </Table>
       </div>
-      {pagination && <PagePagination pagination={pagination} />}
+      <Pagination pagination={pagination} />
     </>
   );
-};
-export default StatsData;
+}

@@ -248,11 +248,11 @@ const data = {
         },
         {
           title: "Common Sections",
-          url: "#",
+          url: "/web-content/common-sections",
         },
         {
-          title: "FAQs",
-          url: "#",
+          title: "Opportunities",
+          url: "/web-content/opportunities",
         },
         {
           title: "Video Gallery",

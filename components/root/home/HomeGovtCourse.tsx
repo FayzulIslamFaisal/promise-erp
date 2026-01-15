@@ -40,7 +40,7 @@ export default async function HomeGovtCourse() {
                 asChild
                 className="cursor-pointer flex items-center gap-2"
               >
-                <Link href="#">
+                <Link href="/courses?course_type=govt">
                   বিস্তারিত দেখুন
                   <MoveRight className="w-5 h-5 animate-bounce" />
                 </Link>

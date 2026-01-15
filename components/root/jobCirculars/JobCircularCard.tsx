@@ -1,4 +1,10 @@
-import { Briefcase, MapPin, Calendar, ChevronRight, Link } from "lucide-react";
+import {
+  Briefcase,
+  MapPin,
+  Calendar,
+  Link,
+  MoveRight,
+} from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { JobCircularsProps } from "./JobCircularsData";
@@ -53,12 +59,10 @@ const JobCircularCard = ({ job }: JobCardProps) => {
 
         {/* Apply Button */}
         <div className="shrink-0 self-end">
-          <Button asChild className="w-full">
-            <Link
-              href={`/job-circulars/${job.slug}`}
-              className="w-full flex items-center text-white"
-            >
-              Apply Now <ChevronRight className="w-4 h-4 ml-1" />
+          <Button asChild className="cursor-pointer flex items-center gap-2">
+            <Link href={`/job-circulars/${job.slug}`} target="_blank">
+              Apply Now
+              <MoveRight className="w-5 h-5 animate-bounce" />
             </Link>
           </Button>
         </div>

@@ -12,14 +12,18 @@ import {
 import Link from "next/link";
 import CourseCard from "../courseList/CourseCard";
 import { ApiResponse } from "@/apiServices/courseListPublicService";
+import NotFoundComponent from "@/components/common/NotFoundComponent";
 
 interface HomeCoursesProps {
   coursesData: ApiResponse | null;
-  isPending?: boolean;
 }
 
 const HomeCourses = ({coursesData}:HomeCoursesProps ) => {
   const courses = coursesData?.data?.courses || [];
+  
+  if (courses.length === 0) {
+    return <NotFoundComponent message={coursesData?.message || "No Courses Found"} />;
+  }
   
   return (
     <>

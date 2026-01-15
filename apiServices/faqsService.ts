@@ -4,7 +4,6 @@ import { authOptions } from "@/lib/auth";
 import { getServerSession } from "next-auth";
 import { cacheTag, updateTag } from "next/cache";
 import { PaginationType } from "@/types/pagination";
-import { processApiResponse, handleApiError } from "@/lib/apiErrorHandler";
 
 const API_BASE =
   process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api/v1";
@@ -149,9 +148,7 @@ export async function createFaq(
     const session = await getServerSession(authOptions);
     const token = session?.accessToken;
 
-    if (!token) {
-      return { success: false, message: "No token found", code: 401 };
-    }
+    if (!token) throw new Error("No valid session/token");
 
     const res = await fetch(`${API_BASE}/faq-sections`, {
       method: "POST",
@@ -162,16 +159,18 @@ export async function createFaq(
       body: JSON.stringify(formData),
     });
 
-    const result = await processApiResponse<Faq>(res, "Failed to create FAQ");
+    const result = await res.json();
 
     updateTag("faqs-list");
     return result;
   } catch (error: unknown) {
-    if (error instanceof Error) {
-      return { success: false, message: error.message, code: 500 };
-    } else {
-      return { success: false, message: "Failed to create FAQ", code: 500 };
+   if (error instanceof Error) {
+      console.error("Error in createFaq:", error);
+      throw new Error(error.message || "Failed to create FAQ");
+    }else {
+      throw new Error("Failed to create FAQ");
     }
+
   }
 }
 
@@ -193,9 +192,7 @@ export async function updateFaq(
     const session = await getServerSession(authOptions);
     const token = session?.accessToken;
 
-    if (!token) {
-      return { success: false, message: "No token found", code: 401 };
-    }
+    if (!token) throw new Error("No valid session/token");
 
     const res = await fetch(`${API_BASE}/faq-sections/${id}`, {
       method: "PUT",
@@ -206,26 +203,18 @@ export async function updateFaq(
       body: JSON.stringify(updateData),
     });
 
-    const result = await processApiResponse<Faq>(res, "Failed to update FAQ");
+    const result = await res.json();
 
-    if (!result.success) {
-      return {
-        success: false,
-        message: result.message,
-        errors: result.errors,
-        code: result.code,
-      };
-    }
 
     updateTag("faqs-list");
-    return {
-      success: true,
-      message: result.message || "FAQ updated successfully",
-      data: result.data,
-      code: result.code,
-    };
+    return result;
   } catch (error: unknown) {
-    return await handleApiError(error, "Failed to update FAQ");
+    if (error instanceof Error) {
+      console.error("Error in updateFaq:", error);
+      throw new Error(error.message || "Failed to update FAQ");
+    } else {
+      throw new Error("Failed to update FAQ");
+    }
   }
 }
 
@@ -250,15 +239,16 @@ export async function deleteFaq(id: number): Promise<SingleFaqResponse> {
       },
     });
 
-    const result = await processApiResponse(res, "Failed to delete FAQ");
+    const result = await res.json()
 
     updateTag("faqs-list");
     return result;
   } catch (error: unknown) {
+    console.error("Error in deleteFaq:", error);
     if (error instanceof Error) {
-      return { success: false, message: error.message, code: 500 };
+     throw new Error(error.message);
     } else {
-      return { success: false, message: "Failed to delete FAQ", code: 500 };
+      throw new Error("Failed to delete FAQ");
     }
   }
 }

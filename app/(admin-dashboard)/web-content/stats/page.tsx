@@ -31,7 +31,7 @@ export default async function StatsPage({ searchParams }: StatsSearchParamsProps
       </Suspense>
 
       <Suspense fallback={<TableSkeleton columns={8} rows={10} />}>
-        <StatsData />
+        <StatsData searchParams={searchParams} />
       </Suspense>
     </div>
   );

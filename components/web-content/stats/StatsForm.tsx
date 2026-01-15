@@ -11,7 +11,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Branch } from "@/apiServices/branchService";
 import {
   addStats,
   updateStats,
@@ -27,24 +26,19 @@ import Image from "next/image";
 
 interface StatsFormValues {
   title: string;
-  count: string;
+  count: number;
   image?: FileList;
   status: number;
-  branch_id: number;
 }
 
 interface StatsFormProps {
   title: string;
-  branches: Branch[];
   stats?: Stats;
-  loading?: boolean;
 }
 
 export default function StatsForm({
   title,
-  branches,
   stats,
-  loading,
 }: StatsFormProps) {
   const router = useRouter();
   const [previewImage, setPreviewImage] = useState<string | null>(
@@ -54,16 +48,15 @@ export default function StatsForm({
     register,
     handleSubmit,
     control,
-    formState: { errors },
+    formState: { errors, isSubmitting },
     setError,
     reset,
     watch,
   } = useForm<StatsFormValues>({
     defaultValues: {
       title: stats?.title || "",
-      count: stats?.count || "",
+      count: stats?.count || 0,
       status: stats?.status || 1,
-      branch_id: stats?.branch.id || 0,
       image: undefined,
     },
   });
@@ -76,7 +69,6 @@ export default function StatsForm({
         title: stats.title,
         count: stats.count,
         status: stats.status,
-        branch_id: stats.branch.id,
       });
       if (stats.image) setPreviewImage(stats.image);
     }
@@ -98,14 +90,13 @@ export default function StatsForm({
 
     // Map fields to API payload
     formData.append("title", String(data.title));
-    formData.append("count", String(data.count ?? ""));
+    formData.append("count", String(data.count ?? 0));
 
     if (data.image && data.image.length > 0) {
       formData.append("image", data.image[0]);
     }
 
     formData.append("status", String(data.status));
-    formData.append("branch_id", String(data.branch_id));
 
     try {
       const res: StatsResponseType = stats
@@ -118,34 +109,29 @@ export default function StatsForm({
         );
         reset();
         setPreviewImage(null);
-        router.push("/lms/stats");
+        router.push("/web-content/stats");
       } else if (res?.errors) {
         Object.entries(res.errors).forEach(([field, messages]) => {
-          if (Array.isArray(messages) && messages.length > 0) {
+          if (messages.length > 0) {
             const message = messages[0];
-            const mappedField =
-              field === "branch_id"
-                ? "branch_id"
-                : (field as keyof StatsFormValues);
-            setError(mappedField as keyof StatsFormValues, {
-              type: "manual",
+            
+            setError(field as keyof StatsFormValues, {
+              type: "server",
               message,
             });
           }
         });
-        toast.error("Please fix the errors below.");
       } else {
         toast.error(
           res?.message || `Failed to ${stats ? "update" : "add"} stats.`
         );
       }
     } catch (error: unknown) {
+      console.error("Error in handleFormSubmit:", error);
       if (error instanceof Error) {
-        console.error("Something went wrong. Try again later.", error);
-        toast.error("Something went wrong. Try again later.");
+        toast.error(error.message);
       }else {
-        console.error("Something went wrong. Try again later.", error);
-        toast.error("Something went wrong. Try again later.");
+        toast.error("An unexpected error occurred.");
       }
     }
   };
@@ -165,7 +151,7 @@ export default function StatsForm({
       <CardContent>
         <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6">
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <div className="col-span-2 space-y-2">
+            <div className="col-span-1 space-y-2">
               <Label htmlFor="title">Title</Label>
               <Input id="title" {...register("title")} />
               {errors.title && (
@@ -173,15 +159,15 @@ export default function StatsForm({
               )}
             </div>
 
-            <div className="col-span-2 space-y-2">
+            <div className="col-span-1 space-y-2">
               <Label htmlFor="count">Count</Label>
-              <Input id="count" {...register("count")} />
+              <Input id="count" type="number" {...register("count")} />
               {errors.count && (
                 <p className="text-red-500 text-sm">{errors.count.message}</p>
               )}
             </div>
 
-            <div className="col-span-2 space-y-2">
+            <div className="space-y-2 w-full">
               <Label htmlFor="image">Image</Label>
               <div className="space-y-3">
                 {previewImage ? (
@@ -231,39 +217,6 @@ export default function StatsForm({
                 )}
               </div>
             </div>
-            {loading ? (
-              <p className="text-sm text-gray-500">Loading branches...</p>
-            ) : (
-              <div className="space-y-2 w-full">
-                <Label htmlFor="branch_id">Branch</Label>
-                <Controller
-                  name="branch_id"
-                  control={control}
-                  render={({ field }) => (
-                    <Select
-                      onValueChange={(value) => field.onChange(Number(value))}
-                    >
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select branch" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {branches.map((branch) => (
-                          <SelectItem key={branch.id} value={String(branch.id)}>
-                            {branch.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  )}
-                />
-                {errors.branch_id && (
-                  <p className="text-red-500 text-sm">
-                    {errors.branch_id.message}
-                  </p>
-                )}
-              </div>
-            )}
-
             <div className="space-y-2 w-full">
               <Label htmlFor="status">Status</Label>
               <Controller
@@ -290,7 +243,16 @@ export default function StatsForm({
             </div>
           </div>
           <div className="flex justify-center">
-            <Button type="submit">Submit</Button>
+            <Button 
+              type="submit"
+              disabled={isSubmitting}
+            >
+              {isSubmitting
+                ? "Submitting..."
+                : stats
+                  ? "Update Stats" 
+                  : "Add Stats"}
+            </Button>
           </div>
         </form>
       </CardContent>
