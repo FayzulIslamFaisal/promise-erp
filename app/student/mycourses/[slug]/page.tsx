@@ -10,7 +10,7 @@ const MyCourseBySlugPage =  ({
 }: MyCoursesBySlugPageProps) => {
 
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={<div className="text-center font-bold py-6">Loading...</div>}>
       <MyCourseBySlugWrapper params={params} searchParams={searchParams} />
     </Suspense>
   );

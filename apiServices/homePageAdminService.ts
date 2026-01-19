@@ -3,7 +3,6 @@
 import { authOptions } from "@/lib/auth";
 import { getServerSession } from "next-auth";
 import { cacheTag, updateTag } from "next/cache";
-import { processApiResponse } from "@/lib/apiErrorHandler";
 import { PaginationType } from "@/types/pagination";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api/v1";
@@ -389,7 +388,7 @@ export async function createVideoGallery(formData: FormData): Promise<SingleVide
     });
 
     const result = await response.json();
-  
+
     updateTag("public-reviews");
     return result;
   } catch (error: unknown) {
@@ -423,7 +422,7 @@ export async function updateVideoGallery(
     });
 
     const result = await res.json();
-    
+
     updateTag("public-reviews");
 
     return result;
@@ -880,7 +879,7 @@ export async function getOpportunityById(
     }
 
     const data: SingleOpportunityResponse = await res.json();
-    
+
     return data;
   } catch (error: unknown) {
     console.error("Error in getOpportunityById:", error);
@@ -1005,3 +1004,493 @@ export async function deleteOpportunity(
 }
 
 //Opportunities service ts file ended here
+
+//our-partners service ts file started here
+
+export interface Partner {
+  id: number;
+  title: string;
+  image?: string | null;
+  status: number;
+  partner_type: number;
+}
+
+export interface PartnersResponse {
+  success: boolean;
+  message: string;
+  code: number;
+  data: {
+    total_partners: number;
+    partners: Partner[];
+    pagination: PaginationType;
+  };
+  errors?: Record<string, string[]>;
+}
+
+export interface SinglePartnerResponse {
+  success: boolean;
+  message: string;
+  code: number;
+  data?: Partner | null;
+  errors?: Record<string, string[] | string>;
+}
+
+// ============================================================
+// GET Partners (Paginated)
+// ============================================================
+
+export async function getPartnersCached(
+  token: string,
+  params: Record<string, unknown> = {}
+): Promise<PartnersResponse> {
+  "use cache";
+  cacheTag("partners-list");
+
+  try {
+    const urlParams = new URLSearchParams();
+
+    for (const key in params) {
+      if (params[key] !== undefined && params[key] !== null) {
+        urlParams.append(key, params[key]!.toString());
+      }
+    }
+
+    const res = await fetch(
+      `${API_BASE}/partners?${urlParams.toString()}`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    if (!res.ok) {
+      throw new Error(`Failed to fetch partners: ${res.status} ${res.statusText}`);
+    }
+
+    const data: PartnersResponse = await res.json();
+    return data;
+  } catch (error: unknown) {
+    console.error("Error in getPartnersCached:", error);
+    if (error instanceof Error) {
+      throw new Error("Error fetching partners");
+    } else {
+      throw new Error("Error fetching partners");
+    }
+  }
+}
+
+export async function getPartners(
+  params: Record<string, unknown> = {}
+): Promise<PartnersResponse> {
+  try {
+    const session = await getServerSession(authOptions);
+    const token = session?.accessToken;
+    if (!token) throw new Error("No valid session or access token found.");
+
+    return await getPartnersCached(token, params);
+  } catch (error: unknown) {
+    console.error("Error in getPartners:", error);
+    if (error instanceof Error) {
+      throw new Error("Error fetching partners");
+    } else {
+      throw new Error("Error fetching partners");
+    }
+  }
+}
+
+// ============================================================
+// GET Partner by ID
+// ============================================================
+
+export async function getPartnerById(
+  id: number
+): Promise<SinglePartnerResponse> {
+  try {
+    const session = await getServerSession(authOptions);
+    const token = session?.accessToken;
+    if (!token) throw new Error("No valid session or access token found.");
+
+    const res = await fetch(`${API_BASE}/partners/${id}`, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!res.ok) {
+      throw new Error(`Failed to fetch partner: ${res.status} ${res.statusText}`);
+    }
+
+    const data: SinglePartnerResponse = await res.json();
+
+    return data;
+  } catch (error: unknown) {
+    console.error("Error in getPartnerById:", error);
+    if (error instanceof Error) {
+      throw new Error("Error fetching partner");
+    } else {
+      throw new Error("Error fetching partner");
+    }
+  }
+}
+
+// ============================================================
+// CREATE Partner
+// ============================================================
+
+export async function createPartner(
+  formData: FormData
+): Promise<SinglePartnerResponse> {
+  try {
+    const session = await getServerSession(authOptions);
+    const token = session?.accessToken;
+    if (!token) throw new Error("No valid session or access token found.");
+
+    const url = `${API_BASE}/partners`;
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData,
+    });
+
+    const result = await response.json();
+
+    updateTag("partners-list");
+
+    return result;
+  } catch (error: unknown) {
+    console.error("Error in createPartner:", error);
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    } else {
+      throw new Error("Error creating partner");
+    }
+  }
+}
+
+// ============================================================
+// UPDATE Partner
+// ============================================================
+
+export async function updatePartner(
+  id: number,
+  formData: FormData
+): Promise<SinglePartnerResponse> {
+  try {
+    const session = await getServerSession(authOptions);
+    const token = session?.accessToken;
+    if (!token) throw new Error("No valid session or access token found.");
+
+    formData.append("_method", "PUT");
+
+    const res = await fetch(`${API_BASE}/partners/${id}`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData,
+    });
+
+    const result = await res.json();
+
+    updateTag("partners-list");
+
+    return result;
+  } catch (error: unknown) {
+    console.error("Error in updatePartner:", error);
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    } else {
+      throw new Error("Error updating partner");
+    }
+  }
+}
+
+// ============================================================
+// DELETE Partner
+// ============================================================
+
+export async function deletePartner(
+  id: number
+): Promise<SinglePartnerResponse> {
+  try {
+    const session = await getServerSession(authOptions);
+    const token = session?.accessToken;
+    if (!token) throw new Error("No valid session or access token found.");
+
+    const res = await fetch(`${API_BASE}/partners/${id}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    const result = await res.json();
+
+    updateTag("partners-list");
+
+    return result;
+  } catch (error: unknown) {
+    console.error("Error in deletePartner:", error);
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    } else {
+      throw new Error("Error deleting partner");
+    }
+  }
+}
+
+//our-partners service ts file ended here
+
+//news-feeds service ts file started here
+
+// ============================================================
+// Interfaces 
+// ============================================================
+
+export interface NewsFeed {
+  id: number;
+  title: string;
+  news_link: string;
+  image?: string | null;
+  entry_date: string;
+  status: number;
+}
+
+export interface NewsFeedsResponse {
+  success: boolean;
+  message: string;
+  code: number;
+  data: {
+    total_news_feeds: number;
+    news_feeds: NewsFeed[];
+    pagination: PaginationType;
+  };
+  errors?: Record<string, string[]>;
+}
+
+export interface SingleNewsFeedResponse {
+  success: boolean;
+  message: string;
+  code: number;
+  data?: NewsFeed | null;
+  errors?: Record<string, string[] | string>;
+}
+
+// ============================================================
+// GET News Feeds (Paginated)
+// ============================================================
+
+export async function getNewsFeedsCached(
+  token: string,
+  params: Record<string, unknown> = {}
+): Promise<NewsFeedsResponse> {
+  "use cache";
+  cacheTag("news-feeds-list");
+
+  try {
+    const urlParams = new URLSearchParams();
+
+    for (const key in params) {
+      if (params[key] !== undefined && params[key] !== null) {
+        urlParams.append(key, params[key]!.toString());
+      }
+    }
+
+    const res = await fetch(
+      `${API_BASE}/news-feeds?${urlParams.toString()}`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    if (!res.ok) {
+      throw new Error(`Failed to fetch news feeds: ${res.status} ${res.statusText}`);
+    }
+
+    const data: NewsFeedsResponse = await res.json();
+    return data;
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("Error in getNewsFeedsCached:", error.message);
+      throw new Error("Error fetching news feeds");
+    } else {
+      throw new Error("Error fetching news feeds");
+    }
+  }
+}
+
+export async function getNewsFeeds(
+  params: Record<string, unknown> = {}
+): Promise<NewsFeedsResponse> {
+  try {
+    const session = await getServerSession(authOptions);
+    const token = session?.accessToken;
+    if (!token) throw new Error("No valid session or access token found.");
+
+    return await getNewsFeedsCached(token, params);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("Error in getNewsFeeds:", error.message);
+      throw new Error("Error fetching news feeds");
+    } else {
+      throw new Error("Error fetching news feeds");
+    }
+  }
+}
+
+// ============================================================
+// GET News Feed by ID
+// ============================================================
+
+export async function getNewsFeedById(
+  id: number
+): Promise<SingleNewsFeedResponse> {
+  try {
+    const session = await getServerSession(authOptions);
+    const token = session?.accessToken;
+    if (!token) throw new Error("No valid session or access token found.");
+
+    const res = await fetch(`${API_BASE}/news-feeds/${id}`, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!res.ok) {
+      throw new Error(`Failed to fetch news feed: ${res.status} ${res.statusText}`);
+    }
+
+    const data: SingleNewsFeedResponse = await res.json();
+    return data;
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("Error in getNewsFeedById:", error.message);
+      throw new Error("Error fetching news feed");
+    } else {
+      throw new Error("Error fetching news feed");
+    }
+  }
+}
+
+// ============================================================
+// CREATE News Feed
+// ============================================================
+
+export async function createNewsFeed(
+  formData: FormData
+): Promise<SingleNewsFeedResponse> {
+  try {
+    const session = await getServerSession(authOptions);
+    const token = session?.accessToken;
+    if (!token) throw new Error("No valid session or access token found.");
+
+    const url = `${API_BASE}/news-feeds`;
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData,
+    });
+
+    const result = await response.json();
+
+    updateTag("news-feeds-list");
+    updateTag("public-news-feeds");
+    return result;
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("Error in createNewsFeed:", error.message);
+      throw new Error(error.message);
+    } else {
+      throw new Error("Error creating news feed");
+    }
+  }
+}
+
+// ============================================================
+// UPDATE News Feed
+// ============================================================
+
+export async function updateNewsFeed(
+  id: number,
+  formData: FormData
+): Promise<SingleNewsFeedResponse> {
+  try {
+    const session = await getServerSession(authOptions);
+    const token = session?.accessToken;
+    if (!token) throw new Error("No valid session or access token found.");
+
+    formData.append("_method", "PUT");
+
+    const res = await fetch(`${API_BASE}/news-feeds/${id}`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData,
+    });
+
+    const result = await res.json();
+
+    updateTag("news-feeds-list");
+    updateTag("public-news-feeds");
+
+    return result;
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("Error in updateNewsFeed:", error.message);
+      throw new Error(error.message);
+    } else {
+      throw new Error("Error updating news feed");
+    }
+  }
+}
+
+// ============================================================
+// DELETE News Feed
+// ============================================================
+
+export async function deleteNewsFeed(
+  id: number
+): Promise<SingleNewsFeedResponse> {
+  try {
+    const session = await getServerSession(authOptions);
+    const token = session?.accessToken;
+    if (!token) throw new Error("No valid session or access token found.");
+
+    const res = await fetch(`${API_BASE}/news-feeds/${id}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    const result = await res.json();
+
+    updateTag("news-feeds-list");
+    updateTag("public-news-feeds");
+
+    return result;
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("Error in deleteNewsFeed:", error.message);
+      throw new Error(error.message);
+    } else {
+      throw new Error("Error deleting news feed");
+    }
+  }
+}
+
+//news-feeds service ts file ended here

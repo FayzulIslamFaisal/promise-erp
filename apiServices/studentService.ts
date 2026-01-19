@@ -123,7 +123,8 @@ token: string,
 
   if (!res.ok) {
     const errorData = await res.json().catch(() => ({}))
-    throw new Error(`Message: ${errorData.message || "Unknown error"}`)
+    const errorMessage = errorData.message || errorData.error || JSON.stringify(errorData.errors || {}) || "Unknown error"
+    throw new Error(errorMessage)
   }
 
   return res.json()

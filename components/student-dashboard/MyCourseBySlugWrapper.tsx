@@ -1,4 +1,5 @@
-import { getMyCourseBySlug } from "@/apiServices/studentDashboardService";
+// import { getMyCourseBySlug } from "@/apiServices/studentDashboardService";
+import { getStudentMyCoursesBySlug } from "@/apiServices/studentDashboardService";
 import ErrorComponent from "@/components/common/ErrorComponent";
 import NotFoundComponent from "@/components/common/NotFoundComponent";
 import MyCourseBySlugCourseModule from "@/components/student-dashboard/MyCourseBySlugCourseModule";
@@ -6,6 +7,7 @@ import MyCourseBySlugHeader from "@/components/student-dashboard/MyCourseBySlugH
 import MyCourseBySlugNavigationBtn from "@/components/student-dashboard/MyCourseBySlugNavigationBtn";
 import MyCourseBySlugVideoPlayer from "@/components/student-dashboard/MyCourseBySlugVideoPlayer";
 import { WhatsAppCard } from "@/components/student-dashboard/WhatsAppCard";
+import { Card, CardContent } from "../ui/card";
 interface MyCoursesBySlugPageProps {
   params: Promise<{ slug: string }>;
   searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
@@ -15,44 +17,16 @@ const MyCourseBySlugWrapper = async ({
   searchParams,
 }: MyCoursesBySlugPageProps) => {
   const { slug } = await params;
-  const query = (await searchParams) || {};
-  const lessonId = query.lesson_id as string;
-  const response = await getMyCourseBySlug(slug, lessonId);
-  const { course, current_lesson, course_modules, navigation } = response?.data;
+  const queryParams = await searchParams;
 
-  // Flatten all lessons for navigation
-  const allLessons = course_modules.flatMap((module) =>
-    module.lessons.map((lesson) => ({
-      ...lesson,
-      moduleId: module.id,
-      moduleTitle: module.title,
-      moduleNumber: course_modules.findIndex((m) => m.id === module.id) + 1,
-    }))
-  );
+  const lessonId = queryParams?.lesson_id
+    ? Number(queryParams.lesson_id)
+    : undefined;
+  const queryParamsLessonId = {
+    lesson_id: lessonId,
+  };
 
-  const currentLessonIndex = allLessons.findIndex(
-    (l) => l.id === current_lesson.id
-  );
-
-  // Get next and previous lessons
-  const nextLesson = navigation.next_lesson;
-  const previousLesson = navigation.previous_lesson;
-
-  // Format modules for the CourseModule component
-  const formattedModules = course_modules.map((module, index) => ({
-    id: module.id.toString(),
-    number: (index + 1).toString().padStart(2, "0"),
-    title: module.title,
-    lessons: module.lessons.map((lesson) => ({
-      id: lesson.id.toString(),
-      title: lesson.title,
-      duration: lesson.duration_text,
-      type: lesson.type === 1 ? "video" : "document",
-      video_url: lesson.video_url,
-      is_completed: lesson.is_completed,
-      order: lesson.order,
-    })),
-  }));
+  const response = await getStudentMyCoursesBySlug(slug, queryParamsLessonId);
 
   if (!response.success) {
     return <ErrorComponent message={response.message} />;
@@ -60,36 +34,39 @@ const MyCourseBySlugWrapper = async ({
   if (!response.data) {
     return <NotFoundComponent message={response.message} />;
   }
+  const courseTitle = response?.data?.course?.title;
+  const currentLesson = response?.data?.current_lesson;
+  const navigation = response?.data?.navigation;
+
   return (
     <div className="min-h-screen bg-background py-6 px-4 md:px-8">
       <div className="container mx-auto">
-        <MyCourseBySlugHeader title={course.title} />
+        <MyCourseBySlugHeader title={courseTitle} />
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Main Content */}
-          <div className="lg:col-span-2">
-            <MyCourseBySlugVideoPlayer
-              classNumber={`Class ${currentLessonIndex + 1}`}
-              lessonTitle={current_lesson.chapter_title}
-              currentTopic={current_lesson.title}
-              duration={current_lesson.duration_text}
-              videoUrl={current_lesson.video_url}
-              description={current_lesson.description}
-            />
-            <MyCourseBySlugNavigationBtn
-              previousLesson={previousLesson}
-              nextLesson={nextLesson}
-              currentLessonId={current_lesson.id}
-              courseSlug={slug}
-            />
+          <div className="lg:col-span-2 ">
+            <Card>
+              <CardContent>
+                <MyCourseBySlugVideoPlayer currentLesson={currentLesson} />
+                <MyCourseBySlugNavigationBtn navigation={navigation} />
+              </CardContent>
+            </Card>
           </div>
           {/* Sidebar */}
           <div className="lg:col-span-1">
-            <MyCourseBySlugCourseModule
-              modules={formattedModules}
-              currentLessonId={current_lesson.id.toString()}
-              courseSlug={slug}
-            />
-            <WhatsAppCard groupLink="https://chat.whatsapp.com/example" />
+            <Card className="mb-4">
+              <CardContent>
+                <MyCourseBySlugCourseModule
+                  slug={slug}
+                  currentLessonId={lessonId}
+                />
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent>
+                <WhatsAppCard groupLink="https://chat.whatsapp.com/example" />
+              </CardContent>
+            </Card>
           </div>
         </div>
       </div>

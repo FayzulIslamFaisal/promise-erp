@@ -1,8 +1,6 @@
 
 import ErrorComponent from "@/components/common/ErrorComponent";
 import NotFoundComponent from "@/components/common/NotFoundComponent";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import {
     Table,
     TableBody,
@@ -13,8 +11,8 @@ import {
 } from "@/components/ui/table";
 import Pagination from "@/components/common/Pagination";
 import { getEnrollments } from "@/apiServices/enrollmentService";
-import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import EnrollmentActionMenu from "./EnrollmentActionMenu";
+import { Badge } from "@/components/ui/badge";
 
 export default async function EnrollmentsData({
     searchParams,
@@ -84,6 +82,7 @@ export default async function EnrollmentsData({
                     <TableHeader>
                         <TableRow>
                             <TableHead className="text-center w-[50px]">Sl</TableHead>
+                            <TableHead className="text-center min-w-[90px]">Action</TableHead>
                             <TableHead className="text-start min-w-[150px]">Student Name</TableHead>
                             <TableHead className="min-w-[120px]">Email & Phone</TableHead>
                             <TableHead className="min-w-[150px]">Course & Batch</TableHead>
@@ -92,7 +91,6 @@ export default async function EnrollmentsData({
                             <TableHead className="text-center min-w-[100px]">Status</TableHead>
                             <TableHead className="text-right min-w-[120px]">Pay Amount</TableHead>
                             <TableHead className="text-center min-w-[120px]">Payment Status</TableHead>
-                            <TableHead className="text-center min-w-[90px]">Action</TableHead>
                         </TableRow>
                     </TableHeader>
 
@@ -100,6 +98,12 @@ export default async function EnrollmentsData({
                         {enrollments?.map((enrollment, i) => (
                             <TableRow key={enrollment?.id}>
                                 <TableCell className="text-center">{(page - 1) * 15 + (i + 1)}</TableCell>
+                                <TableCell className="text-center">
+                                    <EnrollmentActionMenu 
+                                        enrollmentId={enrollment.id}
+                                        currentStatus={enrollment.status}
+                                    />
+                                </TableCell>
                                 <TableCell className="font-medium text-start">{enrollment.user?.name || "N/A"}</TableCell>
                                 <TableCell>{enrollment.user?.email || "N/A"} <br /> {enrollment.user?.phone || "N/A"}</TableCell>
                                 <TableCell>{enrollment.batch?.course?.title || "N/A"} <br /> {enrollment.batch?.name || "N/A"}</TableCell>
@@ -112,7 +116,7 @@ export default async function EnrollmentsData({
                                 </TableCell>
                                 <TableCell className="text-center">
                                     <Badge
-                                        variant={enrollment.status === 1 ? "default" : "secondary"}
+                                        variant={enrollment.status_label === "Active" ? "default" : "secondary"}
                                     >
                                         {enrollment.status_label || "N/A"}
                                     </Badge>
@@ -123,19 +127,12 @@ export default async function EnrollmentsData({
                                 </TableCell>
                                 <TableCell className="text-center">
                                     <Badge
-                                        variant={enrollment.payment_status === 1 ? "default" : "secondary"}
+                                        variant={enrollment.payment_status_label === "Paid" ? "default" : "secondary"}
                                     >
                                         {enrollment.payment_status_label || "N/A"}
                                     </Badge>
                                 </TableCell>
-                                <TableCell className="text-center">
-                                    <Button asChild size="sm" variant="outline" className="gap-1">
-                                        <Link href={`/lms/enrollments/${enrollment.id}`}>
-                                            View
-                                            <ArrowRight className="h-4 w-4" />
-                                        </Link>
-                                    </Button>
-                                </TableCell>
+                                
                             </TableRow>
                         ))}
                     </TableBody>

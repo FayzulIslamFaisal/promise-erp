@@ -20,7 +20,7 @@ const MyCourseBySlugHeader = ({ title }: CourseHeaderProps) => {
         <ChevronLeft className="h-6 w-6 text-foreground" />
       </button>
 
-      <h1 className="text-2xl font-bold text-foreground">
+      <h1 className="text-2xl font-bold text-secondary">
         {title}
       </h1>
     </div>

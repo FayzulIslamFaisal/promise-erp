@@ -1,76 +1,61 @@
-// components/student-dashboard/MyCourseBySlugNavigationBtn.tsx
 "use client";
 
-import { Download } from "lucide-react";
+import { LessonNavigation } from "@/apiServices/studentDashboardService";
 import Link from "next/link";
+import { useParams } from "next/navigation";
+import { Button } from "@/components/ui/button";
 
 interface NavigationButtonsProps {
-  previousLesson: {
-    id: number;
-    title: string;
-    chapter_title: string;
-  } | null;
-  nextLesson: {
-    id: number;
-    title: string;
-    chapter_title: string;
-  } | null;
-  currentLessonId: number;
-  courseSlug: string;
+  navigation: LessonNavigation;
 }
 
 const MyCourseBySlugNavigationBtn = ({
-  previousLesson,
-  nextLesson,
-  currentLessonId,
-  courseSlug,
+  navigation,
 }: NavigationButtonsProps) => {
-  const handleResourceDownload = () => {
-    // Implement resource download logic here
-    console.log("Download resource for lesson:", currentLessonId);
-  };
+  const { slug } = useParams<{ slug: string }>();
+
+  const { previous_lesson, next_lesson } = navigation;
 
   return (
     <div className="flex items-center justify-between mt-6">
-      <button
-        onClick={handleResourceDownload}
-        className="flex items-center gap-2 text-primary font-medium hover:underline hover:text-primary/80 transition-colors"
-      >
-        <Download className="w-5 h-5" />
-        <span>Resource</span>
-      </button>
-
-      <div className="flex gap-3">
-        {previousLesson ? (
-          <Link
-            href={`/student/mycourses/${courseSlug}?lesson_id=${previousLesson.id}`}
-            className="nav-button nav-button-secondary hover:bg-secondary/90 transition-colors"
-          >
-            Previous
-          </Link>
+      <div className="">
+        {next_lesson ? (
+          <p className="text-secondary text-base">{next_lesson?.title}</p>
         ) : (
-          <button
-            disabled
-            className="nav-button nav-button-secondary opacity-50 cursor-not-allowed"
-          >
+          <p className="text-secondary text-base">{previous_lesson?.title}</p>
+        )}
+      </div>
+      {/* Navigation Buttons */}
+      <div className="flex gap-3">
+        {/* Previous */}
+        {previous_lesson ? (
+          <Button asChild>
+            <Link
+              href={`/student/mycourses/${slug}?lesson_id=${previous_lesson.id}`}
+            >
+              Previous
+            </Link>
+          </Button>
+        ) : (
+          <Button disabled className="bg-red-600 text-white">
             Previous
-          </button>
+          </Button>
         )}
 
-        {nextLesson ? (
-          <Link
-            href={`/student/mycourses/${courseSlug}?lesson_id=${nextLesson.id}`}
-            className="nav-button nav-button-primary hover:bg-primary/90 transition-colors"
-          >
-            Next
-          </Link>
+        {/* Next */}
+        {next_lesson ? (
+          <Button asChild>
+            <Link
+              href={`/student/mycourses/${slug}?lesson_id=${next_lesson.id}`}
+              className="nav-button nav-button-primary hover:bg-primary/90 transition-colors"
+            >
+              Next
+            </Link>
+          </Button>
         ) : (
-          <button
-            disabled
-            className="nav-button nav-button-primary opacity-50 cursor-not-allowed"
-          >
+          <Button disabled className="bg-red-600 text-white">
             Next
-          </button>
+          </Button>
         )}
       </div>
     </div>

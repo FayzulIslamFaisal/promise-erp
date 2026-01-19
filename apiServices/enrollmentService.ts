@@ -116,7 +116,9 @@ export interface EnrollmentDetail {
   final_price: number;
   enrollment_date: string;
   total_completed_lessons?: number | string;
+  status?: number;
   status_label?: string;
+  payment_status?: number;
   payment_method_label?: string;
   payment_status_label?: string;
   payment_type_label?: string | null;
@@ -134,7 +136,29 @@ export interface EnrollmentDetail {
 export interface EnrollmentDetailResponse {
   success: boolean;
   message: string;
+  errors?: Record<string, string[]>;
   data: EnrollmentDetail;
+}
+
+export interface UpdateEnrollmentPaymentStatusData {
+  payment_status: number;
+  payment_reference?: string;
+}
+
+export interface ApproveEnrollmentData {
+  status?: number;
+  payment_reference?: string;
+}
+
+export interface CreateEnrollmentData {
+  user_id: number;
+  batch_id: number;
+  status?: number;
+  payment_method?: number;
+  payment_status?: number;
+  payment_amount?: number;
+  discount_amount?: number;
+  payment_reference?: string;
 }
 
 // ==========================
@@ -208,6 +232,127 @@ export async function getEnrollmentById(
     return result;
   } catch (error) {
     console.error("Error in getEnrollmentById:", error);
+    throw error;
+  }
+}
+
+// ==========================
+// Update Enrollment Payment Status
+// ==========================
+
+export async function updateEnrollmentPaymentStatus(
+  enrollmentId: string | number,
+  data: UpdateEnrollmentPaymentStatusData
+): Promise<EnrollmentDetailResponse> {
+  try {
+    const session = await getServerSession(authOptions);
+    const token = session?.accessToken;
+
+    if (!token) {
+      throw new Error("No valid session or access token found.");
+    }
+
+    // Create FormData for multipart/form-data
+    const formData = new FormData();
+    formData.append("payment_status", data.payment_status.toString());
+    
+    if (data.payment_reference) {
+      formData.append("payment_reference", data.payment_reference);
+    }
+
+    const res = await fetch(`${API_BASE}/enrollments/${enrollmentId}/payment-status`, {
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        // Don't set Content-Type header - fetch will automatically set it with boundary for multipart/form-data
+      },
+      body: formData,
+    });
+
+    const result = await res.json();
+
+    if (!res.ok || !result.success) {
+      throw new Error(result.message || "Failed to update enrollment payment status.");
+    }
+
+    return result;
+  } catch (error) {
+    console.error("Error in updateEnrollmentPaymentStatus:", error);
+    throw error;
+  }
+}
+
+// ==========================
+// Approve Enrollment
+// ==========================
+
+export async function approveEnrollment(
+  enrollmentId: string | number,
+  data: ApproveEnrollmentData
+): Promise<EnrollmentDetailResponse> {
+  try {
+    const session = await getServerSession(authOptions);
+    const token = session?.accessToken;
+
+    if (!token) {
+      throw new Error("No valid session or access token found.");
+    }
+
+    // OpenAPI documentation shows POST method
+    const res = await fetch(`${API_BASE}/enrollments/${enrollmentId}/approve`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+
+    const result = await res.json();
+
+    if (!res.ok || !result.success) {
+      throw new Error(result.message || "Failed to approve enrollment.");
+    }
+
+    return result;
+  } catch (error) {
+    console.error("Error in approveEnrollment:", error);
+    throw error;
+  }
+}
+
+// ==========================
+// Create Enrollment
+// ==========================
+
+export async function createEnrollment(
+  data: CreateEnrollmentData
+): Promise<EnrollmentDetailResponse> {
+  const session = await getServerSession(authOptions);
+  const token = session?.accessToken;
+  
+  if (!token) {
+    throw new Error("No valid session or access token found.");
+  }
+  
+  try {
+    const res = await fetch(`${API_BASE}/enrollments`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+
+    const result = await res.json();
+    if (!result.success && !result.errors) {
+      throw new Error(result.message || "Failed to create enrollment.");
+    }
+
+    return result;
+  } catch (error) {
+    console.error("Error in createEnrollment:", error);
     throw error;
   }
 }

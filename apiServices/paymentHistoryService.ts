@@ -16,8 +16,6 @@ export interface CreatePaymentData {
   paid_amount: number;
   payment_method: number;
   payment_status: number;
-  payment_type?: number;
-  installment_type?: number;
   comment?: string;
 }
 
@@ -82,11 +80,12 @@ export async function createPayment(
       throw new Error("No valid session or access token found.");
     }
 
+
     const res = await fetch(`${API_BASE}/payment-histories`, {
       method: "POST",
       headers: {
-        "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
+        "Content-Type": "multipart/form-data",
       },
       body: JSON.stringify(data),
     });

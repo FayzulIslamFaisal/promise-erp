@@ -1,7 +1,6 @@
 "use client";
 import { Controller, useForm } from "react-hook-form";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -11,34 +10,30 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useEffect, useState } from "react";
-import { createOpportunity, Opportunity, updateOpportunity } from "@/apiServices/homePageAdminService";
+import { createNewsFeed, NewsFeed, updateNewsFeed } from "@/apiServices/homePageAdminService";
 import { Camera } from "lucide-react";
 import Image from "next/image";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { Label } from "@/components/ui/label";
 
-interface OpportunitiesFormProps {
+interface NewsFeedFormProps {
   title: string;
-  opportunity?: Opportunity;
+  newsFeed?: NewsFeed;
 }
 
 interface FormValues {
   title: string;
-  sub_title: string;
+  news_link: string;
+  entry_date: string;
   status: string;
   image?: FileList;
 }
 
-export default function OpportunitiesForm({ title, opportunity }: OpportunitiesFormProps) {
-  const [previewImage, setPreviewImage] = useState<string | null>(opportunity?.image || null);
+export default function NewsFeedForm({ title, newsFeed }: NewsFeedFormProps) {
+  const [previewImage, setPreviewImage] = useState<string | null>(newsFeed?.image || null);
   const [imageRemoved, setImageRemoved] = useState(false);
   const router = useRouter();
-  const toSelectString = (val: any) => {
-    if (val === 1 || val === "1" || val === true) return "1";
-    return "0";
-  };
-
   const {
     register,
     handleSubmit,
@@ -49,30 +44,25 @@ export default function OpportunitiesForm({ title, opportunity }: OpportunitiesF
     formState: { errors, isSubmitting },
   } = useForm<FormValues>({
     defaultValues: {
-      title: opportunity?.title || "",
-      sub_title: opportunity?.sub_title || "",
-      status: opportunity ? toSelectString(opportunity.status) : "1",
+      title: newsFeed?.title || "",
+      news_link: newsFeed?.news_link || "",
+      entry_date: newsFeed?.entry_date || new Date().toISOString().split('T')[0],
+      status: newsFeed?.status.toString() || "1",
       image: undefined,
     },
   });
 
-  useEffect(() => {
-    if (opportunity) {
-      reset({
-        title: opportunity.title || "",
-        sub_title: opportunity.sub_title || "",
-        status: toSelectString(opportunity.status),
-      });
-      if (opportunity.image) {
-        setPreviewImage(opportunity.image);
-        setImageRemoved(false);
-      } else {
-        setPreviewImage(null);
-      }
-    }
-  }, [opportunity, reset]);
-
   const imageFile = watch("image");
+
+  // Update preview image when newsFeed prop changes (for edit mode)
+  useEffect(() => {
+    if (newsFeed?.image && newsFeed.image.trim() !== "") {
+      setPreviewImage(newsFeed.image);
+      setImageRemoved(false);
+    } else {
+      setPreviewImage(null);
+    }
+  }, [newsFeed?.image]);
 
   useEffect(() => {
     if (imageFile && imageFile.length > 0) {
@@ -91,39 +81,40 @@ export default function OpportunitiesForm({ title, opportunity }: OpportunitiesF
   const submitHandler = async (values: FormValues) => {
     const formData = new FormData();
     formData.append("title", values.title.trim());
-    formData.append("sub_title", values.sub_title.trim());
+    formData.append("news_link", values.news_link.trim());
+    formData.append("entry_date", values.entry_date);
     formData.append("status", values.status);
 
     if (values.image && values.image.length > 0) {
       formData.append("image", values.image[0]);
-    } else if (opportunity && imageRemoved) {
+    } else if (newsFeed && imageRemoved) {
       // If editing and image was removed, send empty string to delete it
       formData.append("image", "");
     }
 
     try {
       let res;
-      if (opportunity) {
-        res = await updateOpportunity(Number(opportunity.id), formData);
+      if (newsFeed) {
+        res = await updateNewsFeed(Number(newsFeed?.id), formData);
       } else {
-        res = await createOpportunity(formData);
+        res = await createNewsFeed(formData);
       }
 
       if (res.success) {
-        toast.success(res.message || "Opportunity saved successfully!");
+        toast.success(res.message || "News feed saved successfully!");
         setPreviewImage(null);
         reset();
-        router.push("/web-content/opportunities");
+        router.push("/web-content/news-feeds");
         return;
       } else {
         if (res.errors) {
-          toast.error(res.message || "Failed to save opportunity");
+          toast.error(res.message || "Failed to save news feed");
           Object.entries(res.errors).forEach(([field, messages]) => {
             const errorMessage = Array.isArray(messages) ? messages[0] : messages;
             setError(field as keyof FormValues, { type: "server", message: errorMessage as string });
           });
         } else {
-          toast.error(res.message || "Failed to save opportunity");
+          toast.error(res.message || "Failed to save news feed");
         }
       }
     } catch (error: unknown) {
@@ -159,6 +150,28 @@ export default function OpportunitiesForm({ title, opportunity }: OpportunitiesF
             />
             {errors.title && <p className="text-sm text-red-500 mt-1">{errors.title.message}</p>}
           </div>
+          {/* News Link */}
+          <div>
+            <Label className="block text-sm font-medium mb-1">News Link <span className="text-red-500">*</span></Label>
+            <Input
+              type="url"
+              placeholder="https://example.com/news"
+              {...register("news_link")} 
+            />
+            {errors.news_link && <p className="text-sm text-red-500 mt-1">{errors.news_link.message}</p>}
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Entry Date */}
+          <div>
+            <Label className="block text-sm font-medium mb-1">Entry Date <span className="text-red-500">*</span></Label>
+            <Input
+              type="date"
+              {...register("entry_date")}
+            />
+            {errors.entry_date && <p className="text-sm text-red-500 mt-1">{errors.entry_date.message}</p>}
+          </div>
           {/* Status */}
           <div>
             <Label className="block text-sm font-medium mb-1">Status <span className="text-red-500">*</span></Label>
@@ -181,20 +194,9 @@ export default function OpportunitiesForm({ title, opportunity }: OpportunitiesF
           </div>
         </div>
 
-        <div>
-          {/* Sub Title */}
-          <Label className="block text-sm font-medium mb-1">Sub Title <span className="text-red-500">*</span></Label>
-          <Textarea
-            placeholder="Enter sub title"
-            {...register("sub_title")}
-            rows={2}
-          />
-          {errors.sub_title && <p className="text-sm text-red-500 mt-1">{errors.sub_title.message}</p>}
-        </div>
-
         {/* Image */}
         <div>
-          <Label className="block text-sm font-medium mb-1">Image <span className="text-red-500">*</span> </Label>
+          <Label className="block text-sm font-medium mb-1">Image <span className="text-red-500">*</span></Label>
           <div className="space-y-3">
             {previewImage ? (
               <div className="relative">
@@ -236,7 +238,7 @@ export default function OpportunitiesForm({ title, opportunity }: OpportunitiesF
 
         <div className="flex justify-end">
           <Button type="submit" disabled={isSubmitting} className=" cursor-pointer">
-            {isSubmitting ? "Submitting..." : opportunity ? "Update Opportunity" : "Add Opportunity"}
+            {isSubmitting ? "Submitting..." : newsFeed ? "Update News Feed" : "Add News Feed"}
           </Button>
         </div>
 

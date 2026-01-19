@@ -259,9 +259,14 @@ const data = {
           url: "/web-content/video-galleries",
         },
         {
-          title: "Image Gallery",
-          url: "#",
+          title: "Our Partners",
+          url: "/web-content/our-partners",
         },
+        {
+          title: "News & Updates",
+          url: "/web-content/news-feeds",
+        },
+
       ],
     },
     {

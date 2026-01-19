@@ -6,10 +6,12 @@ import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Card, CardContent } from "@/components/ui/card";
 import { cacheTag } from "next/cache";
 import Image from "next/image";
+import { cacheLife } from 'next/cache'
 
 const GettingOpportunity = async () => {
   "use cache";
   cacheTag("public-opportunity");
+  cacheLife('seconds')
   const opportunitiesData = await fetchPublicOpportunities();
   const opportunities: OpportunityItem[] = opportunitiesData?.data?.opportunities || [];
 

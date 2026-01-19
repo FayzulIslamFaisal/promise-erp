@@ -59,7 +59,7 @@ export interface StudentDashboardResponse {
 
 // get student dashboard
 export async function getStudentDashboard(
-  accessToken: string
+  accessToken: string,
 ): Promise<StudentDashboardResponse> {
   try {
     const res = await fetch(`${API_BASE}/student-dashboard`, {
@@ -71,7 +71,7 @@ export async function getStudentDashboard(
 
     if (!res.ok) {
       throw new Error(
-        `Failed to fetch student dashboard ${res.status} (${res.statusText}`
+        `Failed to fetch student dashboard ${res.status} (${res.statusText}`,
       );
     }
 
@@ -143,12 +143,12 @@ export async function getFreeSeminars({
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
-      }
+      },
     );
 
     if (!res.ok) {
       throw new Error(
-        `get FreeSeminars API Error: ${res.status} ${res.statusText}`
+        `get FreeSeminars API Error: ${res.status} ${res.statusText}`,
       );
     }
 
@@ -228,12 +228,12 @@ export async function getUpcomingCourses({
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
-      }
+      },
     );
 
     if (!res.ok) {
       throw new Error(
-        `UpcomingCourses API Error: ${res.status} ${res.statusText}`
+        `UpcomingCourses API Error: ${res.status} ${res.statusText}`,
       );
     }
 
@@ -291,7 +291,7 @@ export async function getStudentEarningState(): Promise<StEarningStateResponse> 
 
     if (!res.ok) {
       throw new Error(
-        `Failed to fetch earning cards ${res.status} (${res.statusText})`
+        `Failed to fetch earning cards ${res.status} (${res.statusText})`,
       );
     }
 
@@ -329,7 +329,7 @@ export interface EarningsChartApiResponse {
 }
 
 export async function getStudentEarningUsdChart(
-  accessToken: string
+  accessToken: string,
 ): Promise<EarningsChartApiResponse> {
   if (!accessToken) {
     throw new Error("Unauthorized: No access token found");
@@ -344,7 +344,7 @@ export async function getStudentEarningUsdChart(
 
     if (!res.ok) {
       throw new Error(
-        `Failed to fetch USD chart ${res.status} (${res.statusText})`
+        `Failed to fetch USD chart ${res.status} (${res.statusText})`,
       );
     }
 
@@ -362,7 +362,7 @@ export async function getStudentEarningUsdChart(
 
 // Start get Earning Bdt Charts
 export async function getStudentEarningBdtChart(
-  accessToken: string
+  accessToken: string,
 ): Promise<EarningsChartApiResponse> {
   if (!accessToken) {
     throw new Error("Unauthorized: No access token found");
@@ -377,7 +377,7 @@ export async function getStudentEarningBdtChart(
 
     if (!res.ok) {
       throw new Error(
-        `Failed to fetch BDT chart ${res.status} (${res.statusText})`
+        `Failed to fetch BDT chart ${res.status} (${res.statusText})`,
       );
     }
 
@@ -446,7 +446,7 @@ export async function getStudentEarningList({
 
     if (!res.ok) {
       throw new Error(
-        `StudentEarnings API Error: ${res.status} ${res.statusText}`
+        `StudentEarnings API Error: ${res.status} ${res.statusText}`,
       );
     }
 
@@ -472,7 +472,7 @@ export interface DeleteStudentEarningResponse {
 }
 
 export async function deleteStudentEarning(
-  id: number
+  id: number,
 ): Promise<DeleteStudentEarningResponse> {
   const session = await getServerSession(authOptions);
   const token = session?.accessToken;
@@ -490,7 +490,7 @@ export async function deleteStudentEarning(
 
     if (!response.ok) {
       throw new Error(
-        `Failed to delete student earning ${response.status} (${response.statusText})`
+        `Failed to delete student earning ${response.status} (${response.statusText})`,
       );
     }
 
@@ -502,7 +502,7 @@ export async function deleteStudentEarning(
       throw error;
     } else {
       throw new Error(
-        "An unknown error occurred while deleting student earning"
+        "An unknown error occurred while deleting student earning",
       );
     }
   }
@@ -568,12 +568,12 @@ export async function getStudentPaymentHistories({
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
-      }
+      },
     );
 
     if (!res.ok) {
       throw new Error(
-        `PaymentHistories API Error: ${res.status} ${res.statusText}`
+        `PaymentHistories API Error: ${res.status} ${res.statusText}`,
       );
     }
 
@@ -625,12 +625,12 @@ export async function getCourseWiseDuePayments(): Promise<CourseWiseDuePaymentsA
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
-      }
+      },
     );
 
     if (!res.ok) {
       throw new Error(
-        `CourseWiseDuePayments API Error: ${res.status} ${res.statusText}`
+        `CourseWiseDuePayments API Error: ${res.status} ${res.statusText}`,
       );
     }
 
@@ -643,7 +643,7 @@ export async function getCourseWiseDuePayments(): Promise<CourseWiseDuePaymentsA
     }
 
     throw new Error(
-      "Unknown error occurred while fetching course-wise due payments"
+      "Unknown error occurred while fetching course-wise due payments",
     );
   }
 }
@@ -713,12 +713,12 @@ export async function getStudentMyCourses({
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
-      }
+      },
     );
 
     if (!res.ok) {
       throw new Error(
-        `MyCoursesResponse API Error: ${res.status} ${res.statusText}`
+        `MyCoursesResponse API Error: ${res.status} ${res.statusText}`,
       );
     }
 
@@ -733,61 +733,43 @@ export async function getStudentMyCourses({
   }
 }
 
-// End get Student My Courses
+//******* End get Student My Courses ******
 
-// Start get My Course By Slug
-export interface MyCourseBySlugLesson {
-  id: number;
-  title: string;
-  description: string;
-  duration: number;
-  duration_text: string;
-  type: number;
-  video_url: string;
-  is_completed: boolean;
-  order: number;
-  status: number;
-}
-export interface MyCourseBySlugModule {
-  id: number;
-  title: string;
-  description: string;
-  lessons: MyCourseBySlugLesson[];
+// ****** Start get My Course By Slug ******
+export enum MyCourseBySlugLessonType {
+  Video = 1,
+  Document = 2,
 }
 export interface MyCourseBySlugInfo {
   id: number;
   title: string;
 }
-export interface CurrentBySlugLesson {
+export interface MyCourseBySlugCurrentLesson {
   id: number;
   chapter_id: number;
   chapter_title: string;
   title: string;
   description: string;
   duration: number;
-  duration_text: string;
-   type: "video" | "document" | string;
-  video_url: string;
+  type?: MyCourseBySlugLessonType; // 1 = video?, 2 = document? (backend logic)
+  video_url?: string | null;
   is_completed: boolean;
   order: number;
 }
-export interface LessonBySlugNavigation {
-  previous_lesson: null | {
-    id: number;
-    title: string;
-    chapter_title: string;
-  };
-  next_lesson: null | {
-    id: number;
-    title: string;
-    chapter_title: string;
-  };
+export interface MyCourseBySlugLessonNavigationItem {
+  id: number;
+  title: string;
+  chapter_title: string;
+}
+
+export interface LessonNavigation {
+  previous_lesson: MyCourseBySlugLessonNavigationItem | null;
+  next_lesson: MyCourseBySlugLessonNavigationItem | null;
 }
 export interface MyCourseBySlugData {
   course: MyCourseBySlugInfo;
-  current_lesson: CurrentBySlugLesson;
-  course_modules: MyCourseBySlugModule[];
-  navigation: LessonBySlugNavigation;
+  current_lesson: MyCourseBySlugCurrentLesson;
+  navigation: LessonNavigation;
 }
 
 export interface MyCourseBySlugApiResponse {
@@ -797,9 +779,9 @@ export interface MyCourseBySlugApiResponse {
   data: MyCourseBySlugData;
   errors?: Record<string, string[]>;
 }
-export async function getMyCourseBySlug(
+export async function getStudentMyCoursesBySlug(
   slug: string,
-  lessonId?: string
+  params?: Record<string, unknown>,
 ): Promise<MyCourseBySlugApiResponse> {
   const session = await getServerSession(authOptions);
   const token = session?.accessToken;
@@ -808,10 +790,22 @@ export async function getMyCourseBySlug(
     throw new Error("Unauthorized: Access token not found");
   }
 
+  const urlParams = new URLSearchParams();
+
+  if (params) {
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== "") {
+        urlParams.append(key, String(value));
+      }
+    });
+  }
+
+  const queryString = urlParams.toString();
+  const url = `${API_BASE}/student-panel/my-courses/${slug}${
+    queryString ? `?${queryString}` : ""
+  }`;
+
   try {
-    const url = lessonId
-      ? `${API_BASE}/student-panel/my-courses/${slug}?lesson=${lessonId}`
-      : `${API_BASE}/student-panel/my-courses/${slug}`;
     const res = await fetch(url, {
       method: "GET",
       headers: {
@@ -822,7 +816,7 @@ export async function getMyCourseBySlug(
 
     if (!res.ok) {
       throw new Error(
-        `MyCourse By Slug API Error: ${res.status} ${res.statusText}`
+        `MyCoursesResponse API Error: ${res.status} ${res.statusText}`,
       );
     }
 
@@ -831,16 +825,128 @@ export async function getMyCourseBySlug(
   } catch (error: unknown) {
     if (error instanceof Error) {
       console.error("getMyCourseBySlug Error:", error.message);
-      throw error;
+      throw new Error("Error fetching my course by slug");
+    }
+    throw new Error(
+      "Unknown error occurred while fetching student my courses by slug",
+    );
+  }
+}
+//******* End get My Course By Slug ******
+//******* Start get My Course By Slug Modules ******
+export interface CourseModuleLessonItem {
+  id: number;
+  title: string;
+  description: string;
+  duration: number;
+  type?: MyCourseBySlugLessonType; // 1 = video?, 2 = document? (backend logic)
+  video_url?: string | null;
+  is_completed: boolean;
+  order: number;
+  status: number;
+}
+export interface CourseModule {
+  id: number;
+  title: string;
+  description: string;
+  lessons: CourseModuleLessonItem[];
+}
+export interface CourseModulesData {
+  course_modules: CourseModule[];
+}
+
+// Full API response interface
+export interface CourseModulesResponse {
+  success: boolean;
+  message: string;
+  code: number;
+  data: CourseModulesData;
+  errors?: Record<string, string[]>;
+}
+export async function getStudentCourseModulesList(
+  slug: string,
+): Promise<CourseModulesResponse> {
+  try {
+    const session = await getServerSession(authOptions);
+    const token = session?.accessToken;
+
+    if (!token) {
+      throw new Error("Unauthorized: Access token not found");
     }
 
-    throw new Error("Unknown error occurred while fetching my course by slug");
+    const url = `${API_BASE}/student-panel/my-courses/${slug}/modules`;
+    const res = await fetch(url, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!res.ok) {
+      throw new Error(
+        `getStudentCourseModulesList API Error: ${res.status} ${res.statusText}`,
+      );
+    }
+
+    const data: CourseModulesResponse = await res.json();
+    return data;
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("getStudentCourseModulesList Error:", error.message);
+      throw new Error("Error fetching course modules");
+    }
+    throw new Error("Unknown error occurred while fetching course modules");
   }
 }
 
-// End get My Course By Slug
+// ****** End get My Course By Slug Modules ******
 
-// Start get Student Profile
+// ******* Start MyCourse Mark Lesson Complete ******
+
+export interface MarkLessonCompleteData {
+  completed_at: string;
+}
+export interface MarkLessonCompleteResponse {
+  success: boolean;
+  message: string;
+  code: number;
+  data: MarkLessonCompleteData | null;
+  errors?: Record<string, string[]>;
+}
+
+export async function MyCourseMarkLessonComplete(
+  lessonId: number,
+): Promise<MarkLessonCompleteResponse> {
+  try {
+    const session = await getServerSession(authOptions);
+    const token = session?.accessToken;
+
+    if (!token) {
+      throw new Error("Unauthorized: Access token not found");
+    }
+    const url = `${API_BASE}/student-panel/lessons/${lessonId}/mark-complete`;
+    const res = await fetch(url, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    const data: MarkLessonCompleteResponse = await res.json();
+    return data;
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("markLessonComplete Error:", error.message);
+      throw new Error("Error marking lesson complete");
+    }
+    throw new Error("Unknown error occurred while marking lesson complete");
+  }
+}
+// ******* End MyCourse Mark Lesson Complete ******
+
+//******* Start get Student Profile ******
 export interface Education {
   id: number;
   degree: string;
@@ -907,7 +1013,7 @@ export async function getStudentProfile(): Promise<StudentProfileResponse> {
 
     if (!res.ok) {
       throw new Error(
-        `StudentProfile API Error: ${res.status} ${res.statusText}`
+        `StudentProfile API Error: ${res.status} ${res.statusText}`,
       );
     }
 
@@ -925,59 +1031,62 @@ export async function getStudentProfile(): Promise<StudentProfileResponse> {
 
 // Start change Student Password
 export interface ChangePasswordPayload {
-  current_password: string
-  password: string
-  password_confirmation: string
+  current_password: string;
+  password: string;
+  password_confirmation: string;
 }
 
 export interface ChangePasswordResponse {
-  success: boolean
-  message: string
-  code: number
-  errors?: Record<string, string[]>
+  success: boolean;
+  message: string;
+  code: number;
+  errors?: Record<string, string[]>;
 }
 
 // Client-side function for changing password (for use in client components)
 export async function changeStudentPasswordClient(
   payload: ChangePasswordPayload,
-  accessToken: string
+  accessToken: string,
 ): Promise<ChangePasswordResponse> {
   try {
     // Convert to URL-encoded format
-    const formData = new URLSearchParams()
-    formData.append("current_password", payload.current_password)
-    formData.append("password", payload.password)
-    formData.append("password_confirmation", payload.password_confirmation)
+    const formData = new URLSearchParams();
+    formData.append("current_password", payload.current_password);
+    formData.append("password", payload.password);
+    formData.append("password_confirmation", payload.password_confirmation);
 
-    const res = await fetch(`${API_BASE}/student-panel/profile/change-password`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        "Content-Type": "application/x-www-form-urlencoded",
+    const res = await fetch(
+      `${API_BASE}/student-panel/profile/change-password`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: formData.toString(),
       },
-      body: formData.toString(),
-    })
+    );
 
-    const data: ChangePasswordResponse = await res.json()
+    const data: ChangePasswordResponse = await res.json();
 
     if (!res.ok) {
-      return data
+      return data;
     }
 
-    return data
+    return data;
   } catch (error: unknown) {
     if (error instanceof Error) {
-      console.error("changeStudentPasswordClient Error:", error.message)
-      throw error
+      console.error("changeStudentPasswordClient Error:", error.message);
+      throw error;
     }
-    throw new Error("Unknown error occurred while changing password")
+    throw new Error("Unknown error occurred while changing password");
   }
 }
 // End change Student Password
 
 // Client-side function for getting student profile (for use in client components)
 export async function getStudentProfileClient(
-  accessToken: string
+  accessToken: string,
 ): Promise<StudentProfileResponse> {
   try {
     const res = await fetch(`${API_BASE}/student-panel/profile`, {
@@ -986,22 +1095,22 @@ export async function getStudentProfileClient(
         Authorization: `Bearer ${accessToken}`,
         "Content-Type": "application/json",
       },
-    })
+    });
 
     if (!res.ok) {
       throw new Error(
-        `StudentProfile API Error: ${res.status} ${res.statusText}`
-      )
+        `StudentProfile API Error: ${res.status} ${res.statusText}`,
+      );
     }
 
-    const data: StudentProfileResponse = await res.json()
-    return data
+    const data: StudentProfileResponse = await res.json();
+    return data;
   } catch (error: unknown) {
     if (error instanceof Error) {
-      console.error("getStudentProfileClient Error:", error.message)
-      throw error
+      console.error("getStudentProfileClient Error:", error.message);
+      throw error;
     }
-    throw new Error("Unknown error occurred while fetching student profile")
+    throw new Error("Unknown error occurred while fetching student profile");
   }
 }
 
@@ -1033,7 +1142,7 @@ export interface UpdateProfileResponse {
 // Client-side function for updating student profile (for use in client components with FormData)
 export async function updateStudentProfileClient(
   formData: FormData,
-  accessToken: string
+  accessToken: string,
 ): Promise<UpdateProfileResponse> {
   try {
     const res = await fetch(`${API_BASE}/student-panel/profile/update`, {
@@ -1043,21 +1152,21 @@ export async function updateStudentProfileClient(
         // Don't set Content-Type header, browser will set it with boundary for FormData
       },
       body: formData,
-    })
+    });
 
-    const data: UpdateProfileResponse = await res.json()
+    const data: UpdateProfileResponse = await res.json();
 
     if (!res.ok) {
-      return data
+      return data;
     }
 
-    return data
+    return data;
   } catch (error: unknown) {
     if (error instanceof Error) {
-      console.error("updateStudentProfileClient Error:", error.message)
-      throw error
+      console.error("updateStudentProfileClient Error:", error.message);
+      throw error;
     }
-    throw new Error("Unknown error occurred while updating profile")
+    throw new Error("Unknown error occurred while updating profile");
   }
 }
 
@@ -1105,7 +1214,7 @@ export interface FreeSeminarBySlugResponse {
 }
 export async function getFreeSeminarBySlug(
   slug: string,
-  token?: string
+  token?: string,
 ): Promise<FreeSeminarBySlugResponse> {
   if (!token) {
     throw new Error("Unauthorized: Access token not found");
@@ -1120,12 +1229,12 @@ export async function getFreeSeminarBySlug(
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
-      }
+      },
     );
 
     if (!response.ok) {
       throw new Error(
-        `Failed to fetch free seminar (${response.status} ${response.statusText})`
+        `Failed to fetch free seminar (${response.status} ${response.statusText})`,
       );
     }
 
@@ -1163,7 +1272,7 @@ export interface JobTitleEarningItemResponse {
 }
 
 export async function getAllJobTitlesForEarning(
-  token?: string
+  token?: string,
 ): Promise<JobTitleEarningItemResponse> {
   if (!token) {
     throw new Error("Unauthorized: Access token not found");
@@ -1178,12 +1287,12 @@ export async function getAllJobTitlesForEarning(
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
-      }
+      },
     );
 
     if (!response.ok) {
       throw new Error(
-        `Failed to fetch student job list (${response.status} ${response.statusText})`
+        `Failed to fetch student job list (${response.status} ${response.statusText})`,
       );
     }
 
@@ -1223,7 +1332,7 @@ export interface CreateStudentEarningApiResponse {
 
 export async function addStudentEarning(
   formData: FormData,
-  token: string
+  token: string,
 ): Promise<CreateStudentEarningApiResponse> {
   if (!token) {
     throw new Error("Unauthorized: Access token not found");
@@ -1271,7 +1380,7 @@ export interface GetStudentEarningByIdApiResponse {
 
 export async function getStudentEarning(
   earningId: number,
-  token: string
+  token: string,
 ): Promise<GetStudentEarningByIdApiResponse> {
   if (!token) {
     throw new Error("Unauthorized: Access token not found");
@@ -1288,7 +1397,7 @@ export async function getStudentEarning(
 
     if (!response.ok) {
       throw new Error(
-        `Failed to fetch student earning (${response.status} ${response.statusText})`
+        `Failed to fetch student earning (${response.status} ${response.statusText})`,
       );
     }
 
@@ -1327,7 +1436,7 @@ export interface UpdateStudentEarningApiResponse {
 export async function updateStudentEarning(
   earningId: number,
   formData: FormData,
-  token: string
+  token: string,
 ): Promise<UpdateStudentEarningApiResponse> {
   if (!token) {
     throw new Error("Unauthorized: Access token not found");

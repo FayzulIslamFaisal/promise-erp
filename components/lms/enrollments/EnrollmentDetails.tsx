@@ -2,7 +2,6 @@
 
 import { EnrollmentDetail } from "@/apiServices/enrollmentService";
 import {
-    updatePaymentHistoryStatus,
     createPayment,
 } from "@/apiServices/paymentHistoryService";
 import {
@@ -14,9 +13,11 @@ import {
     PAYMENT_METHOD_NAGAD,
     PAYMENT_METHOD_PAYLATER,
     PAYMENT_METHOD_CASH,
-    PAYMENT_TYPE_FULL,
-    PAYMENT_TYPE_PARTIAL,
 } from "@/apiServices/paymentConstants";
+import { ENROLLMENT_STATUS_PENDING, ENROLLMENT_STATUS_ACTIVE, ENROLLMENT_STATUS_EXPIRED } from "@/apiServices/enrollmentConstants";
+import { approveEnrollment } from "@/apiServices/enrollmentService";
+import EnrollmentStatusDropdown from "./EnrollmentStatusDropdown";
+import PaymentHistoryStatusDropdown from "./PaymentHistoryStatusDropdown";
 import ErrorComponent from "@/components/common/ErrorComponent";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -48,7 +49,7 @@ import {
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeft, Wallet, CheckCircle2, XCircle, Clock, Plus } from "lucide-react";
+import { ArrowLeft, Plus } from "lucide-react";
 import Link from "next/link";
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
@@ -57,10 +58,11 @@ import { useRouter } from "next/navigation";
 interface InfoRowProps {
     label: string;
     value?: string | number | null;
+    className?: string;
 }
 
-const InfoRow = ({ label, value }: InfoRowProps) => (
-    <div className="flex items-center justify-between text-sm">
+const InfoRow = ({ label, value, className }: InfoRowProps) => (
+    <div className={`flex items-center justify-between text-sm ${className || ""}`}>
         <span className="text-muted-foreground">{label}</span>
         <span className="font-medium text-right">{value ?? "N/A"}</span>
     </div>
@@ -124,27 +126,6 @@ export default function EnrollmentDetails({
         enrollment.due_amount ??
         Math.max((enrollment.final_price ?? 0) - totalPaid, 0);
 
-    const handlePaymentStatusChange = (
-        paymentHistoryId: number,
-        newStatus: number,
-        statusName: string
-    ) => {
-        startTransition(async () => {
-            try {
-                await updatePaymentHistoryStatus(paymentHistoryId, {
-                    payment_status: newStatus,
-                });
-                toast.success(`Payment status changed to ${statusName}`);
-                router.refresh();
-            } catch (error: unknown) {
-                if (error instanceof Error) {
-                    toast.error(error.message);
-                } else {
-                    toast.error("Failed to update payment status");
-                }
-            }
-        });
-    };
 
     const handleCreatePayment = () => {
         if (!paymentFormData.paid_amount || Number(paymentFormData.paid_amount) <= 0) {
@@ -160,14 +141,12 @@ export default function EnrollmentDetails({
         startTransition(async () => {
             try {
                 const paidAmount = Number(paymentFormData.paid_amount);
-                const isFullPayment = paidAmount >= dueAmount;
 
                 await createPayment({
                     enrollment_id: enrollment.id,
                     paid_amount: paidAmount,
                     payment_method: Number(paymentFormData.payment_method),
                     payment_status: Number(paymentFormData.payment_status),
-                    payment_type: isFullPayment ? PAYMENT_TYPE_FULL : PAYMENT_TYPE_PARTIAL,
                     comment: paymentFormData.comment || undefined,
                 });
 
@@ -237,7 +216,13 @@ export default function EnrollmentDetails({
                         <CardTitle>Enrollment Information</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-3">
-                        <InfoRow label="Status" value={enrollment.status_label} />
+                        <div className="flex items-center justify-between text-sm">
+                            <span className="text-muted-foreground">Status</span>
+                            <EnrollmentStatusDropdown
+                                enrollmentId={enrollment.id}
+                                currentStatus={enrollment.status || 0}
+                            />
+                        </div>
                         <InfoRow label="Course" value={enrollment.batch?.course?.title} />
                         <InfoRow label="Batch" value={enrollment.batch?.name} />
                         <InfoRow label="Enrollment Date" value={enrollment.enrollment_date} />
@@ -254,8 +239,8 @@ export default function EnrollmentDetails({
                         <InfoRow label="Original Price" value={formatCurrency(enrollment.original_price)} />
                         <InfoRow label="Discount" value={formatCurrency(enrollment.discount_amount)} />
                         <InfoRow label="Final Price" value={formatCurrency(enrollment.final_price)} />
-                        <InfoRow label="Total Paid" value={formatCurrency(totalPaid || enrollment.payment_amount)} />
-                        <InfoRow label="Due Amount" value={formatCurrency(dueAmount)} />
+                        <InfoRow className="text-primary" label="Total Paid" value={formatCurrency(totalPaid || enrollment.payment_amount)} />
+                        <InfoRow className="text-red-500" label="Due Amount" value={formatCurrency(dueAmount)} />
                     </CardContent>
                 </Card>
             </div>
@@ -285,8 +270,8 @@ export default function EnrollmentDetails({
                                             <Input
                                                 id="paid_amount"
                                                 type="number"
-                                                step="0.01"
-                                                min="0.01"
+                                                step="1"
+                                                min="1"
                                                 max={dueAmount}
                                                 placeholder="Enter payment amount"
                                                 value={paymentFormData.paid_amount}
@@ -309,7 +294,7 @@ export default function EnrollmentDetails({
                                                     })
                                                 }
                                             >
-                                                <SelectTrigger id="payment_method">
+                                                <SelectTrigger id="payment_method" className="w-full">
                                                     <SelectValue placeholder="Select payment method" />
                                                 </SelectTrigger>
                                                 <SelectContent>
@@ -324,14 +309,9 @@ export default function EnrollmentDetails({
                                             <Label htmlFor="payment_status">Payment Status *</Label>
                                             <Select
                                                 value={paymentFormData.payment_status}
-                                                onValueChange={(value) =>
-                                                    setPaymentFormData({
-                                                        ...paymentFormData,
-                                                        payment_status: value,
-                                                    })
-                                                }
+                                                onValueChange={(value) => setPaymentFormData({ ...paymentFormData, payment_status: value})}
                                             >
-                                                <SelectTrigger id="payment_status">
+                                                <SelectTrigger id="payment_status" className="w-full">
                                                     <SelectValue placeholder="Select payment status" />
                                                 </SelectTrigger>
                                                 <SelectContent>
@@ -347,12 +327,7 @@ export default function EnrollmentDetails({
                                                 id="comment"
                                                 placeholder="Add any additional notes..."
                                                 value={paymentFormData.comment}
-                                                onChange={(e) =>
-                                                    setPaymentFormData({
-                                                        ...paymentFormData,
-                                                        comment: e.target.value,
-                                                    })
-                                                }
+                                                onChange={(e) => setPaymentFormData({ ...paymentFormData, comment: e.target.value})}
                                                 rows={3}
                                             />
                                         </div>
@@ -390,22 +365,20 @@ export default function EnrollmentDetails({
                                         <TableHead className="text-right">Due</TableHead>
                                         <TableHead>Comment</TableHead>
                                         <TableHead>Approved By</TableHead>
-                                        <TableHead className="text-center">Action</TableHead>
+                                        {/* <TableHead className="text-center">Action</TableHead> */}
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
                                     {paymentHistories.map((history, index) => {
-                                        const paymentStatus = history.payment_details?.payment_status_name?.toLowerCase() || "";
-                                        const isPendingStatus = paymentStatus === "pending";
-                                        const isPaidStatus = paymentStatus === "paid";
-                                        const isRefundedStatus = paymentStatus === "refunded";
-
                                         return (
                                             <TableRow key={history.id}>
                                                 <TableCell>{index + 1}</TableCell>
                                                 <TableCell>{history.payment_details?.payment_method_name ?? "N/A"}</TableCell>
                                                 <TableCell>
-                                                    {getPaymentStatusBadge(history.payment_details?.payment_status_name)}
+                                                    <PaymentHistoryStatusDropdown
+                                                        paymentHistoryId={history.id}
+                                                        currentStatus={history.payment_details?.payment_status_name}
+                                                    />
                                                 </TableCell>
                                                 <TableCell>{history.payment_details?.payment_type_name ?? "N/A"}</TableCell>
                                                 <TableCell className="text-right">
@@ -420,64 +393,12 @@ export default function EnrollmentDetails({
                                                 <TableCell>
                                                     {history.approved_by ?? "N/A"}
                                                 </TableCell>
-                                                <TableCell className="text-center">
-                                                    <div className="flex items-center justify-center gap-1">
-                                                        {!isPaidStatus && (
-                                                            <Button
-                                                                size="sm"
-                                                                variant="outline"
-                                                                className="gap-1 h-8 text-green-600 hover:text-green-700"
-                                                                onClick={() =>
-                                                                    handlePaymentStatusChange(
-                                                                        history.id,
-                                                                        PAYMENT_STATUS_PAID,
-                                                                        "Paid"
-                                                                    )
-                                                                }
-                                                                disabled={isPending}
-                                                            >
-                                                                <CheckCircle2 className="h-3 w-3" />
-                                                                Approve
-                                                            </Button>
-                                                        )}
-                                                        {!isPendingStatus && (
-                                                            <Button
-                                                                size="sm"
-                                                                variant="outline"
-                                                                className="gap-1 h-8 text-yellow-600 hover:text-yellow-700"
-                                                                onClick={() =>
-                                                                    handlePaymentStatusChange(
-                                                                        history.id,
-                                                                        PAYMENT_STATUS_PENDING,
-                                                                        "Pending"
-                                                                    )
-                                                                }
-                                                                disabled={isPending}
-                                                            >
-                                                                <Clock className="h-3 w-3" />
-                                                                Pending
-                                                            </Button>
-                                                        )}
-                                                        {!isRefundedStatus && (
-                                                            <Button
-                                                                size="sm"
-                                                                variant="outline"
-                                                                className="gap-1 h-8 text-red-600 hover:text-red-700"
-                                                                onClick={() =>
-                                                                    handlePaymentStatusChange(
-                                                                        history.id,
-                                                                        PAYMENT_STATUS_REFUNDED,
-                                                                        "Refunded"
-                                                                    )
-                                                                }
-                                                                disabled={isPending}
-                                                            >
-                                                                <XCircle className="h-3 w-3" />
-                                                                Reject
-                                                            </Button>
-                                                        )}
-                                                    </div>
-                                                </TableCell>
+                                                {/* <TableCell className="text-center">
+                                                    <PaymentHistoryStatusDropdown
+                                                        paymentHistoryId={history.id}
+                                                        currentStatus={history.payment_details?.payment_status_name}
+                                                    />
+                                                </TableCell> */}
                                             </TableRow>
                                         );
                                     })}

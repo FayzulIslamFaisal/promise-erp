@@ -10,12 +10,12 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Pencil } from "lucide-react";
 import Link from "next/link";
-import { getOpportunities, Opportunity } from "@/apiServices/homePageAdminService";
+import { getNewsFeeds, NewsFeed } from "@/apiServices/homePageAdminService";
 import DeleteButton from "./DeleteButton";
 import Image from "next/image";
 import Pagination from "@/components/common/Pagination";
 
-const OpportunitiesData = async ({
+const NewsFeedsData = async ({
   searchParams,
 }: {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
@@ -36,12 +36,11 @@ const OpportunitiesData = async ({
       typeof resolvedSearchParams.status === "string"
         ? resolvedSearchParams.status
         : undefined,
-    per_page: 15,
   };
 
   let results;
   try {
-    results = await getOpportunities(params);
+    results = await getNewsFeeds(params);
   } catch (error: unknown) {
     if (error instanceof Error) {
       return <ErrorComponent message={error.message} />;
@@ -51,14 +50,14 @@ const OpportunitiesData = async ({
   }
 
   if (!results.success) {
-    return <ErrorComponent message={results?.message || "Failed to load opportunities."} />;
+    return <ErrorComponent message={results?.message || "Failed to load news feeds."} />;
   }
 
-  const opportunities = results?.data?.opportunities || [];
+  const newsFeeds = results?.data?.news_feeds || [];
   const paginationData = results?.data?.pagination;
-
-  if (!opportunities) {
-    return <NotFoundComponent message={results?.message || "No opportunities found."} />;
+  
+  if (!newsFeeds || newsFeeds.length === 0) {
+    return <NotFoundComponent message={results?.message || "No news feeds found."} />;
   }
 
   return (
@@ -70,13 +69,14 @@ const OpportunitiesData = async ({
             <TableHead className="text-center">Action</TableHead>
             <TableHead className="text-center">Image</TableHead>
             <TableHead className="text-center">Title</TableHead>
-            <TableHead className="text-center">Sub Title</TableHead>
+            <TableHead className="text-center">News Link</TableHead>
+            <TableHead className="text-center">Entry Date</TableHead>
             <TableHead className="text-center">Status</TableHead>
           </TableRow>
         </TableHeader>
 
         <TableBody>
-          {opportunities.map((item: Opportunity, index: number) => {
+          {newsFeeds.map((item: NewsFeed, index: number) => {
             return (
               <TableRow key={item.id}>
                 <TableCell className="text-center">{(page - 1) * 15 + (index + 1)}</TableCell>
@@ -96,7 +96,7 @@ const OpportunitiesData = async ({
                     <DropdownMenuContent align="center">
                       <DropdownMenuItem asChild>
                         <Link
-                          href={`/web-content/opportunities/${item.id}/edit`}
+                          href={`/web-content/news-feeds/${item.id}/edit`}
                           className="flex items-center cursor-pointer"
                         >
                           <Pencil className="mr-2 h-4 w-4" />
@@ -112,7 +112,7 @@ const OpportunitiesData = async ({
                 <TableCell className="font-medium flex items-center justify-center">
                   <Image
                     src={item.image || "/images/placeholder.png"}
-                    alt={item.title || `Opportunity ${item.id}`}
+                    alt={item.title || `News Feed ${item.id}`}
                     width={40}
                     height={40}
                     className="object-cover"
@@ -122,11 +122,21 @@ const OpportunitiesData = async ({
                   {item.title}
                 </TableCell>
                 <TableCell className="font-medium text-center max-w-[200px] truncate">
-                  {item.sub_title}
+                  <a
+                    href={item.news_link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-500 hover:underline"
+                  >
+                    {item.news_link}
+                  </a>
                 </TableCell>
                 <TableCell className="text-center">
-                  <Badge variant={Number(item.status) === 1 ? "outline" : "destructive"}>
-                    {Number(item.status) === 1 ? "Active" : "Inactive"}
+                  {new Date(item.entry_date).toLocaleDateString()}
+                </TableCell>
+                <TableCell className="text-center">
+                  <Badge variant={item.status === 1 ? "outline" : "destructive"}>
+                    {item.status === 1 ? "Active" : "Inactive"}
                   </Badge>
                 </TableCell>
               </TableRow>
@@ -144,4 +154,4 @@ const OpportunitiesData = async ({
   );
 };
 
-export default OpportunitiesData;
+export default NewsFeedsData;
