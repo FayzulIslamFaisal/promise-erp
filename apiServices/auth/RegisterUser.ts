@@ -34,7 +34,7 @@ export default RegisterUser
 
 // Login User API Service
 export interface LoginPayload {
-  email: string
+  email_or_phone: string
   password: string
 }
 export const loginUser = async (data: LoginPayload) => {

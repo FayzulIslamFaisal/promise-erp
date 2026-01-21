@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useTransition } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import {
   FreeSeminar,
   getFreeSeminarBySlug,
@@ -18,7 +18,7 @@ import { useSession } from "next-auth/react";
 
 const FreeClassBySlugWrapper = () => {
   const { slug } = useParams<{ slug: string }>();
-  console.log(slug);
+  const router = useRouter();
 
   const [seminarData, setSeminarData] = useState<FreeSeminar | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -60,7 +60,10 @@ const FreeClassBySlugWrapper = () => {
   return (
     <>
       <div className="mb-6 flex items-center gap-3 px-4">
-        <ChevronLeft className="h-8 w-8 text-secondary" />
+        <ChevronLeft
+          onClick={() => router.back()}
+          className="h-8 w-8 text-secondary cursor-pointer"
+        />
         <h1 className="text-xl font-bold text-secondary lg:text-3xl">
           {seminarData.title}
         </h1>

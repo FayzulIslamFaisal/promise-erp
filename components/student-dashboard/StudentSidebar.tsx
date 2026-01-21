@@ -42,9 +42,9 @@ export function StudentSidebar() {
     },
     {
       title: "Free Seminar",
-      url: "/student/freeclass",
+      url: "/student/freeseminar",
       icon: GraduationCap,
-      isActive: pathname.startsWith("/student/freeclass"),
+      isActive: pathname.startsWith("/student/freese"),
     },
     {
       title: "Upcoming Courses",

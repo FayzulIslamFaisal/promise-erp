@@ -898,19 +898,11 @@ const data = {
       items: [
         {
           title: "Roles List",
-          url: "#",
-        },
-        {
-          title: "Add Role",
-          url: "#",
+          url: "/access-control/roles",
         },
         {
           title: "Permissions List",
-          url: "#",
-        },
-        {
-          title: "Assign Permissions",
-          url: "#",
+          url: "/access-control/permissions",
         },
       ],
     },

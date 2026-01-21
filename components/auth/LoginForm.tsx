@@ -14,7 +14,7 @@ import { toast } from "sonner"
 import { Spinner } from "@/components/ui/spinner"
 
 export interface FormData {
-  email: string
+  email_or_phone : string
   password: string
 }
 
@@ -33,7 +33,7 @@ const LoginForm = () => {
   const onSubmit = async (data: FormData) => {
     const res = await signIn("credentials", {
       redirect: false,
-      email: data.email,
+      email_or_phone: data.email_or_phone,
       password: data.password,
     })
 
@@ -58,15 +58,15 @@ const LoginForm = () => {
           <form onSubmit={handleSubmit(onSubmit)}>
             <FieldGroup>
               <Field>
-                <FieldLabel htmlFor="email">Email<span className="text-red-500">*</span></FieldLabel>
+                <FieldLabel htmlFor="email_or_phone ">Email or Phone<span className="text-red-500">*</span></FieldLabel>
                 <Input
-                  id="email"
-                  type="email"
-                  placeholder="Enter your email"
-                  {...register("email", { required: "Email is required" })}
+                  id="email_or_phone"
+                  type="string"
+                  placeholder="Enter your email or phone"
+                  {...register("email_or_phone", { required: "email or  phone  is required" })}
                 />
-                {errors.email && (
-                  <FieldDescription className="text-red-500">{errors.email.message}</FieldDescription>
+                {errors.email_or_phone  && (
+                  <FieldDescription className="text-red-500">{errors.email_or_phone .message}</FieldDescription>
                 )}
               </Field>
 

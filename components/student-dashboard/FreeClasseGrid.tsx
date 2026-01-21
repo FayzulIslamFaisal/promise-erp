@@ -1,4 +1,4 @@
-import { FreeClassesParams } from "@/app/student/freeclass/page";
+import { FreeClassesParams } from "@/app/student/freeseminar/page";
 import EmptyCoursesState from "./EmptyCoursesState";
 import FreeClasseCard from "./FreeClasseCard";
 import { getFreeSeminars } from "@/apiServices/studentDashboardService";

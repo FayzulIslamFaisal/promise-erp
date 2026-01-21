@@ -14,7 +14,7 @@ import { Suspense } from "react";
 
 const MyEarningsPage = () => {
   return (
-    <section className="py-4 px-4">
+    <section className="py-8 lg:py-12 px-4">
       <div className="flex items-center justify-between gap-2 px-4 mb-5">
         <h1 className="text-2xl font-bold text-secondary">My Earnings</h1>
         <div className="flex items-center gap-2">

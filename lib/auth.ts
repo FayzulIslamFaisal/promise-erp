@@ -9,16 +9,16 @@ export const authOptions:NextAuthOptions = {
     CredentialsProvider({
       name: "Credentials",
       credentials: {
-        email: { label: "Email", type: "text" },
+        email_or_phone : { label: "Email", type: "text" },
         password: { label: "Password", type: "password" },
       },
       authorize: async (credentials) => {
-        if (!credentials?.email || !credentials?.password) {
+        if (!credentials?.email_or_phone || !credentials?.password) {
           return null;
         }
 
         const data = await loginUser({
-          email: credentials.email,
+          email_or_phone: credentials.email_or_phone,
           password: credentials.password,
         });
         

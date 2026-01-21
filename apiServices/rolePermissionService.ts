@@ -1,0 +1,447 @@
+import { authOptions } from "@/lib/auth";
+import { getServerSession } from "next-auth";
+import { PaginationType } from "@/types/pagination";
+
+const API_BASE =
+  process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api/v1";
+
+// ======================= Permissions =======================
+export interface Permission {
+  id: number;
+  name: string;
+  guard_name: string;
+  roles_count: number;
+  roles: string[];
+  created_at: string;
+}
+export interface PermissionsData {
+  permissions: Permission[];
+  pagination?: PaginationType;
+}
+
+export interface PermissionsApiResponse {
+  success: boolean;
+  message: string;
+  code: number;
+  data: PermissionsData;
+  errors?: Record<string, string[]>;
+}
+
+export async function getAllPermissionsList({
+  params = {},
+}: {
+  params?: Record<string, unknown>;
+}): Promise<PermissionsApiResponse> {
+  const session = await getServerSession(authOptions);
+  const token = session?.accessToken;
+
+  if (!token) {
+    throw new Error("Unauthorized: Access token not found");
+  }
+
+  try {
+    const urlParams = new URLSearchParams();
+
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        urlParams.append(key, String(value));
+      }
+    });
+
+    const queryString = urlParams.toString();
+    const url = queryString
+      ? `${API_BASE}/permissions?${queryString}`
+      : `${API_BASE}/permissions`;
+
+    const res = await fetch(url, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!res.ok) {
+      throw new Error(`Permissions API Error: ${res.status} ${res.statusText}`);
+    }
+
+    const data: PermissionsApiResponse = await res.json();
+    return data;
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("getPermissions Error:", error.message);
+      throw error;
+    }
+
+    throw new Error("Unknown error occurred while fetching permissions");
+  }
+}
+// =======================End Permissions =======================
+
+// ======================= Roles =======================
+export interface Role {
+  id: number;
+  name: string;
+  guard_name: string;
+  permissions: string[];
+  roles: string[];
+  users_count: number;
+  created_at: string;
+}
+export interface RolesData {
+  roles: Role[];
+  pagination?: PaginationType;
+}
+
+export interface RolesApiResponse {
+  success: boolean;
+  message: string;
+  code: number;
+  data: RolesData;
+  errors?: Record<string, string[]>;
+}
+export async function getAllRolesList({
+  token,
+  params = {},
+}: {
+  token?: string;
+  params?: Record<string, unknown>;
+} = {}): Promise<RolesApiResponse> {
+  if (!token) {
+    throw new Error("Unauthorized: Access token not found");
+  }
+
+  try {
+    const urlParams = new URLSearchParams();
+
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        urlParams.append(key, String(value));
+      }
+    });
+
+    const queryString = urlParams.toString();
+    const url = queryString
+      ? `${API_BASE}/roles?${queryString}`
+      : `${API_BASE}/roles`;
+
+    const res = await fetch(url, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!res.ok) {
+      throw new Error(`roles API Error: ${res.status} ${res.statusText}`);
+    }
+
+    const data: RolesApiResponse = await res.json();
+    return data;
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("getAllRolesList Error:", error.message);
+      throw error;
+    }
+
+    throw new Error("Unknown error occurred while fetching permissions");
+  }
+}
+// =======================End Roles =======================
+
+// ======================= Roles =======================
+export interface PermissionByList {
+  id: number;
+  name: string;
+  guard_name: string;
+}
+
+export interface PermissionByListData {
+  permissions: PermissionByList[];
+}
+
+export interface PermissionByApiResponse {
+  success: boolean;
+  message: string;
+  code: number;
+  data: PermissionByListData;
+  errors?: Record<string, string[]>; // optional field for API errors
+}
+export async function getPermissionsBylist({
+  token,
+}: {
+  token: string;
+}): Promise<PermissionByApiResponse> {
+  if (!token) {
+    throw new Error("Unauthorized: Access token not found");
+  }
+
+  try {
+    const url = `${API_BASE}/permissions/list`;
+    const res = await fetch(url, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!res.ok) {
+      throw new Error(`roles API Error: ${res.status} ${res.statusText}`);
+    }
+
+    const data: PermissionByApiResponse = await res.json();
+    return data;
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("getAllRolesList Error:", error.message);
+      throw error;
+    }
+
+    throw new Error("Unknown error occurred while fetching permissions");
+  }
+}
+// =======================End Roles =======================
+
+// =======================Create Roles =======================
+
+export interface CreateUpdateRole {
+  id: number;
+  name: string;
+  guard_name: string;
+  permissions: string[];
+}
+
+export interface CreateUpdateRoleData {
+  role: CreateUpdateRole;
+}
+
+export interface CreateUpdateRoleApiResponse {
+  success: boolean;
+  message: string;
+  code: number;
+  data?: CreateUpdateRoleData;
+  errors?: Record<string, string[]>;
+}
+
+export interface CreateRolePayload {
+  name: string;
+  guard_name: string;
+  permissions?: string[];
+}
+
+export async function createRole(
+  token: string,
+  payload: CreateRolePayload,
+): Promise<CreateUpdateRoleApiResponse> {
+  if (!token) {
+    throw new Error("Unauthorized: Access token not found");
+  }
+  try {
+    const url = `${API_BASE}/roles`;
+    const res = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const data: CreateUpdateRoleApiResponse = await res.json();
+
+    return data;
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("createRole Error:", error.message);
+      throw new Error("Error creating role");
+    }
+    throw new Error("Unknown error occurred while creating role");
+  }
+}
+
+// =======================End Create Roles =======================
+
+// =======================Update Roles =======================
+
+export async function updateRole(
+  token: string,
+  id: number,
+  payload: { name: string; permissions: string[] },
+): Promise<CreateUpdateRoleApiResponse> {
+  if (!token) {
+    throw new Error("Unauthorized: Access token not found");
+  }
+
+  try {
+    const url = `${API_BASE}/roles/${id}`;
+    const res = await fetch(url, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const data: CreateUpdateRoleApiResponse = await res.json();
+
+    return data;
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("updateRole Error:", error.message);
+      throw new Error("Error updating role");
+    }
+    throw new Error("Unknown error occurred while updating role");
+  }
+}
+// =======================End Update Roles =======================
+
+// ======================= getRoleById =======================
+
+export async function getRoleById({
+  token,
+  id,
+}: {
+  token: string;
+  id: number;
+}): Promise<CreateUpdateRoleApiResponse> {
+  if (!token) {
+    throw new Error("Unauthorized: Access token not found");
+  }
+
+  try {
+    const url = `${API_BASE}/roles/${id}`;
+    const res = await fetch(url, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!res.ok) {
+      throw new Error(`getRoleById API Error: ${res.status} ${res.statusText}`);
+    }
+
+    const data: CreateUpdateRoleApiResponse = await res.json();
+    return data;
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("getRoleById Error:", error.message);
+      throw error;
+    }
+
+    throw new Error("Unknown error occurred while fetching role");
+  }
+}
+// =======================End getRoleById =======================
+
+// ======================= ASSIGN ROLES =======================
+
+export interface CreateAssignedUser {
+  id: number;
+  name: string;
+  email: string;
+  roles: string[];
+}
+export interface CreateAssignRoleResponse {
+  success: boolean;
+  message: string;
+  code: number;
+  data: {
+    user: CreateAssignedUser;
+  };
+  errors?: Record<string, string[]>;
+}
+
+export async function assignRole(
+  token: string | undefined,
+  userId: number,
+  roleName: string, 
+): Promise<CreateAssignRoleResponse> {
+  if (!token) {
+    throw new Error("Unauthorized: Access token not found");
+  }
+  try {
+
+    const url = `${API_BASE}/users/${userId}/roles/assign`;
+    const res = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ role: roleName }),
+    });
+
+    const data: CreateAssignRoleResponse = await res.json();
+    return data;
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("assignRole Error:", error.message);
+      throw new Error("Error assigning role");
+    }
+    throw new Error("Unknown error occurred while assigning role");
+  }
+}
+
+// =======================End ASSIGN ROLES =======================
+
+// ======================= GET ALL USERS LIST =======================
+export interface UserListRole {
+  id: number;
+  name: string;
+}
+export interface UserList {
+  id: number;
+  name: string;
+  email: string;
+  phone: string;
+  roles: UserListRole[];
+}
+export interface UserListData {
+  total_users: number;
+  users: UserList[];
+}
+export interface UserListApiResponse {
+  success: boolean;
+  message: string;
+  code: number;
+  data: UserListData;
+  errors?: Record<string, string[]>;
+}
+
+export async function getAllUserlist(token: string | undefined): Promise<UserListApiResponse> {
+
+  if (!token) {
+    throw new Error("Unauthorized: Access token not found");
+  }
+
+  try {
+    const url = `${API_BASE}/users/public-list`;
+    const res = await fetch(url, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+    
+    if (!res.ok) {
+      throw new Error(`getAllUserlist API Error: ${res.status} ${res.statusText}`);
+    }
+
+    const data: UserListApiResponse = await res.json();
+    return data;
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("getAllUserlist Error:", error.message);
+      throw error;
+    }
+
+    throw new Error("Unknown error occurred while fetching permissions");
+  }
+}
+// =======================End GET ALL USERS LIST =======================

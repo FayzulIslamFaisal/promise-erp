@@ -39,7 +39,6 @@ export default function JoinFilter() {
       const params = new URLSearchParams(searchParams.toString());
       let isChanged = false;
 
-      // Check if any filter value differs from the URL parameters
       Object.entries(watchedValues).forEach(([key, value]) => {
         const urlValue = params.get(key) || "";
         const formValue = String(value || "");
@@ -49,7 +48,7 @@ export default function JoinFilter() {
       });
 
       if (isChanged) {
-        params.delete("page"); // Reset to page 1 on filter change
+        params.delete("page");
         Object.entries(watchedValues).forEach(([key, value]) => {
           if (value && value !== "") {
             params.set(key, String(value));
