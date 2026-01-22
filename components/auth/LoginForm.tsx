@@ -89,9 +89,9 @@ const LoginForm = () => {
                 {errors.password && (
                   <FieldDescription className="text-red-500">{errors.password.message}</FieldDescription>
                 )}
-                {/* <FieldDescription className="flex justify-end mt-1">
-                  <Link href="#" className="text-blue-600 hover:underline">Forgot Password?</Link>
-                </FieldDescription> */}
+                <FieldDescription className="flex justify-end mt-1">
+                  <Link href="/forgot-password" className="text-blue-600 hover:underline">Forgot Password?</Link>
+                </FieldDescription>
               </Field>
 
               <Field orientation="horizontal">

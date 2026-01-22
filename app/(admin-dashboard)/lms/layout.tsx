@@ -1,4 +1,4 @@
-import NextAuthGuard from "@/lib/NextAuthGuard";
+// import NextAuthGuard from "@/lib/NextAuthGuard";
 import { Suspense } from "react";
 
 export default function LmsSystemLayout({
@@ -9,7 +9,7 @@ export default function LmsSystemLayout({
   return (
     <div className="min-h-[calc(100vh-64px)] bg-gray-50 p-4">
       <Suspense fallback={null}>
-        <NextAuthGuard
+        {/* <NextAuthGuard
           allowedRoles={[
             "super-admin",
             "admin",
@@ -335,9 +335,9 @@ export default function LmsSystemLayout({
             "delete-contact-queries",
             "view-logs",
           ]}
-        >
+        > */}
           {children}
-        </NextAuthGuard>
+        {/* </NextAuthGuard> */}
       </Suspense>
     </div>
   );
