@@ -17,6 +17,7 @@ import {
     SidebarMenuSubButton,
     SidebarMenuSubItem,
 } from "@/components/ui/sidebar"
+import { usePermission } from "@/hooks/usePermission"
 
 export function NavCollapsibleItem({
     item,
@@ -26,13 +27,16 @@ export function NavCollapsibleItem({
         url: string
         icon?: LucideIcon
         isActive?: boolean
+        permissions?: string[]
         items?: {
             title: string
             url: string
+            permissions?: string[]
         }[]
     }
 }) {
     const pathname = usePathname()
+    const { hasPermission, loading } = usePermission()
 
     // Calculate active state
     const hasActiveChild = item.items?.some(
@@ -53,6 +57,20 @@ export function NavCollapsibleItem({
         }
     }, [isActive])
 
+    if (!loading && item.permissions && !hasPermission(item.permissions)) {
+        return null
+    }
+
+    // Filter sub items
+    const visibleSubItems = item.items?.filter(subItem => {
+        if (!subItem.permissions) return true;
+        return hasPermission(subItem.permissions);
+    });
+
+    if (item.items && visibleSubItems?.length === 0 && item.url === "#") {
+        return null; // Don't show parent if all children are hidden and parent itself is not a link
+    }
+
     return (
         <Collapsible
             key={item.title}
@@ -71,7 +89,7 @@ export function NavCollapsibleItem({
                 </CollapsibleTrigger>
                 <CollapsibleContent>
                     <SidebarMenuSub>
-                        {item.items?.map((subItem) => {
+                        {visibleSubItems?.map((subItem) => {
                             const isSubItemActive = pathname === subItem.url || pathname?.startsWith(subItem.url + "/")
                             return (
                                 <SidebarMenuSubItem key={subItem.title}>

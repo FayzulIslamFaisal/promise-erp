@@ -1,11 +1,14 @@
+import NextAuthGuardWrapper from "@/components/auth/NextAuthGuardWrapper"
 
 const DashboardPage = () => {
   return (
-    <div className=" flex items-center justify-center">
+    <NextAuthGuardWrapper requiredPermissions={["view-dashboard"]}>
+      <div className=" flex items-center justify-center">
         <div className="text-center">
-            <h1>Dashboard Page</h1>
+          <h1>Dashboard Page</h1>
         </div>
-    </div>
+      </div>
+    </NextAuthGuardWrapper>
   )
 }
 

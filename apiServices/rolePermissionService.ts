@@ -1,3 +1,4 @@
+
 import { authOptions } from "@/lib/auth";
 import { getServerSession } from "next-auth";
 import { PaginationType } from "@/types/pagination";
@@ -13,6 +14,7 @@ export interface Permission {
   roles_count: number;
   roles: string[];
   created_at: string;
+  updated_at: string;
 }
 export interface PermissionsData {
   permissions: Permission[];
@@ -82,11 +84,10 @@ export async function getAllPermissionsList({
 export interface Role {
   id: number;
   name: string;
-  guard_name: string;
   permissions: string[];
-  roles: string[];
   users_count: number;
   created_at: string;
+  updated_at: string;
 }
 export interface RolesData {
   roles: Role[];
@@ -150,15 +151,19 @@ export async function getAllRolesList({
 }
 // =======================End Roles =======================
 
-// ======================= Roles =======================
-export interface PermissionByList {
+// ======================= Role Permission List =======================
+export interface RolePermission {
   id: number;
   name: string;
-  guard_name: string;
+}
+
+export interface RolePermissionModule {
+  module_title: string;
+  module_permission: RolePermission[];
 }
 
 export interface PermissionByListData {
-  permissions: PermissionByList[];
+  permissions: RolePermissionModule[];
 }
 
 export interface PermissionByApiResponse {
@@ -166,9 +171,10 @@ export interface PermissionByApiResponse {
   message: string;
   code: number;
   data: PermissionByListData;
-  errors?: Record<string, string[]>; // optional field for API errors
+  errors?: Record<string, string[]>;
 }
-export async function getPermissionsBylist({
+
+export async function getRolePermissionslist({
   token,
 }: {
   token: string;
@@ -178,7 +184,7 @@ export async function getPermissionsBylist({
   }
 
   try {
-    const url = `${API_BASE}/permissions/list`;
+    const url = `${API_BASE}/roles/permissions/list`;
     const res = await fetch(url, {
       method: "GET",
       headers: {
@@ -195,14 +201,14 @@ export async function getPermissionsBylist({
     return data;
   } catch (error: unknown) {
     if (error instanceof Error) {
-      console.error("getAllRolesList Error:", error.message);
+      console.error("getRolePermissionslist Error:", error.message);
       throw error;
     }
 
-    throw new Error("Unknown error occurred while fetching permissions");
+    throw new Error("Unknown error occurred while fetching getRolePermissionslist");
   }
 }
-// =======================End Roles =======================
+// =======================End Role Permission List =======================
 
 // =======================Create Roles =======================
 

@@ -55,6 +55,9 @@ const PermissionListData = async ({
               Created Date
             </TableHead>
             <TableHead className="font-semibold text-center">
+              Updated Date
+            </TableHead>
+            <TableHead className="font-semibold text-center">
               Roles Count
             </TableHead>
           </TableRow>
@@ -78,6 +81,9 @@ const PermissionListData = async ({
 
               <TableCell className="text-center">
                 {permission?.created_at}
+              </TableCell>
+              <TableCell className="text-center">
+                {permission?.updated_at}
               </TableCell>
 
               <TableCell className="text-center">

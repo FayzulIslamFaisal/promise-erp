@@ -76,6 +76,7 @@ const data = {
         {
           title: "Students",
           url: "/lms/students",
+          permissions: ["view-students"],
         },
       ],
     },
@@ -88,44 +89,54 @@ const data = {
         {
           title: "Categories",
           url: "/lms/categories",
+          permissions: ["view-course-categories"],
         },
         {
           title: "Courses",
           url: "/lms/courses",
+          permissions: ["view-courses"],
         },
         {
           title: "Batches",
           url: "/lms/batches",
+          permissions: ["view-batches"],
         },
         {
           title: "Projects",
           url: "/lms/projects",
+          permissions: ["view-course-projects"],
         },
         {
           title: "Groups",
           url: "/lms/groups",
+          permissions: ["view-groups"],
         },
-       
+
         {
           title: "Facilities",
           url: "/lms/facilities",
+          permissions: ["view-course-facilities"],
         },
 
         {
           title: "FAQs",
           url: "/lms/faqs",
+          permissions: ["view-course-faqs"],
         },
         {
           title: "Coupons",
           url: "/lms/coupons",
+          permissions: ["view-coupons"],
         },
         {
           title: "Who Can Join",
           url: "/lms/who-can-join",
+          permissions: ["view-course-joins"],
         },
         {
           title: "Course Reviews",
           url: "/lms/reviews",
+          permissions: ["view-reviews"],
         },
       ],
     },
@@ -138,26 +149,32 @@ const data = {
         {
           title: "Teachers",
           url: "/lms/teachers",
+          permissions: ["view-teachers"],
         },
         {
           title: "Active Teachers",
           url: "#",
+          permissions: ["view-teachers"],
         },
         {
           title: "Pending Approvals",
           url: "#",
+          permissions: ["create-teachers"],
         },
         {
           title: "Teacher Attendance",
           url: "#",
+          permissions: ["view-attendances"],
         },
         {
           title: "Teacher Payments",
           url: "#",
+          permissions: ["view-payment-histories"],
         },
         {
           title: "Performance Reports",
           url: "#",
+          permissions: ["view-teacher-stats"],
         },
       ],
     },
@@ -170,22 +187,27 @@ const data = {
         {
           title: "Enrollments",
           url: "/lms/enrollments",
+          permissions: ["view-enrollments"],
         },
         {
           title: "Invoices",
           url: "#",
+          permissions: ["view-invoices"],
         },
         {
           title: "Coupons",
           url: "#",
+          permissions: ["view-coupons"],
         },
         {
           title: "Certificates",
           url: "#",
+          permissions: ["view-certificates"],
         },
         {
           title: "Subscription Plans",
           url: "#",
+          permissions: ["view-subscriptions"],
         },
       ],
     },
@@ -221,50 +243,62 @@ const data = {
         {
           title: "Statistics",
           url: "/web-content/stats",
+          permissions: ["view-stats"],
         },
         {
           title: "Departments",
           url: "#",
+          permissions: ["view-divisions"],
         },
         {
           title: "Offers List",
           url: "#",
+          permissions: ["view-sections"],
         },
         {
           title: "Blog Categories",
           url: "#",
+          permissions: ["view-blog-categories"],
         },
         {
           title: "Blog Posts",
           url: "#",
+          permissions: ["view-blogs"],
         },
         {
           title: "Notices",
           url: "#",
+          permissions: ["view-news-feeds"],
         },
         {
           title: "Hero Sections",
           url: "/web-content/hero-section",
+          permissions: ["view-hero-sections"],
         },
         {
           title: "Common Sections",
           url: "/web-content/common-sections",
+          permissions: ["view-sections"],
         },
         {
           title: "Opportunities",
           url: "/web-content/opportunities",
+          permissions: ["view-opportunities"],
         },
         {
           title: "Video Gallery",
           url: "/web-content/video-galleries",
+          permissions: ["view-video-galleries"],
         },
         {
           title: "Our Partners",
           url: "/web-content/our-partners",
+          permissions: ["view-partners"],
         },
         {
           title: "News & Updates",
           url: "/web-content/news-feeds",
+          permissions: ["view-news-feeds"],
         },
 
       ],
@@ -277,18 +311,22 @@ const data = {
         {
           title: "Notifications",
           url: "#",
+          permissions: ["view-notifications"],
         },
         {
           title: "Reviews",
           url: "#",
+          permissions: ["view-reviews"],
         },
         {
           title: "Free Consultations",
           url: "#",
+          permissions: ["view-contact-queries"],
         },
         {
           title: "Newsletter Subscriptions",
           url: "#",
+          permissions: ["view-newsletters"],
         },
       ],
     },
@@ -629,14 +667,17 @@ const data = {
         {
           title: "List Expenses",
           url: "#",
+          permissions: ["view-expense"],
         },
         {
           title: "Add Expense",
           url: "#",
+          permissions: ["create-expense"],
         },
         {
           title: "Expense Categories",
           url: "#",
+          permissions: ["view-expense-category"],
         },
       ],
     },
@@ -650,6 +691,7 @@ const data = {
         {
           title: "Purchases List",
           url: "#",
+          // permissions: ["view-purchases"], // Not found in list
         },
         {
           title: "Add Purchases",
@@ -794,6 +836,7 @@ const data = {
         {
           title: "Invoice & Billing",
           url: "#",
+          permissions: ["view-invoices"],
         },
         {
           title: "Payment Collection / Due Management",
@@ -844,18 +887,22 @@ const data = {
         {
           title: "Users List",
           url: "#",
+          permissions: ["view-users"],
         },
         {
           title: "User Roles",
           url: "#",
+          permissions: ["view-role-users"],
         },
         {
           title: "User Permissions",
           url: "#",
+          permissions: ["view-user-permissions"], // Assuming logic, but listing doesn't explicitly show 'view-user-permissions', only 'view-permissions' and 'assign-user-roles'. 'view-role-permissions' exists. 
         },
         {
           title: "User Activity Logs",
           url: "#",
+          permissions: ["view-logs"],
         },
         {
           title: "User Profile Settings",
@@ -873,6 +920,7 @@ const data = {
         {
           title: "Divisions",
           url: "/divisions",
+          permissions: ["view-divisions"],
         },
       ],
     },
@@ -886,6 +934,7 @@ const data = {
         {
           title: "Districts",
           url: "/districts",
+          permissions: ["view-districts"],
         },
       ],
     },
@@ -899,10 +948,12 @@ const data = {
         {
           title: "Roles List",
           url: "/access-control/roles",
+          permissions: ["view-roles"],
         },
         {
           title: "Permissions List",
           url: "/access-control/permissions",
+          permissions: ["view-permissions"],
         },
       ],
     },

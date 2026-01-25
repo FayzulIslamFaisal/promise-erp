@@ -1,4 +1,5 @@
 
+import NextAuthGuardWrapper from "@/components/auth/NextAuthGuardWrapper";
 import BatchesData from "@/components/lms/batches/BatchesData";
 import BatchFilterData from "@/components/lms/batches/BatchFilterData";
 import TableSkeleton from "@/components/TableSkeleton";
@@ -15,24 +16,26 @@ export default async function BatchesPage({
   const params = await searchParams;
 
   return (
-    <div className="mx-auto space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-semibold tracking-tight">Batches</h1>
-        <Button asChild>
-          <Link href="/lms/batches/add">
-            <PlusCircle className="w-4 h-4 mr-2" />
-            Add Batch
-          </Link>
-        </Button>
+    <NextAuthGuardWrapper requiredPermissions={["view-batches"]}>
+      <div className="mx-auto space-y-6">
+        <div className="flex justify-between items-center">
+          <h1 className="text-2xl font-semibold tracking-tight">Batches</h1>
+          <Button asChild>
+            <Link href="/lms/batches/add">
+              <PlusCircle className="w-4 h-4 mr-2" />
+              Add Batch
+            </Link>
+          </Button>
+        </div>
+
+        <Suspense fallback={<div>Loading filters...</div>}>
+          <BatchFilterData />
+        </Suspense>
+
+        <Suspense fallback={<TableSkeleton columns={8} rows={10} />}>
+          <BatchesData searchParams={params} />
+        </Suspense>
       </div>
-
-      <Suspense fallback={<div>Loading filters...</div>}>
-        <BatchFilterData />
-      </Suspense>
-
-      <Suspense fallback={<TableSkeleton columns={8} rows={10} />}>
-        <BatchesData searchParams={params} />
-      </Suspense>
-    </div>
+    </NextAuthGuardWrapper>
   );
 }

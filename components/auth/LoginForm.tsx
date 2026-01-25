@@ -41,7 +41,7 @@ const LoginForm = () => {
       toast.success("Logged in successfully!")
       router.push(redirectPath)
     } else {
-      toast.error(res?.error || "Login failed!")
+      toast.error(res?.error || "Login failed! Please try again.")
     }
   }
 

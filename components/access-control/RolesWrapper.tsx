@@ -91,11 +91,11 @@ const RolesWrapper = () => {
           {/* Role Cards */}
           {roles.map((role) => (
             <Card
-              key={role.id}
+              key={role?.id}
               className="flex justify-between items-center p-4"
             >
               <CardContent className="p-0">
-                <div className="text-lg font-medium">{role.name}</div>
+                <div className="text-lg font-medium">{role?.name}</div>
                 <Button
                   variant="link"
                   size="sm"
@@ -137,6 +137,7 @@ const RolesWrapper = () => {
         open={addEditRoleDialogOpen}
         onOpenChange={setAddEditRoleDialogOpen}
         initialRoleName={editingRole?.name || null}
+        token={session?.accessToken}
       />
     </div>
   );

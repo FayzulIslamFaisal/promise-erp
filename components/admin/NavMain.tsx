@@ -15,9 +15,11 @@ export function NavMain({
     url: string
     icon?: LucideIcon
     isActive?: boolean
+    permissions?: string[]
     items?: {
       title: string
       url: string
+      permissions?: string[]
     }[]
   }[]
 }) {

@@ -8,12 +8,11 @@ import {
 import { Separator } from "@radix-ui/react-separator";
 import { Suspense } from "react";
 
-export default function StudentDashboardLayout({
+export default async function StudentDashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-
   return (
     <div className="flex flex-col min-h-screen">
       <SidebarProvider>

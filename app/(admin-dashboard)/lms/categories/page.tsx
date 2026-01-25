@@ -1,5 +1,6 @@
 // CategoriesPage.tsx
 import TableSkeleton from "@/components/TableSkeleton";
+import NextAuthGuardWrapper from "@/components/auth/NextAuthGuardWrapper";
 import { Button } from "@/components/ui/button";
 import { PlusCircle } from "lucide-react";
 import Link from "next/link";
@@ -13,25 +14,27 @@ const CategoriesPage = ({
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) => {
   return (
-    <div className="mx-auto space-y-6 ">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-semibold tracking-tight">Category</h1>
-        <Button asChild>
-          <Link href="/lms/categories/add">
-            <PlusCircle className="w-4 h-4 mr-2" />
-            Add Category
-          </Link>
-        </Button>
+    <NextAuthGuardWrapper requiredPermissions={["view-course-categories"]}>
+      <div className="mx-auto space-y-6 ">
+        <div className="flex justify-between items-center">
+          <h1 className="text-2xl font-semibold tracking-tight">Category</h1>
+          <Button asChild>
+            <Link href="/lms/categories/add">
+              <PlusCircle className="w-4 h-4 mr-2" />
+              Add Category
+            </Link>
+          </Button>
+        </div>
+
+        <Suspense fallback={<div>Loading Search...</div>}>
+          <CategoryFilterData />
+        </Suspense>
+
+        <Suspense fallback={<TableSkeleton columns={4} rows={8} />}>
+          <CategoriesData searchParams={searchParams} />
+        </Suspense>
       </div>
-
-      <Suspense fallback={<div>Loading Search...</div>}>
-        <CategoryFilterData />
-      </Suspense>
-
-      <Suspense fallback={<TableSkeleton columns={4} rows={8} />}>
-        <CategoriesData searchParams={searchParams} />
-      </Suspense>
-    </div>
+    </NextAuthGuardWrapper>
   )
 }
 

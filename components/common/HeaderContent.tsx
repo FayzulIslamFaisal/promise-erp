@@ -58,10 +58,16 @@ interface HeaderContentProps {
 const getDashboardUrl = (role: string | string[] | null | undefined) => {
   if (!role) return "/student/dashboard";
   const roles = Array.isArray(role) ? role : [role];
-  if (roles.includes("super-admin")) {
-    return "/dashboard";
+  if (roles.includes("student")) {
+    return "/student/dashboard";
   }
-  return "/student/dashboard";
+  // Use the first role to determine the dashboard path
+  // const primaryRole = roles[0];
+  // if (primaryRole) {
+  //   return `/${primaryRole}/dashboard`;
+  // }
+  
+  return "/dashboard";
 };
 
 /* ================= ROLE BASED PROFILE ================= */
