@@ -1,32 +1,9 @@
 "use client";
 
-import { useSession } from "next-auth/react";
-import { useEffect, useState, useTransition } from "react";
-import { fetchMyPermissions } from "@/apiServices/auth/permissionService";
+import { usePermissionContext } from "@/providers/PermissionProvider";
 
 export function usePermission() {
-    const { data: session, status } = useSession();
-    const [permissions, setPermissions] = useState<string[]>([]);
-    const [isPending, startTransition] = useTransition();
-
-    const isLoadingSession = status === "loading";
-
-    useEffect(() => {
-        // add useTransition
-        startTransition(async () => {
-            try {
-                if (status === "authenticated" && session?.accessToken) {
-                    const permissions = await fetchMyPermissions(session.accessToken);
-                    setPermissions(permissions?.data?.permissions ?? []);
-                }
-            } catch (error) {
-                console.error("Failed to fetch permissions", error);
-            }
-        });
-    }, [status, session?.accessToken]);
-
-    // Combined loading state
-    const loading = isLoadingSession || (status === "authenticated" && isPending);
+    const { permissions, loading } = usePermissionContext();
 
     const hasPermission = (requiredPermission: string | string[]) => {
         if (loading) return false;

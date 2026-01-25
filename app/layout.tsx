@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import SessionProviderWrapper from "../components/next-auth/SessionProviderWrapper";
+import { PermissionProvider } from "@/providers/PermissionProvider";
 import { Toaster } from "@/components/ui/sonner"
 import "./globals.css";
 
@@ -71,8 +72,10 @@ export default function RootLayout({
         suppressHydrationWarning={true}
       >
         <SessionProviderWrapper>
-          {children}
-          <Toaster />
+          <PermissionProvider>
+            {children}
+            <Toaster />
+          </PermissionProvider>
         </SessionProviderWrapper>
       </body>
     </html>
