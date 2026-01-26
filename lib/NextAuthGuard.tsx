@@ -21,11 +21,13 @@ export default async function NextAuthGuard({
   if (!session?.user || !session?.accessToken) {
     redirect("/login");
   }
+  console.log(" static:===>", requiredPermissions);
 
   // get permissions (cached)
   let perms: string[] = [];
   try {
     const { data } = await fetchMyPermissions(session.accessToken);
+    console.log(" Data:===>", data);
     perms = data?.permissions ?? [];
   } catch (error) {
     console.error("Guard fetch error:", error);

@@ -210,12 +210,11 @@ export async function getRolePermissionslist({
 }
 // =======================End Role Permission List =======================
 
-// =======================Create Roles =======================
+// =======================Create and Update Roles =======================
 
 export interface CreateUpdateRole {
   id: number;
   name: string;
-  guard_name: string;
   permissions: string[];
 }
 
@@ -234,7 +233,7 @@ export interface CreateUpdateRoleApiResponse {
 export interface CreateRolePayload {
   name: string;
   guard_name: string;
-  permissions?: string[];
+  permissions: string[];
 }
 
 export async function createRole(
@@ -267,14 +266,14 @@ export async function createRole(
   }
 }
 
-// =======================End Create Roles =======================
+// ======End Create Roles ==============
 
-// =======================Update Roles =======================
+// =====Update Roles ===============
 
 export async function updateRole(
   token: string,
   id: number,
-  payload: { name: string; permissions: string[] },
+  payload: CreateRolePayload,
 ): Promise<CreateUpdateRoleApiResponse> {
   if (!token) {
     throw new Error("Unauthorized: Access token not found");
@@ -302,9 +301,27 @@ export async function updateRole(
     throw new Error("Unknown error occurred while updating role");
   }
 }
-// =======================End Update Roles =======================
+// =======================End Create and Update Roles =======================
 
 // ======================= getRoleById =======================
+export interface RoleByIdItem {
+  id: number;
+  name: string;
+  permissions: string[];
+  users_count: number;
+  created_at: string;
+  updated_at: string;
+}
+export interface RoleByIdData {
+  role: RoleByIdItem;
+}
+export interface RoleByIdApiResponse {
+  success: boolean;
+  message: string;
+  code: number;
+  data: RoleByIdData;
+  errors?: Record<string, string[]>;
+}
 
 export async function getRoleById({
   token,
@@ -312,7 +329,7 @@ export async function getRoleById({
 }: {
   token: string;
   id: number;
-}): Promise<CreateUpdateRoleApiResponse> {
+}): Promise<RoleByIdApiResponse> {
   if (!token) {
     throw new Error("Unauthorized: Access token not found");
   }
@@ -331,7 +348,7 @@ export async function getRoleById({
       throw new Error(`getRoleById API Error: ${res.status} ${res.statusText}`);
     }
 
-    const data: CreateUpdateRoleApiResponse = await res.json();
+    const data: RoleByIdApiResponse = await res.json();
     return data;
   } catch (error: unknown) {
     if (error instanceof Error) {
@@ -339,7 +356,7 @@ export async function getRoleById({
       throw error;
     }
 
-    throw new Error("Unknown error occurred while fetching role");
+    throw new Error("Unknown error occurred while fetching role by id");
   }
 }
 // =======================End getRoleById =======================

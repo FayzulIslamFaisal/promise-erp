@@ -13,134 +13,135 @@ import { Skeleton } from "../ui/skeleton";
 import AddEditRoleDialog from "./AddEditRoleDialog";
 
 const RolesWrapper = () => {
-  const [roles, setRoles] = useState<Role[]>([]);
-  const [error, setError] = useState<string | null>(null);
+    const [roles, setRoles] = useState<Role[]>([]);
+    const [rolAfterAddEdit, setRoleAfterAddEdit] = useState<boolean>(false);
+    const [error, setError] = useState<string | null>(null);
 
-  const [assignRoleDialogOpen, setAssignRoleDialogOpen] = useState(false);
-  const [addEditRoleDialogOpen, setAddEditRoleDialogOpen] = useState(false);
-  const [editingRole, setEditingRole] = useState<Role | null>(null);
+    const [assignRoleDialogOpen, setAssignRoleDialogOpen] = useState(false);
+    const [addEditRoleDialogOpen, setAddEditRoleDialogOpen] = useState(false);
+    const [editingRole, setEditingRole] = useState<Role | null>(null);
 
-  const [isPending, startTransition] = useTransition();
-  const { data: session } = useSession();
+    const [isPending, startTransition] = useTransition();
+    const { data: session } = useSession();
 
+    // Fetch Roles (useTransition)
+    useEffect(() => {
+        if (!session?.accessToken) return;
 
-  // Fetch Roles (useTransition) 
-   useEffect(() => {
-    if (!session?.accessToken) return;
+        startTransition(async () => {
+            try {
+                setError(null);
 
-    startTransition(async () => {
-      try {
-        setError(null);
+                const response = await getAllRolesList({
+                    token: session.accessToken,
+                });
 
-        const response = await getAllRolesList({
-          token: session.accessToken,
+                if (response.success) {
+                    setRoles(response?.data?.roles || []);
+                } else {
+                    setError(response.message || "Failed to load roles");
+                }
+            } catch (err: unknown) {
+                console.error("Error fetching roles:", err);
+                if (err instanceof Error) {
+                    setError(err.message);
+                }
+            }
         });
+    }, [session?.accessToken, rolAfterAddEdit]);
 
-        if (response.success) {
-          setRoles(response?.data?.roles || []);
-        } else {
-          setError(response.message || "Failed to load roles");
-        }
-      } catch (err: unknown) {
-        console.error("Error fetching roles:", err);
-        if (err instanceof Error) {
-          setError(err.message);
-        }
-      }
-    });
-  }, [session?.accessToken]);
+    //==== Dialog handlers =====
 
-  // ============================
-  // Dialog handlers
-  // ============================
-  const openAddRoleDialog = () => {
-    setEditingRole(null);
-    setAddEditRoleDialogOpen(true);
-  };
+    const openAddRoleDialog = () => {
+        setEditingRole(null);
+        setAddEditRoleDialogOpen(true);
+    };
 
-  const openEditRoleDialog = (role: Role) => {
-    setEditingRole(role);
-    setAddEditRoleDialogOpen(true);
-  };
+    const openEditRoleDialog = (role: Role) => {
+        setEditingRole(role);
+        setAddEditRoleDialogOpen(true);
+    };
 
-  return (
-    <div className="p-6 mx-auto">
-      {/* Header */}
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Roles</h1>
-        <Button onClick={() => setAssignRoleDialogOpen(true)}>
-          Assign Role
-        </Button>
-      </div>
-
-      {/* Error */}
-      {error && <ErrorComponent message={error} />}
-
-      {/* Content */}
-      {isPending ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
-          {[...Array(6)].map((_, index) => (
-            <Card key={index} className="p-4">
-              <Skeleton className="h-6 w-2/3 mb-2" />
-              <Skeleton className="h-4 w-1/3" />
-            </Card>
-          ))}
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
-          {/* Role Cards */}
-          {roles.map((role) => (
-            <Card
-              key={role?.id}
-              className="flex justify-between items-center p-4"
-            >
-              <CardContent className="p-0">
-                <div className="text-lg font-medium">{role?.name}</div>
-                <Button
-                  variant="link"
-                  size="sm"
-                  className="mt-1 p-0"
-                  onClick={() => openEditRoleDialog(role)}
-                >
-                  Edit Role
+    return (
+        <div className="p-6 mx-auto">
+            {/* Header */}
+            <div className="flex justify-between items-center mb-6">
+                <h1 className="text-2xl font-bold">Roles</h1>
+                <Button onClick={() => setAssignRoleDialogOpen(true)}>
+                    Assign Role
                 </Button>
-              </CardContent>
-            </Card>
-          ))}
+            </div>
 
-          {/* Add New Role Card */}
-          <Card
-            className="flex justify-center items-center p-4 cursor-pointer hover:bg-muted transition"
-            onClick={openAddRoleDialog}
-          >
-            <CardContent className="p-0 flex items-center gap-4">
-              <Image
-                src="/images/add-new-roles.png"
-                alt="Add Role"
-                width={40}
-                height={40}
-              />
-              <Button variant="outline">Add New Role</Button>
-            </CardContent>
-          </Card>
+            {/* Error */}
+            {error && <ErrorComponent message={error} />}
+
+            {/* Content */}
+            {isPending ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+                    {[...Array(6)].map((_, index) => (
+                        <Card key={index} className="p-4">
+                            <Skeleton className="h-6 w-2/3 mb-2" />
+                            <Skeleton className="h-4 w-1/3" />
+                        </Card>
+                    ))}
+                </div>
+            ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+                    {/* Role Cards */}
+                    {roles.map((role) => (
+                        <Card
+                            key={role?.id}
+                            className="flex justify-between items-center p-4"
+                        >
+                            <CardContent className="p-0 text-center">
+                                <div className="text-lg font-medium">{role?.name}</div>
+                                <Button
+                                    variant="outline"
+                                    className="mt-1 cursor-pointer"
+                                    onClick={() => openEditRoleDialog(role)}
+                                >
+                                    Edit Role
+                                </Button>
+                            </CardContent>
+                        </Card>
+                    ))}
+
+                    {/* Add New Role Card */}
+                    <Card
+                        className="flex justify-center items-center p-4 cursor-pointer hover:bg-muted transition"
+                        onClick={openAddRoleDialog}
+                    >
+                        <CardContent className="p-0 flex items-center gap-4">
+                            <Image
+                                src="/images/add-new-roles.png"
+                                alt="Add Role"
+                                width={40}
+                                height={40}
+                            />
+                            <Button variant="outline">Add New Role</Button>
+                        </CardContent>
+                    </Card>
+                </div>
+            )}
+
+            {/* Assign Role Dialog */}
+            <AssignRoleDialog
+                open={assignRoleDialogOpen}
+                onOpenChange={setAssignRoleDialogOpen}
+            />
+
+            {/* Add/Edit Role Dialog */}
+            <AddEditRoleDialog
+                open={addEditRoleDialogOpen}
+                onOpenChange={setAddEditRoleDialogOpen}
+                initialRoleName={editingRole?.name || null}
+                roleId={editingRole?.id || null}
+                token={session?.accessToken}
+                setRoleAfterAddEdit={setRoleAfterAddEdit}
+                roleAfterAddEdit={rolAfterAddEdit}
+            />
         </div>
-      )}
-
-      {/* Assign Role Dialog */}
-      <AssignRoleDialog
-        open={assignRoleDialogOpen}
-        onOpenChange={setAssignRoleDialogOpen}
-      />
-
-      {/* Add/Edit Role Dialog */}
-      <AddEditRoleDialog
-        open={addEditRoleDialogOpen}
-        onOpenChange={setAddEditRoleDialogOpen}
-        initialRoleName={editingRole?.name || null}
-        token={session?.accessToken}
-      />
-    </div>
-  );
+    );
 };
 
 export default RolesWrapper;
