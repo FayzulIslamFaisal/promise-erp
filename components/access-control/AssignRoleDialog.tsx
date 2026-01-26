@@ -183,7 +183,7 @@ const AssignRoleDialog: React.FC<AssignRoleDialogProps> = ({
               <SelectContent>
                 {userList.map((user) => (
                   <SelectItem key={user.id} value={user.id.toString()}>
-                    {user.name} {" "} {"->"} {" "} {user.phone}
+                    {user.name} {" "} {"->"} {" "} {user.phone} {" "} {"->"} {" "} {user.email}
                   </SelectItem>
                 ))}
               </SelectContent>
