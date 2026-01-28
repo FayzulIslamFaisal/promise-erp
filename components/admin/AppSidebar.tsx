@@ -2,27 +2,19 @@
 
 import * as React from "react";
 import {
-  BadgeAlert,
-  Banknote,
-  BookMarked,
   BookOpen,
-  BookOpenCheck,
   BoxesIcon,
   BriefcaseBusiness,
-  Calendar,
   ChartLine,
   DollarSign,
   DollarSignIcon,
   GalleryVerticalEnd,
   GraduationCap,
-  History,
   HouseIcon,
   ImagePlay,
-  LayoutDashboard,
   LocationEdit,
   LockIcon,
   MessageSquare,
-  School,
   Settings,
   ShieldCheck,
   ShoppingCartIcon,
@@ -52,6 +44,7 @@ import NavUserManage from "./NavUserManage";
 import NavRolePermission from "./NavRolePermission";
 import NavDivision from "./NavDivision";
 import NavDistrict from "./NavDistrict";
+import NavCoordinateManagment from "./NavCoordinateManagment";
 
 // This is sample data.
 const data = {
@@ -369,7 +362,7 @@ const data = {
       ],
     },
     {
-      title: "Requisition Management",
+      title: "Requisition Manage",
       url: "#",
       icon: HouseIcon,
       items: [
@@ -391,7 +384,7 @@ const data = {
 
   navHr: [
     {
-      title: "Requirement Onboarding",
+      title: "Requirement Onboar",
       url: "#",
       icon: User2Icon,
       items: [
@@ -684,7 +677,7 @@ const data = {
   ],
   navPurchase: [
     {
-      title: "Purchases Management",
+      title: "Purchases Manage",
       url: "#",
       icon: DollarSign,
       items: [
@@ -958,6 +951,85 @@ const data = {
       ],
     },
   ],
+  coordinatManagement: [
+    {
+      title: "Coordinate Manage",
+      url: "#",
+      icon: Users,
+      items: [
+        {
+          title: "Dashboard",
+          url: "/coordinate/dashboard",
+          permissions: ["view-dashboard"],
+        },
+        {
+          title: "Students",
+          url: "/coordinate/students",
+          permissions: ["view-dashboard"],
+        },
+        {
+          title: "Enrollments",
+          url: "/coordinate/enrollments",
+          permissions: ["view-dashboard"],
+        },
+        {
+          title: "Payments",
+          url: "/coordinate/payments",
+          permissions: ["view-dashboard"],
+        },
+        {
+          title: "Courses",
+          url: "/coordinate/courses",
+          permissions: ["view-dashboard"],
+        },
+        {
+          title: "Attendance",
+          url: "/coordinate/attendance",
+          permissions: ["view-dashboard"],
+        },
+        {
+          title: "Assets",
+          url: "/coordinate/assets",
+          permissions: ["view-dashboard"],
+        },
+        {
+          title: "Foods",
+          url: "/coordinate/foods",
+          permissions: ["view-dashboard"],
+        },
+        {
+          title: "Earning Reports",
+          url: "/coordinate/earning-reports",
+          permissions: ["view-dashboard"],
+        },
+        {
+          title: "Visitors",
+          url: "/coordinate/visitors",
+          permissions: ["view-dashboard"],
+        },
+        {
+          title: "Feetbacks",
+          url: "/coordinate/feetbacks",
+          permissions: ["view-dashboard"],
+        },
+        {
+          title: "Events",
+          url: "/coordinate/events",
+          permissions: ["view-dashboard"],
+        },
+        {
+          title: "Reports",
+          url: "/coordinate/reports",
+          permissions: ["view-dashboard"],
+        },
+        {
+          title: "Settings",
+          url: "/coordinate/settings",
+          permissions: ["view-dashboard"],
+        },
+      ],
+    },
+  ],
 
 };
 
@@ -971,6 +1043,7 @@ export default function AppSidebar({
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
+        <NavCoordinateManagment items={data.coordinatManagement} />
         <NavHr items={data.navHr} />
         <NavInventory items={data.navInventory} />
         <NavSales items={data.navSales} />
@@ -980,8 +1053,8 @@ export default function AppSidebar({
         <NavSettings items={data.navSettings} />
         <NavDivision items={data.navDivision} />
         <NavDistrict items={data.navDistrict} />
-        <NavRolePermission items={data.navRolePermission} />
         <NavUserManage items={data.userManagement} />
+        <NavRolePermission items={data.navRolePermission} />
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={data.user} />

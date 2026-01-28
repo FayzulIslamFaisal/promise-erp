@@ -81,7 +81,7 @@ export function NavCollapsibleItem({
         >
             <SidebarMenuItem>
                 <CollapsibleTrigger asChild>
-                    <SidebarMenuButton tooltip={item.title} isActive={isActive} className="data-[active=true]:bg-primary/10 data-[active=true]:text-primary font-medium hover:bg-primary/5 hover:text-primary">
+                    <SidebarMenuButton tooltip={item.title} isActive={isActive} className="data-[active=true]:bg-primary/10 data-[active=true]:text-primary font-medium hover:bg-primary/5 hover:text-primary cursor-pointer">
                         {item.icon && <item.icon />}
                         <span>{item.title}</span>
                         <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />

@@ -1,11 +1,50 @@
+import AdminCoursesStat from "@/components/admin-dashboard/AdminCoursesStat"
+import AdminCourseTypeChart from "@/components/admin-dashboard/AdminCourseTypeChart"
+import AdminFinanceStat from "@/components/admin-dashboard/AdminFinanceStat"
+import AdminOrganizationStat from "@/components/admin-dashboard/AdminOrganizationStat"
+import AdminUsersStat from "@/components/admin-dashboard/AdminUsersStat"
 import NextAuthGuardWrapper from "@/components/auth/NextAuthGuardWrapper"
+import AdminModeProgress from "@/components/admin-dashboard/AdminModeProgress"
+import AdminMonthlyRegistrationChart from "@/components/admin-dashboard/AdminMonthlyRegistrationChart"
+import AdminCriticalAlert from "@/components/admin-dashboard/AdminCriticalAlert"
+import AdminPerformanceTable from "@/components/admin-dashboard/AdminPerformanceTable"
+import AdminRecentActivity from "@/components/admin-dashboard/AdminRecentActivity"
+import AdminOfflineBatchSnapshot from "@/components/admin-dashboard/AdminOfflineBatchSnapshot"
+import AdminCertificateStatus from "@/components/admin-dashboard/AdminCertificateStatus"
+import AdminQuickSendAlert from "@/components/admin-dashboard/AdminQuickSendAlert"
 
 const DashboardPage = () => {
   return (
     <NextAuthGuardWrapper requiredPermissions={["view-dashboard"]}>
-      <div className=" flex items-center justify-center">
-        <div className="text-center">
-          <h1>Dashboard Page</h1>
+      <div className="px-4 py-6">
+        <div className="pb-4 px-4">
+          <h1 className="text-secondary text-xl lg:text-2xl capitalize font-bold ">Dashboard Page</h1>
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 px-4 py-5">
+          <AdminUsersStat />
+          <AdminCoursesStat />
+          <AdminOrganizationStat />
+          <AdminFinanceStat />
+        </div>
+        {/* Charts */}
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 px-4 py-5">
+          <AdminMonthlyRegistrationChart />
+          <div className="space-y-6">
+            <AdminCourseTypeChart />
+            <AdminModeProgress />
+          </div>
+        </div>
+        {/* Table + Alerts */}
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 px-4 py-5">
+          <AdminPerformanceTable />
+          <AdminCriticalAlert />
+        </div>
+        {/* Bottom Widgets */}
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 px-4 py-5">
+          <AdminRecentActivity />
+          <AdminOfflineBatchSnapshot />
+          <AdminCertificateStatus />
+          <AdminQuickSendAlert />
         </div>
       </div>
     </NextAuthGuardWrapper>

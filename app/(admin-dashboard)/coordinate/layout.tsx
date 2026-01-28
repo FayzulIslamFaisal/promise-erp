@@ -1,7 +1,7 @@
 import NextAuthGuardWrapper from "@/components/auth/NextAuthGuardWrapper";
 import { Suspense } from "react";
 
-export default function LmsSystemLayout({
+export default function CoordinatePanelLayout({
   children,
 }: {
   children: React.ReactNode;
@@ -11,7 +11,7 @@ export default function LmsSystemLayout({
       <Suspense fallback={null}>
         <NextAuthGuardWrapper>
           {children}
-        </NextAuthGuardWrapper>
+          </NextAuthGuardWrapper>
       </Suspense>
     </div>
   );
