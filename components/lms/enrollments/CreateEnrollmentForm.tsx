@@ -206,15 +206,19 @@ export default function CreateEnrollmentForm({
         payment_reference: values.payment_reference || undefined,
       });
 
-      handleFormSuccess(res.message || "Enrollment created successfully!");
-      router.push("/lms/enrollments");
-      if (res.errors) {
-        Object.entries(res.errors).forEach(([field, messages]) => {
-          const errorMessage = Array.isArray(messages) ? messages[0] : messages;
-          setError(field as keyof FormValues, { type: "server", message: errorMessage as string });
-        });
-        return;
+      if (res.success) {
+        handleFormSuccess(res.message || "Enrollment created successfully!");
+        router.push("/lms/enrollments");
+      } else {
+        toast.error(res.message || "Failed to create enrollment");
+        if (res.errors) {
+          Object.entries(res.errors).forEach(([field, messages]) => {
+            const errorMessage = Array.isArray(messages) ? messages[0] : messages;
+            setError(field as keyof FormValues, { type: "server", message: errorMessage as string });
+          });
+        }
       }
+
     } catch (error: unknown) {
       if (error instanceof Error) {
         toast.error(error.message);
