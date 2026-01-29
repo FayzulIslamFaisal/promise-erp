@@ -129,19 +129,19 @@ export default function CreateEnrollmentForm({
     : initialBatches;
 
   // Prepare options for Combobox
-  const studentOptions = initialStudents.map((student) => ({
-    value: student.id.toString(),
-    label: `${student.name}${student.email ? ` (${student.email})` : ""}${student.phone ? ` - ${student.phone}` : ""}`,
+  const studentOptions = (initialStudents || []).map((student) => ({
+    value: student?.id?.toString() || "",
+    label: student ? `${student.name || "N/A"}${student.email ? ` (${student.email})` : ""}${student.phone ? ` - ${student.phone}` : ""}` : "Unknown Student",
   }));
 
-  const courseOptions = courses.map((course) => ({
-    value: course.id.toString(),
-    label: course.title,
+  const courseOptions = (courses || []).map((course) => ({
+    value: course?.id?.toString() || "",
+    label: course?.title || "Unknown Course",
   }));
 
-  const batchOptions = filteredBatches.map((batch) => ({
-    value: batch.id.toString(),
-    label: `${batch.name}${batch.course ? ` - ${batch.course.title}` : ""}`,
+  const batchOptions = (filteredBatches || []).map((batch) => ({
+    value: batch?.id?.toString() || "",
+    label: batch ? `${batch.name || "N/A"}${batch.course ? ` - ${batch.course.title}` : ""}` : "Unknown Batch",
   }));
 
   // Update selected batch when batch_id changes

@@ -96,43 +96,45 @@ export default async function EnrollmentsData({
 
                     <TableBody>
                         {enrollments?.map((enrollment, i) => (
-                            <TableRow key={enrollment?.id}>
+                            <TableRow key={enrollment?.id || i}>
                                 <TableCell className="text-center">{(page - 1) * 15 + (i + 1)}</TableCell>
                                 <TableCell className="text-center">
-                                    <EnrollmentActionMenu 
-                                        enrollmentId={enrollment.id}
-                                        currentStatus={enrollment.status}
-                                    />
+                                    {enrollment?.id && (
+                                        <EnrollmentActionMenu
+                                            enrollmentId={enrollment.id}
+                                            currentStatus={enrollment.status}
+                                        />
+                                    )}
                                 </TableCell>
-                                <TableCell className="font-medium text-start">{enrollment.user?.name || "N/A"}</TableCell>
-                                <TableCell>{enrollment.user?.email || "N/A"} <br /> {enrollment.user?.phone || "N/A"}</TableCell>
-                                <TableCell>{enrollment.batch?.course?.title || "N/A"} <br /> {enrollment.batch?.name || "N/A"}</TableCell>
+                                <TableCell className="font-medium text-start">{enrollment?.user?.name || "N/A"}</TableCell>
+                                <TableCell>{enrollment?.user?.email || "N/A"} <br /> {enrollment?.user?.phone || "N/A"}</TableCell>
+                                <TableCell>{enrollment?.batch?.course?.title || "N/A"} <br /> {enrollment?.batch?.name || "N/A"}</TableCell>
                                 <TableCell className="text-right">
-                                    {enrollment.discount_amount ? <del>{enrollment.original_price? formatCurrency(enrollment.original_price) : "N/A"}</del> : null} <br />
-                                    <span className="font-semibold text-primary">{enrollment.final_price ? formatCurrency(enrollment.final_price) : "N/A"}</span>
+                                    {enrollment?.discount_amount ? <del>{enrollment?.original_price ? formatCurrency(enrollment.original_price) : "N/A"}</del> : null} <br />
+                                    <span className="font-semibold text-primary">{enrollment?.final_price ? formatCurrency(enrollment.final_price) : "N/A"}</span>
                                 </TableCell>
                                 <TableCell className="whitespace-nowrap text-xs text-center">
-                                    {enrollment.enrollment_date ? new Date(enrollment.enrollment_date).toLocaleDateString() : "N/A"}
+                                    {enrollment?.enrollment_date ? new Date(enrollment.enrollment_date).toLocaleDateString() : "N/A"}
                                 </TableCell>
                                 <TableCell className="text-center">
                                     <Badge
-                                        variant={enrollment.status_label === "Active" ? "default" : "secondary"}
+                                        variant={enrollment?.status_label === "Active" ? "default" : "secondary"}
                                     >
-                                        {enrollment.status_label || "N/A"}
+                                        {enrollment?.status_label || "N/A"}
                                     </Badge>
                                 </TableCell>
                                 <TableCell className="text-end">
-                                    <span className="text-primary fw-bold">{enrollment.payment_amount ? formatCurrency(enrollment.payment_amount) : ""}</span> <br />
-                                    <span className="text-red-500">{enrollment.due_amount ? "Due: " + formatCurrency(enrollment.due_amount) : ""}</span>
+                                    <span className="text-primary fw-bold">{enrollment?.payment_amount ? formatCurrency(enrollment.payment_amount) : ""}</span> <br />
+                                    <span className="text-red-500">{enrollment?.due_amount ? "Due: " + formatCurrency(enrollment.due_amount) : ""}</span>
                                 </TableCell>
                                 <TableCell className="text-center">
                                     <Badge
-                                        variant={enrollment.payment_status_label === "Paid" ? "default" : "secondary"}
+                                        variant={enrollment?.payment_status_label === "Paid" ? "default" : "secondary"}
                                     >
-                                        {enrollment.payment_status_label || "N/A"}
+                                        {enrollment?.payment_status_label || "N/A"}
                                     </Badge>
                                 </TableCell>
-                                
+
                             </TableRow>
                         ))}
                     </TableBody>
