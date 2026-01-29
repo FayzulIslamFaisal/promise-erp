@@ -29,7 +29,11 @@ const MyCourseBySlugWrapper = async ({
   const response = await getStudentMyCoursesBySlug(slug, queryParamsLessonId);
 
   if (!response.success) {
-    return <ErrorComponent message={response.message} />;
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <ErrorComponent message={response.message} />
+      </div>
+    );
   }
   if (!response.data) {
     return <NotFoundComponent message={response.message} />;

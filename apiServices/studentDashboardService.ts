@@ -814,12 +814,11 @@ export async function getStudentMyCoursesBySlug(
       },
     });
 
-    if (!res.ok) {
-      throw new Error(
-        `MyCoursesResponse API Error: ${res.status} ${res.statusText}`,
-      );
-    }
-
+    // if (!res.ok) {
+    //   throw new Error(
+    //     `MyCoursesResponse API Error: ${res.status} ${res.statusText}`,
+    //   );
+    // }
     const data: MyCourseBySlugApiResponse = await res.json();
     return data;
   } catch (error: unknown) {
