@@ -1,6 +1,12 @@
 "use client";
 
 import { Controller, useForm } from "react-hook-form";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import Image from "next/image";
+import { Camera } from "lucide-react";
+import { toast } from "sonner";
+
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -10,18 +16,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useEffect, useState } from "react";
-import { Category } from "@/apiServices/categoryService";
-import { Camera } from "lucide-react";
-import Image from "next/image";
+
+import {
+  createCategory,
+  updateCategory,
+  Category,
+} from "@/apiServices/categoryService";
 
 interface CategoryFormProps {
   title: string;
-  onSubmit: (
-    formData: FormData,
-    setFormError: (field: string, message: string) => void,
-    resetForm: () => void
-  ) => void | Promise<void>;
   category?: Category;
 }
 
@@ -31,8 +34,14 @@ interface FormValues {
   image?: FileList;
 }
 
-export default function CategoryForm({ title, onSubmit, category }: CategoryFormProps) {
-  const [previewImage, setPreviewImage] = useState<string | null>(category?.image || null);
+export default function CategoryForm({ title, category }: CategoryFormProps) {
+  const router = useRouter();
+  const isEdit = !!category;
+
+  const [previewImage, setPreviewImage] = useState<string | null>(
+    category?.image || null,
+  );
+  const [imageRemoved, setImageRemoved] = useState(false);
 
   const {
     register,
@@ -41,31 +50,33 @@ export default function CategoryForm({ title, onSubmit, category }: CategoryForm
     control,
     reset,
     watch,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<FormValues>({
     defaultValues: {
       name: category?.name || "",
-      status: category?.status.toString() || "1",
-      image: undefined,
+      status: category?.status?.toString() || "1",
     },
   });
 
   const imageFile = watch("image");
 
-  const setFormError = (field: string, message: string) => {
-    setError(field as keyof FormValues, { type: "server", message });
-  };
-
+  /* =========================
+     Load edit data
+  ========================== */
   useEffect(() => {
     if (category) {
       reset({
         name: category.name,
         status: category.status.toString(),
       });
-      if (category.image) setPreviewImage(category.image);
+      setPreviewImage(category.image || null);
     }
   }, [category, reset]);
 
+  /* =========================
+     Image preview
+  ========================== */
   useEffect(() => {
     if (imageFile && imageFile.length > 0) {
       const file = imageFile[0];
@@ -73,29 +84,73 @@ export default function CategoryForm({ title, onSubmit, category }: CategoryForm
         const reader = new FileReader();
         reader.onload = (e) => setPreviewImage(e.target?.result as string);
         reader.readAsDataURL(file);
+        setImageRemoved(false);
       }
     }
   }, [imageFile]);
 
+  /* =========================
+     Server error → field
+  ========================== */
+  const setFormError = (field: string, message: string) => {
+    setError(field as keyof FormValues, {
+      type: "server",
+      message,
+    });
+  };
+
+  /* =========================
+     Submit Handler
+  ========================== */
   const submitHandler = async (values: FormValues) => {
+    // Manual check to prevent Server Action crash on oversized files
+    if (values.image && values.image.length > 0) {
+      const file = values.image[0];
+      if (file.size > 5 * 1000 * 1000) { // Safety buffer for 5MB limit
+        setError("image", { type: "manual", message: "The image may not be greater than 5MB" });
+        return;
+      }
+    }
+
     const formData = new FormData();
     formData.append("name", values.name.trim());
     formData.append("status", values.status);
 
-    if (values.image && values.image.length > 0) {
+    if (values.image?.length) {
       formData.append("image", values.image[0]);
+    } else if (imageRemoved && isEdit) {
+      formData.append("image", "");
     }
 
-    await onSubmit(formData, setFormError, () => {
-      reset();
-      setPreviewImage(null);
-    });
+    const res = isEdit
+      ? await updateCategory(category!.id, formData)
+      : await createCategory(formData);
+
+    /* ===== SUCCESS ===== */
+    if (res.success) {
+      toast.success(
+        res.message ||
+          (isEdit
+            ? "Category updated successfully!"
+            : "Category created successfully!"),
+      );
+      router.push("/lms/categories");
+      return;
+    }
+
+    /* ===== FIELD ERRORS (from API) ===== */
+    if (res.errors) {
+      Object.entries(res.errors).forEach(([field, messages]) => {
+        const message = Array.isArray(messages) ? messages[0] : messages;
+        setFormError(field, message as string);
+      });
+    }
   };
 
   const handleImageRemove = () => {
     setPreviewImage(null);
-    const fileInput = document.getElementById("image") as HTMLInputElement;
-    if (fileInput) fileInput.value = "";
+    setImageRemoved(true);
+    setValue("image", undefined);
   };
 
   return (
@@ -105,22 +160,23 @@ export default function CategoryForm({ title, onSubmit, category }: CategoryForm
       <form onSubmit={handleSubmit(submitHandler)} className="space-y-5">
         {/* Name */}
         <div>
-          <label className="block text-sm font-medium mb-1">Category Name</label>
-          <Input placeholder="Enter category name" {...register("name")} />
-          {errors.name && <p className="text-sm text-red-500 mt-1">{errors.name.message}</p>}
+          <label className="text-sm font-medium">Category Name</label>
+          <Input {...register("name")} placeholder="Enter a category name" />
+          {errors.name && (
+            <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>
+          )}
         </div>
 
         {/* Status */}
         <div>
-          <label className="block text-sm font-medium mb-1">Status</label>
+          <label className="text-sm font-medium">Status</label>
           <Controller
             name="status"
             control={control}
-            rules={{ required: "Status is required" }}
             render={({ field }) => (
               <Select value={field.value} onValueChange={field.onChange}>
                 <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select Status" />
+                  <SelectValue placeholder="Select status" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="1">Active</SelectItem>
@@ -129,53 +185,63 @@ export default function CategoryForm({ title, onSubmit, category }: CategoryForm
               </Select>
             )}
           />
-          {errors.status && <p className="text-sm text-red-500 mt-1">{errors.status.message}</p>}
+          {errors.status && (
+            <p className="text-red-500 text-sm mt-1">{errors.status.message}</p>
+          )}
         </div>
 
         {/* Image */}
         <div>
-          <label className="block text-sm font-medium mb-1">Category Image</label>
-          <div className="space-y-3">
-            {previewImage ? (
-              <div className="relative">
-                <div className="rounded-lg border-2 border-dashed">
-                  <Image
-                    src={previewImage}
-                    alt="Category preview"
-                    width={100}
-                    height={100}
-                    className="object-cover rounded-2xl"
-                  />
-                </div>
-                <Button
-                  type="button"
-                  variant="destructive"
-                  size="sm"
-                  className="absolute top-2 right-2 cursor-pointer"
-                  onClick={handleImageRemove}
-                >
-                  Remove
-                </Button>
-              </div>
-            ) : (
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-                <Input id="image" type="file" accept="image/*" className="hidden" {...register("image")} />
-                <label htmlFor="image" className="cursor-pointer block">
-                  <div className="flex flex-col items-center justify-center gap-2">
-                    <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center">
-                      <Camera className="w-6 h-6 text-gray-500" />
-                    </div>
-                    <p className="text-sm font-medium text-gray-900">Click to upload image</p>
-                  </div>
-                </label>
-              </div>
-            )}
-            {errors.image && <p className="text-sm text-red-500 mt-1">{errors.image.message}</p>}
-          </div>
+          <label className="text-sm font-medium">Image</label>
+
+          <Input
+            type="file"
+            accept="image/*"
+            className="hidden"
+            id="image"
+            {...register("image")}
+          />
+
+          {previewImage ? (
+            <div className="relative w-fit">
+              <Image
+                src={previewImage}
+                alt="Preview"
+                width={410}
+                height={150}
+                className="rounded-xl"
+              />
+              <Button
+                type="button"
+                size="sm"
+                variant="destructive"
+                className="absolute top-1 right-1"
+                onClick={handleImageRemove}
+              >
+                Remove
+              </Button>
+            </div>
+          ) : (
+            <label
+              htmlFor="image"
+              className="border-2 border-dashed rounded-lg p-6 block cursor-pointer text-center"
+            >
+              <Camera className="mx-auto mb-2 text-gray-400" />
+              Click to upload image
+            </label>
+          )}
+
+          {errors.image && (
+            <p className="text-red-500 text-sm mt-1">{errors.image.message}</p>
+          )}
         </div>
 
-        <Button type="submit" disabled={isSubmitting} className="w-full cursor-pointer">
-          {isSubmitting ? "Submitting..." : category ? "Update Category" : "Add Category"}
+        <Button disabled={isSubmitting} className="w-full">
+          {isSubmitting
+            ? "Submitting..."
+            : isEdit
+              ? "Update Category"
+              : "Add Category"}
         </Button>
       </form>
     </div>

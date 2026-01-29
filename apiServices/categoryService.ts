@@ -3,7 +3,6 @@
 import { authOptions } from "@/lib/auth";
 import { getServerSession } from "next-auth";
 import { cacheTag, updateTag } from "next/cache";
-import { handleApiError, processApiResponse } from "@/lib/apiErrorHandler";
 import { PaginationType } from "@/types/pagination";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api/v1";
@@ -84,8 +83,8 @@ export async function getCategoriesCached(
       },
     });
     const data: CategoriesResponse = await res.json();
-     return data;
-  } catch (error:unknown) {
+    return data;
+  } catch (error: unknown) {
     if (error instanceof Error) {
       console.error("Error in getCategoriesCached:", error.message);
       throw new Error("Error fetching categories");
@@ -111,7 +110,7 @@ export async function getCategories(
     if (error instanceof Error) {
       console.error("Categories API Error:", error.message);
       throw new Error("Error fetching categories");
-    }else {
+    } else {
       throw new Error("Error fetching categories");
     }
   }
@@ -138,7 +137,7 @@ export async function getCategoryById(
     const data: SingleCategoryResponse = await res.json();
     return data;
 
-  } catch (error:unknown) {
+  } catch (error: unknown) {
     if (error instanceof Error) {
       console.error("Error in getCategoryById:", error.message);
       throw new Error("Error fetching category by ID");
@@ -151,7 +150,7 @@ export async function getCategoryById(
 // =======================
 //  Create Category
 // =======================
-export async function createCategory(categoryData:FormData): Promise<SingleCategoryResponse> {
+export async function createCategory(categoryData: FormData): Promise<SingleCategoryResponse> {
   try {
     const session = await getServerSession(authOptions);
     const token = session?.accessToken;
@@ -168,24 +167,10 @@ export async function createCategory(categoryData:FormData): Promise<SingleCateg
       body: categoryData
     });
 
-    const result = await processApiResponse(response, "Failed to create category");
-
-    if (!result.success) {
-      return {
-        success: false,
-        message: result.message,
-        errors: result.errors,
-        code: result.code,
-      };
-    }
+    const result = await response.json();
 
     updateTag("categories-list");
-    return {
-      success: true,
-      message: result.message || "Category created successfully",
-      data: result.data,
-      code: result.code,
-    };
+    return result;
   } catch (error: unknown) {
     if (error instanceof Error) {
       console.error("Error in createCategory:", error.message);
@@ -218,24 +203,10 @@ export async function updateCategory(id: number, formData: FormData): Promise<Si
       body: formData
     });
 
-    const result = await processApiResponse(response, "Failed to update category");
-
-    if (!result.success) {
-      return {
-        success: false,
-        message: result.message,
-        errors: result.errors,
-        code: result.code,
-      };
-    }
+    const result = await response.json();
 
     updateTag("categories-list");
-    return {
-      success: true,
-      message: result.message || "Category updated successfully",
-      data: result.data,
-      code: result.code,
-    };
+    return result;
   } catch (error: unknown) {
     if (error instanceof Error) {
       console.error("Error in updateCategory:", error.message);
@@ -266,23 +237,10 @@ export async function deleteCategory(id: number): Promise<SingleCategoryResponse
       },
     });
 
-    const result = await processApiResponse(response, "Failed to delete category");
-
-    if (!result.success) {
-      return {
-        success: false,
-        message: result.message,
-        code: result.code,
-      };
-    }
+    const result = await response.json();
 
     updateTag("categories-list");
-    return {
-      success: true,
-      message: result.message || "Category deleted successfully",
-      data: result.data,
-      code: result.code,
-    };
+    return result;
   } catch (error: unknown) {
     if (error instanceof Error) {
       console.error("Error in deleteCategory:", error.message);
@@ -317,9 +275,9 @@ export async function getHomeCourseCategories(): Promise<CategoriesResponse> {
     if (error instanceof Error) {
       console.error("Home Course Categories API Error:", error.message);
       throw new Error("Error fetching home course categories");
-    }else {
+    } else {
       throw new Error("Error fetching home course categories");
     }
-    
+
   }
 }
