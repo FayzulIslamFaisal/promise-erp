@@ -285,7 +285,7 @@ const AddEarningForm = () => {
                     value={field.value ? String(field.value) : undefined}
                   >
                     <SelectTrigger
-                      className={errors.earning_site_id ? "border-red-500" : ""}
+                      className={`w-full ${errors.earning_site_id ? "border-red-500" : ""}`}
                     >
                       <SelectValue placeholder="Select platform" />
                     </SelectTrigger>
@@ -324,9 +324,7 @@ const AddEarningForm = () => {
                       value={field.value ? String(field.value) : undefined}
                     >
                       <SelectTrigger
-                        className={
-                          errors.payment_method_id ? "border-red-500" : ""
-                        }
+                        className={`w-full ${errors.payment_method_id ? "border-red-500" : ""}`}
                       >
                         <SelectValue placeholder="Select payment" />
                       </SelectTrigger>
@@ -363,7 +361,7 @@ const AddEarningForm = () => {
                       value={field.value ? String(field.value) : undefined}
                     >
                       <SelectTrigger
-                        className={errors.job_title_id ? "border-red-500" : ""}
+                        className={`w-full ${errors.job_title_id ? "border-red-500" : ""}`}
                       >
                         <SelectValue placeholder="Select job title" />
                       </SelectTrigger>
