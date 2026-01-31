@@ -10,6 +10,7 @@ import {
   LucideIcon,
 } from "lucide-react";
 import { StDashboardCards } from "@/apiServices/studentDashboardService";
+import Link from "next/link";
 
 /* ------------------ CONFIG ------------------ */
 interface StatConfig {
@@ -17,6 +18,7 @@ interface StatConfig {
   gradient: string;
   icon: LucideIcon;
   type?: "earning";
+  pagePath?: string;
   render: (cards: StDashboardCards) => {
     value: string | number;
     subtitle?: string;
@@ -30,6 +32,7 @@ const statsConfig: StatConfig[] = [
     title: "Total Enrolled Courses",
     icon: BookOpen,
     gradient: "from-green-500 to-green-600",
+    pagePath: "/student/mycourses",
     render: (cards) => ({
       value: cards.total_enrolled_courses,
       subtitle: `${cards.running_courses} Running Courses`,
@@ -39,6 +42,7 @@ const statsConfig: StatConfig[] = [
     title: "Completed Courses",
     icon: CheckCircle,
     gradient: "from-indigo-800 to-indigo-900",
+    pagePath: "/student/mycourses",
     render: (cards) => ({
       value: cards.completed_courses,
     }),
@@ -47,6 +51,7 @@ const statsConfig: StatConfig[] = [
     title: "Total Due Payment",
     icon: CreditCard,
     gradient: "from-purple-400 to-purple-500",
+    pagePath: "/student/duepayment",
     render: (cards) => ({
       value: `৳ ${cards.total_due_payment}`,
       subtitle: `Due in ${cards.due_in_courses} courses`,
@@ -57,6 +62,7 @@ const statsConfig: StatConfig[] = [
     icon: TrendingUp, // default
     type: "earning",
     gradient: "from-blue-500 to-blue-600",
+    pagePath: "/student/myearnings",
     render: (cards) => ({
       value: `$ ${cards.this_month_earning_usd}`,
       badge: `${cards.earning_percentage}%`,
@@ -84,9 +90,10 @@ const DashboardStatsGrid = ({ cards }: DashboardStatsGridProps) => {
           return (
             <Card
               key={index}
-              className={`border-none bg-linear-to-br ${stat.gradient} text-white shadow-lg`}
+              className={`p-0 border-none bg-linear-to-br ${stat.gradient} text-white shadow-lg`}
             >
               <CardContent className="p-6">
+                <Link href={stat.pagePath || ""}>
                 <div className="flex items-start justify-between">
                   <div className="space-y-2">
                     <div className="flex items-center gap-2 text-sm font-medium opacity-90">
@@ -117,6 +124,7 @@ const DashboardStatsGrid = ({ cards }: DashboardStatsGridProps) => {
                   {/* RIGHT BIG ICON */}
                   <Icon className="h-16 w-16 opacity-20" />
                 </div>
+                </Link>
               </CardContent>
             </Card>
           );

@@ -35,7 +35,6 @@ export default async function CoursesData({
     search: typeof resolvedSearchParams.search === "string" ? resolvedSearchParams.search : undefined,
     sort_order: typeof resolvedSearchParams.sort_order === "string" ? resolvedSearchParams.sort_order : undefined,
     level: typeof resolvedSearchParams.level === "string" ? resolvedSearchParams.level : undefined,
-    division_id: typeof resolvedSearchParams.division_id === "string" ? resolvedSearchParams.division_id : undefined,
     branch_id: typeof resolvedSearchParams.branch_id === "string" ? resolvedSearchParams.branch_id : undefined,
     category_id: typeof resolvedSearchParams.category_id === "string" ? resolvedSearchParams.category_id : undefined,
     per_page: 15,
@@ -130,9 +129,8 @@ export default async function CoursesData({
                       <Image
                         src={course.featured_image || "/images/placeholder_img.jpg"}
                         alt={course.title}
-                        height={80}
-                        width={100}
-                        className="object-cover"
+                        fill
+                        className="object-scale-cover"
                       />
                     </div>
                     <div className="text-start">

@@ -21,19 +21,16 @@ interface FilterFormValues {
   search?: string
   sort_order?: string
   level?: string
-  division_id?: string
   branch_id?: string
   category_id?: string
 }
 
 interface CourseFilterProps {
-  divisions: Division[]
   branches: Branch[]
   categories: Category[]
 }
 
 export default function CourseFilter({
-  divisions,
   branches,
   categories,
 }: CourseFilterProps) {
@@ -45,7 +42,6 @@ export default function CourseFilter({
       search: searchParams.get("search") || "",
       sort_order: searchParams.get("sort_order") || "",
       level: searchParams.get("level") || "",
-      division_id: searchParams.get("division_id") || "",
       branch_id: searchParams.get("branch_id") || "",
       category_id: searchParams.get("category_id") || "",
     },
@@ -75,7 +71,6 @@ export default function CourseFilter({
       search: "",
       sort_order: "",
       level: "",
-      division_id: "",
       branch_id: "",
       category_id: "",
     })
@@ -145,28 +140,6 @@ export default function CourseFilter({
                 <SelectItem value="beginner">Beginner</SelectItem>
                 <SelectItem value="intermediate">Intermediate</SelectItem>
                 <SelectItem value="advanced">Advanced</SelectItem>
-              </SelectContent>
-            </Select>
-          )}
-        />
-
-
-
-        {/* Division */}
-        <Controller
-          name="division_id"
-          control={control}
-          render={({ field }) => (
-            <Select onValueChange={field.onChange} value={field.value}>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Division" />
-              </SelectTrigger>
-              <SelectContent>
-                {divisions?.map((division) => (
-                  <SelectItem key={division.id} value={String(division.id)}>
-                    {division.name}
-                  </SelectItem>
-                ))}
               </SelectContent>
             </Select>
           )}

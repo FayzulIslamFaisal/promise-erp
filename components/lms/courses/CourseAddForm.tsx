@@ -6,8 +6,15 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useEffect, useState } from "react";
-import { CategoriesResponse, getCategories } from "@/apiServices/categoryService";
-import { Course, createCourse, updateCourse } from "@/apiServices/courseService";
+import {
+  CategoriesResponse,
+  getCategories,
+} from "@/apiServices/categoryService";
+import {
+  Course,
+  createCourse,
+  updateCourse,
+} from "@/apiServices/courseService";
 import RichTextEditor from "./RichTextEditor";
 import Image from "next/image";
 import { toast } from "sonner";
@@ -71,7 +78,9 @@ export default function CourseAddForm({
   onSuccess,
   initialData,
 }: CourseAddFormProps) {
-  const [categories, setCategories] = useState<Array<{ id: number; name: string }>>([]);
+  const [categories, setCategories] = useState<
+    Array<{ id: number; name: string }>
+  >([]);
   const [preview, setPreview] = useState<string | null>(null);
   const [certPreview, setCertPreview] = useState<string | null>(null);
 
@@ -86,28 +95,64 @@ export default function CourseAddForm({
     formState: { isSubmitting, errors },
   } = useForm<FormValues>({
     defaultValues: {
-      category_id: "",
-      title: "",
-      sub_title: "",
-      short_description: "",
-      description: "",
-      video_link: "",
-      level: "beginner",
-      status: "1",
-      price: 0,
-      discount: 0,
-      discount_type: "fixed",
-      is_default: "0",
-      total_seats: 0,
-      total_live_class: 0,
-      total_prerecorded_video: 0,
-      about_support: "",
-      course_type: "free",
-      is_collaboration: "0",
-      after_discount: 0,
-      ratings: 0,
+      category_id: initialData?.category_id?.toString() || "",
+      title: initialData?.title || "",
+      sub_title: initialData?.sub_title || "",
+      short_description: initialData?.short_description || "",
+      description: initialData?.description || "",
+      video_link: initialData?.video_link || "",
+      level: initialData?.level || "beginner",
+      status:
+        statusMap[initialData?.status || ""] || initialData?.status || "1",
+      price: initialData?.price ? Number(initialData?.price) : 0,
+      discount: initialData?.discount ? Number(initialData?.discount) : 0,
+      discount_type: initialData?.discount_type || "fixed",
+      after_discount: initialData?.after_discount
+        ? Number(initialData?.after_discount)
+        : 0,
+      is_default: toSelectString(initialData?.is_default),
+      total_seats: initialData?.total_seats || 0,
+      total_live_class: initialData?.total_live_class || 0,
+      total_prerecorded_video: initialData?.total_prerecorded_video || 0,
+      about_support: initialData?.about_support || "",
+      course_type: initialData?.course_type || "free",
+      is_collaboration: toSelectString(initialData?.is_collaboration),
+      ratings: initialData?.ratings ? Number(initialData?.ratings) : 0,
+      certificate_image: initialData?.certificate_image || "",
+      featured_image: initialData?.featured_image || "",
     },
   });
+
+  useEffect(() => {
+    if (typeof initialData?.featured_image === "string") {
+      setPreview(initialData.featured_image);
+    }
+    if (typeof initialData?.certificate_image === "string") {
+      setCertPreview(initialData.certificate_image);
+    }
+  }, [initialData]);
+
+  // Fetch categories
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res: CategoriesResponse = await getCategories();
+        if (res.success && res?.data?.categories) {
+          setCategories(res?.data?.categories || []);
+        } else {
+          toast.error(res.message || "Failed to load categories");
+        }
+      } catch (error: unknown) {
+        console.error("Error fetching categories:", error);
+        if (error instanceof Error) {
+          toast.error(error.message);
+        } else {
+          toast.error("An unknown error occurred while fetching categories");
+        }
+      }
+    };
+    fetchCategories();
+  }, []);
 
   const watchedPrice = watch("price");
   const watchedDiscount = watch("discount");
@@ -123,67 +168,13 @@ export default function CourseAddForm({
     } else {
       finalPrice = price - discount;
     }
-    setValue("after_discount", finalPrice > 0 ? Number(finalPrice.toFixed(2)) : 0);
+    setValue(
+      "after_discount",
+      finalPrice > 0 ? Number(finalPrice.toFixed(2)) : 0,
+    );
   }, [watchedPrice, watchedDiscount, watchedDiscountType, setValue]);
 
-  // Fetch categories
-  useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const res: CategoriesResponse = await getCategories();
-        if (res.success && res?.data?.categories) {
-          setCategories(res?.data?.categories || []);
-        } else {
-          toast.error(res.message || "Failed to load categories");
-        }
-      } catch (error :unknown) {
-        console.error("Error fetching categories:", error);
-        if (error instanceof Error) {
-          toast.error(error.message);
-        }
-        else {
-          toast.error("An unknown error occurred while fetching categories");
-        }
-      }
-    };
-    fetchCategories();
-  }, []);
-
-  useEffect(() => {
-    if (initialData) {
-      console.log('Resetting form with initialData:', initialData);
-
-      reset({
-        category_id: initialData.category_id?.toString() || "",
-        title: initialData.title || "",
-        sub_title: initialData.sub_title || "",
-        short_description: initialData.short_description || "",
-        description: initialData.description || "",
-        video_link: initialData.video_link || "",
-        level: initialData.level || "beginner",
-        status: statusMap[initialData.status] || initialData.status || "1",
-        price: initialData.price ? Number(initialData.price) : 0,
-        discount: initialData.discount ? Number(initialData.discount) : 0,
-        discount_type: initialData.discount_type || "fixed",
-        after_discount: initialData.after_discount ? Number(initialData.after_discount) : 0,
-        is_default: toSelectString(initialData.is_default),
-        total_seats: initialData.total_seats || 0,
-        total_live_class: initialData.total_live_class || 0,
-        total_prerecorded_video: initialData.total_prerecorded_video || 0,
-        about_support: initialData.about_support || "",
-        course_type: initialData.course_type || "free",
-        is_collaboration: toSelectString(initialData.is_collaboration),
-        ratings: initialData.ratings ? Number(initialData.ratings) : 0,
-      });
-
-      setCertPreview(initialData.certificate_image || null);
-      setPreview(initialData.featured_image || null);
-    }
-  }, [initialData, reset]);
-
-  const handleCourseSubmit = async (
-    formData: FormData
-  ) => {
+  const handleCourseSubmit = async (formData: FormData) => {
     let res;
     const courseId = Number(initialData?.id) || null;
     try {
@@ -199,31 +190,35 @@ export default function CourseAddForm({
           toast.success("Course created successfully");
 
           setCourseId?.(Number(newCourseId));
+          reset();
           goNext?.();
         } else {
           toast.success("Course updated successfully");
           onSuccess?.();
         }
-
       } else {
         if (res.errors) {
           Object.entries(res.errors).forEach(([field, messages]) => {
-            const errorMessage = Array.isArray(messages) ? messages[0] : messages;
-            setError(field as keyof FormValues, { type: "server", message: errorMessage as string });
+            const errorMessage = Array.isArray(messages)
+              ? messages[0]
+              : messages;
+            setError(field as keyof FormValues, {
+              type: "server",
+              message: errorMessage as string,
+            });
           });
         } else {
           toast.error(res.message || "Failed to create course");
         }
       }
-    } catch (error :unknown) {
+    } catch (error: unknown) {
       if (error instanceof Error) {
         toast.error(error.message);
-      }else{
+      } else {
         toast.error("Failed to create course");
       }
     }
   };
-
 
   const submitForm = async (data: FormValues) => {
     const formData = new FormData();
@@ -233,17 +228,23 @@ export default function CourseAddForm({
     formData.append("short_description", data.short_description || "");
     formData.append("description", data.description || "");
     // Featured Image Handling
-    if (data.featured_image instanceof FileList && data.featured_image.length > 0) {
+    if (
+      data.featured_image instanceof FileList &&
+      data.featured_image.length > 0
+    ) {
       formData.append("featured_image", data.featured_image[0]);
     } else if (data.featured_image === null) {
-      formData.append("featured_image", ""); // Explicitly clear image
+      formData.append("featured_image", ""); 
     }
 
     // Certificate Image Handling
-    if (data.certificate_image instanceof FileList && data.certificate_image.length > 0) {
+    if (
+      data.certificate_image instanceof FileList &&
+      data.certificate_image.length > 0
+    ) {
       formData.append("certificate_image", data.certificate_image[0]);
     } else if (data.certificate_image === null) {
-      formData.append("certificate_image", ""); // Explicitly clear image
+      formData.append("certificate_image", "");
     }
     formData.append("video_link", data.video_link || "");
     formData.append("level", data.level);
@@ -253,8 +254,14 @@ export default function CourseAddForm({
     formData.append("discount_type", data.discount_type);
     formData.append("is_default", data.is_default);
     formData.append("total_seats", data.total_seats?.toString() || "0");
-    formData.append("total_live_class", data.total_live_class?.toString() || "0");
-    formData.append("total_prerecorded_video", data.total_prerecorded_video?.toString() || "0");
+    formData.append(
+      "total_live_class",
+      data.total_live_class?.toString() || "0",
+    );
+    formData.append(
+      "total_prerecorded_video",
+      data.total_prerecorded_video?.toString() || "0",
+    );
     formData.append("about_support", data.about_support || "");
     formData.append("course_type", data.course_type);
     formData.append("is_collaboration", data.is_collaboration);
@@ -262,7 +269,6 @@ export default function CourseAddForm({
 
     await handleCourseSubmit(formData);
   };
-  console.log('Rendering CourseAddForm with errors:', errors);
 
   return (
     <Card className="w-full mx-auto">
@@ -272,11 +278,12 @@ export default function CourseAddForm({
 
       <CardContent>
         <form onSubmit={handleSubmit(submitForm)} className="grid gap-6">
-
           {/* Category + Title + Sub Title */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="grid gap-2">
-              <Label htmlFor="category_id">Category<span className="text-red-500">*</span></Label>
+              <Label htmlFor="category_id">
+                Category<span className="text-red-500">*</span>
+              </Label>
               <Controller
                 name="category_id"
                 control={control}
@@ -296,19 +303,27 @@ export default function CourseAddForm({
                 )}
               />
               <div className="min-h-5">
-                {errors.category_id && <p className="text-red-500 text-sm">{errors.category_id.message}</p>}
+                {errors.category_id && (
+                  <p className="text-red-500 text-sm">
+                    {errors.category_id.message}
+                  </p>
+                )}
               </div>
             </div>
 
             <div className="grid gap-2">
-              <Label htmlFor="title">Title<span className="text-red-500">*</span></Label>
+              <Label htmlFor="title">
+                Title<span className="text-red-500">*</span>
+              </Label>
               <Input
                 id="title"
                 placeholder="e.g. Master React & Next.js"
                 {...register("title")}
               />
               <div className="min-h-5">
-                {errors.title && <p className="text-red-500 text-sm">{errors.title.message}</p>}
+                {errors.title && (
+                  <p className="text-red-500 text-sm">{errors.title.message}</p>
+                )}
               </div>
             </div>
             <div className="grid gap-2">
@@ -319,7 +334,11 @@ export default function CourseAddForm({
                 {...register("sub_title")}
               />
               <div className="min-h-5">
-                {errors.sub_title && <p className="text-red-500 text-sm">{errors.sub_title.message}</p>}
+                {errors.sub_title && (
+                  <p className="text-red-500 text-sm">
+                    {errors.sub_title.message}
+                  </p>
+                )}
               </div>
             </div>
           </div>
@@ -344,7 +363,11 @@ export default function CourseAddForm({
                 )}
               />
               <div className="min-h-5">
-                {errors.course_type && <p className="text-red-500 text-sm">{errors.course_type.message}</p>}
+                {errors.course_type && (
+                  <p className="text-red-500 text-sm">
+                    {errors.course_type.message}
+                  </p>
+                )}
               </div>
             </div>
             <div className="grid gap-2">
@@ -366,15 +389,27 @@ export default function CourseAddForm({
                 )}
               />
               <div className="min-h-5">
-                {errors.level && <p className="text-red-500 text-sm">{errors.level.message}</p>}
+                {errors.level && (
+                  <p className="text-red-500 text-sm">{errors.level.message}</p>
+                )}
               </div>
             </div>
 
             <div className="grid gap-2">
-              <Label htmlFor="video_link">Video Link<span className="text-red-500">*</span></Label>
-              <Input id="video_link" placeholder="https://..." {...register("video_link")} />
+              <Label htmlFor="video_link">
+                Video Link<span className="text-red-500">*</span>
+              </Label>
+              <Input
+                id="video_link"
+                placeholder="https://..."
+                {...register("video_link")}
+              />
               <div className="min-h-5">
-                {errors.video_link && <p className="text-red-500 text-sm">{errors.video_link.message}</p>}
+                {errors.video_link && (
+                  <p className="text-red-500 text-sm">
+                    {errors.video_link.message}
+                  </p>
+                )}
               </div>
             </div>
           </div>
@@ -387,7 +422,11 @@ export default function CourseAddForm({
               {...register("short_description")}
             />
             <div className="min-h-5">
-              {errors.short_description && <p className="text-red-500 text-sm">{errors.short_description.message}</p>}
+              {errors.short_description && (
+                <p className="text-red-500 text-sm">
+                  {errors.short_description.message}
+                </p>
+              )}
             </div>
           </div>
 
@@ -398,11 +437,18 @@ export default function CourseAddForm({
               name="description"
               control={control}
               render={({ field }) => (
-                <RichTextEditor value={field.value || ""} onChange={field.onChange} />
+                <RichTextEditor
+                  value={field.value || ""}
+                  onChange={field.onChange}
+                />
               )}
             />
             <div className="min-h-5">
-              {errors.description && <p className="text-red-500 text-sm">{errors.description.message}</p>}
+              {errors.description && (
+                <p className="text-red-500 text-sm">
+                  {errors.description.message}
+                </p>
+              )}
             </div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -425,7 +471,11 @@ export default function CourseAddForm({
                 )}
               />
               <div className="min-h-5">
-                {errors.status && <p className="text-red-500 text-sm">{errors.status.message}</p>}
+                {errors.status && (
+                  <p className="text-red-500 text-sm">
+                    {errors.status.message}
+                  </p>
+                )}
               </div>
             </div>
             <div className="grid gap-2">
@@ -446,7 +496,11 @@ export default function CourseAddForm({
                 )}
               />
               <div className="min-h-5">
-                {errors.is_default && <p className="text-red-500 text-sm">{errors.is_default.message}</p>}
+                {errors.is_default && (
+                  <p className="text-red-500 text-sm">
+                    {errors.is_default.message}
+                  </p>
+                )}
               </div>
             </div>
             <div className="grid gap-2">
@@ -456,7 +510,10 @@ export default function CourseAddForm({
                 control={control}
                 render={({ field }) => (
                   <Select onValueChange={field.onChange} value={field.value}>
-                    <SelectTrigger id="is_collaboration" className="w-full h-10">
+                    <SelectTrigger
+                      id="is_collaboration"
+                      className="w-full h-10"
+                    >
                       <SelectValue placeholder="Select" />
                     </SelectTrigger>
                     <SelectContent>
@@ -467,7 +524,11 @@ export default function CourseAddForm({
                 )}
               />
               <div className="min-h-5">
-                {errors.is_collaboration && <p className="text-red-500 text-sm">{errors.is_collaboration.message}</p>}
+                {errors.is_collaboration && (
+                  <p className="text-red-500 text-sm">
+                    {errors.is_collaboration.message}
+                  </p>
+                )}
               </div>
             </div>
             <div className="grid gap-2">
@@ -475,17 +536,18 @@ export default function CourseAddForm({
               <Input
                 id="ratings"
                 type="number"
-                step="0.1"
+                step="any"
                 min="0"
                 max="5"
                 placeholder="e.g. 4.5"
-                {...register("ratings", {
-                  min: { value: 0, message: "Min rating is 0" },
-                  max: { value: 5, message: "Max rating is 5" },
-                })}
+                {...register("ratings")}
               />
               <div className="min-h-5">
-                {errors.ratings && <p className="text-red-500 text-sm">{errors.ratings.message}</p>}
+                {errors.ratings && (
+                  <p className="text-red-500 text-sm">
+                    {errors.ratings.message}
+                  </p>
+                )}
               </div>
             </div>
           </div>
@@ -501,7 +563,9 @@ export default function CourseAddForm({
                 {...register("price")}
               />
               <div className="min-h-5">
-                {errors.price && <p className="text-red-500 text-sm">{errors.price.message}</p>}
+                {errors.price && (
+                  <p className="text-red-500 text-sm">{errors.price.message}</p>
+                )}
               </div>
             </div>
             <div className="grid gap-2">
@@ -522,11 +586,17 @@ export default function CourseAddForm({
                 )}
               />
               <div className="min-h-5">
-                {errors.discount_type && <p className="text-red-500 text-sm">{errors.discount_type.message}</p>}
+                {errors.discount_type && (
+                  <p className="text-red-500 text-sm">
+                    {errors.discount_type.message}
+                  </p>
+                )}
               </div>
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="discount">Discount <span className="text-red-500">*</span></Label>
+              <Label htmlFor="discount">
+                Discount <span className="text-red-500">*</span>
+              </Label>
               <Input
                 id="discount"
                 type="number"
@@ -535,11 +605,17 @@ export default function CourseAddForm({
                 {...register("discount")}
               />
               <div className="min-h-5">
-                {errors.discount && <p className="text-red-500 text-sm">{errors.discount.message}</p>}
+                {errors.discount && (
+                  <p className="text-red-500 text-sm">
+                    {errors.discount.message}
+                  </p>
+                )}
               </div>
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="after_discount">Final Price (After Discount)</Label>
+              <Label htmlFor="after_discount">
+                Final Price (After Discount)
+              </Label>
               <Input
                 id="after_discount"
                 type="number"
@@ -548,7 +624,11 @@ export default function CourseAddForm({
                 {...register("after_discount")}
               />
               <div className="min-h-5">
-                {errors.after_discount && <p className="text-red-500 text-sm">{errors.after_discount.message}</p>}
+                {errors.after_discount && (
+                  <p className="text-red-500 text-sm">
+                    {errors.after_discount.message}
+                  </p>
+                )}
               </div>
             </div>
           </div>
@@ -556,23 +636,52 @@ export default function CourseAddForm({
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="grid gap-2">
               <Label htmlFor="total_seats">Total Seats</Label>
-              <Input id="total_seats" type="number" placeholder="e.g. 50" {...register("total_seats")} />
+              <Input
+                id="total_seats"
+                type="number"
+                placeholder="e.g. 50"
+                {...register("total_seats")}
+              />
               <div className="min-h-5">
-                {errors.total_seats && <p className="text-red-500 text-sm">{errors.total_seats.message}</p>}
+                {errors.total_seats && (
+                  <p className="text-red-500 text-sm">
+                    {errors.total_seats.message}
+                  </p>
+                )}
               </div>
             </div>
             <div className="grid gap-2">
               <Label htmlFor="total_live_class">Total Live Class</Label>
-              <Input id="total_live_class" type="number" placeholder="e.g. 20" {...register("total_live_class")} />
+              <Input
+                id="total_live_class"
+                type="number"
+                placeholder="e.g. 20"
+                {...register("total_live_class")}
+              />
               <div className="min-h-5">
-                {errors.total_live_class && <p className="text-red-500 text-sm">{errors.total_live_class.message}</p>}
+                {errors.total_live_class && (
+                  <p className="text-red-500 text-sm">
+                    {errors.total_live_class.message}
+                  </p>
+                )}
               </div>
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="total_prerecorded_video">Total Prerecorded Video</Label>
-              <Input id="total_prerecorded_video" type="number" placeholder="e.g. 30" {...register("total_prerecorded_video")} />
+              <Label htmlFor="total_prerecorded_video">
+                Total Prerecorded Video
+              </Label>
+              <Input
+                id="total_prerecorded_video"
+                type="number"
+                placeholder="e.g. 30"
+                {...register("total_prerecorded_video")}
+              />
               <div className="min-h-5">
-                {errors.total_prerecorded_video && <p className="text-red-500 text-sm">{errors.total_prerecorded_video.message}</p>}
+                {errors.total_prerecorded_video && (
+                  <p className="text-red-500 text-sm">
+                    {errors.total_prerecorded_video.message}
+                  </p>
+                )}
               </div>
             </div>
           </div>
@@ -585,7 +694,11 @@ export default function CourseAddForm({
               {...register("about_support")}
             />
             <div className="min-h-5">
-              {errors.about_support && <p className="text-red-500 text-sm">{errors.about_support.message}</p>}
+              {errors.about_support && (
+                <p className="text-red-500 text-sm">
+                  {errors.about_support.message}
+                </p>
+              )}
             </div>
           </div>
 
@@ -609,27 +722,30 @@ export default function CourseAddForm({
                         if (file) setPreview(URL.createObjectURL(file));
                       }}
                     />
-
                     {preview ? (
                       <div className="flex justify-between items-center">
-                        <Image
-                          src={preview}
-                          alt="Preview"
-                          width={150}
-                          height={100}
-                          className="rounded-md object-cover"
-                        />
+                        <div className=" relative w-full h-[100px] overflow-hidden">
+                          <Image
+                            src={preview}
+                            alt="Preview"
+                            fill
+                            className="rounded-md object-contain"
+                          />
+                        </div>
+
                         <Button
                           type="button"
+                          className=" cursor-pointer"
                           size="sm"
                           variant="destructive"
                           onClick={() => {
                             setPreview(null);
                             field.onChange(null);
                             const fileInput = document.getElementById(
-                              "featured_image"
+                              "featured_image",
                             ) as HTMLInputElement;
                             if (fileInput) fileInput.value = "";
+                            toast.success("Featured image removed successfully");
                           }}
                         >
                           Remove
@@ -674,24 +790,27 @@ export default function CourseAddForm({
 
                     {certPreview ? (
                       <div className="flex justify-between items-center">
-                        <Image
-                          src={certPreview}
-                          alt="Cert Preview"
-                          width={150}
-                          height={100}
-                          className="rounded-md object-cover"
-                        />
+                        <div className=" relative w-full h-[100px] overflow-hidden">
+                          <Image
+                            src={certPreview}
+                            alt="Cert Preview"
+                            fill
+                            className="rounded-md object-contain"
+                          />
+                        </div>
                         <Button
                           type="button"
+                          className=" cursor-pointer"
                           size="sm"
                           variant="destructive"
                           onClick={() => {
                             setCertPreview(null);
                             field.onChange(null);
                             const fileInput = document.getElementById(
-                              "certificate_image"
+                              "certificate_image",
                             ) as HTMLInputElement;
                             if (fileInput) fileInput.value = "";
+                            toast.success("Certificate image removed successfully");
                           }}
                         >
                           Remove
