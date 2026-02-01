@@ -1,43 +1,70 @@
 // app/(protected)/NextAuthGuard.tsx
-import { ReactNode } from "react";
+import { ReactNode, cache } from "react";
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import { authOptions } from "@/lib/auth";
 import { fetchMyPermissions } from "@/apiServices/auth/permissionService";
+
+import { Session } from "next-auth";
 
 interface AuthGuardProps {
   children: ReactNode;
   requiredPermissions?: string[];
 }
 
+/**
+ * Cached function to fetch session and permissions once per request.
+ * This prevents multiple API calls if NextAuthGuard is used multiple times in a single page.
+ */
+const getAuthenticatedAppData = cache(async (): Promise<{
+  session: Session | null;
+  permissions: string[];
+  error: string | null;
+}> => {
+  const session = await getServerSession(authOptions);
+
+  if (!session?.user || !session?.accessToken) {
+    return { session: null, permissions: [], error: null };
+  }
+
+  try {
+    // You can also use session.user.permissions if they are already up to date
+    const { data } = await fetchMyPermissions(session.accessToken);
+    return {
+      session,
+      permissions: data?.permissions ?? [],
+      error: null
+    };
+  } catch (error) {
+    console.error("Guard fetch error:", error);
+    return {
+      session,
+      permissions: [],
+      error: "Failed to fetch permissions"
+    };
+  }
+});
+
 export default async function NextAuthGuard({
   children,
   requiredPermissions = [],
 }: AuthGuardProps) {
-  // "use cache";
-  const session = await getServerSession(authOptions);
+  const { session, permissions, error } = await getAuthenticatedAppData();
 
-  // not logged in
-  if (!session?.user || !session?.accessToken) {
-    redirect("/login");
-  }
-  console.log(" static:===>", requiredPermissions);
-
-  // get permissions (cached)
-  let perms: string[] = [];
-  try {
-    const { data } = await fetchMyPermissions(session.accessToken);
-    console.log(" Data:===>", data);
-    perms = data?.permissions ?? [];
-  } catch (error) {
-    console.error("Guard fetch error:", error);
+  // Redirect if not logged in
+  if (!session) {
     redirect("/login");
   }
 
-  // check required
+  // Redirect if there was an error fetching permissions
+  if (error) {
+    redirect("/login");
+  }
+
+  // check required permissions
   if (
     requiredPermissions.length > 0 &&
-    !requiredPermissions.every((p) => perms.includes(p))
+    !requiredPermissions.every((p) => permissions.includes(p))
   ) {
     redirect("/unauthorized");
   }
