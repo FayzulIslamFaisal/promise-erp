@@ -59,6 +59,7 @@ const ForgotPasswordPage = () => {
         toast.success(
           res.message || "If the email exists, a reset link has been sent.",
         );
+        router.push("/");
       } catch (error: unknown) {
         setError("root", {
           type: "server",

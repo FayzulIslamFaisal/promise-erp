@@ -61,6 +61,9 @@ const getDashboardUrl = (role: string | string[] | null | undefined) => {
   if (roles.includes("student")) {
     return "/student/dashboard";
   }
+  if (roles.includes("coordinator")) {
+    return "/coordinator/dashboard";
+  }
   // Use the first role to determine the dashboard path
   // const primaryRole = roles[0];
   // if (primaryRole) {
