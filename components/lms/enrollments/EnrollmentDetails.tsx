@@ -94,6 +94,7 @@ export default function EnrollmentDetails({
         payment_status: PAYMENT_STATUS_PAID.toString(),
         comment: "",
     });
+    const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
 
     if (errorMessage) {
         return <ErrorComponent message={errorMessage} />;
@@ -115,6 +116,7 @@ export default function EnrollmentDetails({
 
 
     const handleCreatePayment = () => {
+        setFieldErrors({});
         if (!paymentFormData.paid_amount || Number(paymentFormData.paid_amount) <= 0) {
             toast.error("Please enter a valid payment amount");
             return;
@@ -129,7 +131,7 @@ export default function EnrollmentDetails({
             try {
                 const paidAmount = Number(paymentFormData.paid_amount);
 
-                await createPayment({
+                const res = await createPayment({
                     enrollment_id: enrollment.id,
                     paid_amount: paidAmount,
                     payment_method: Number(paymentFormData.payment_method),
@@ -137,15 +139,23 @@ export default function EnrollmentDetails({
                     comment: paymentFormData.comment || undefined,
                 });
 
-                toast.success("Payment created successfully");
-                setIsPaymentDialogOpen(false);
-                setPaymentFormData({
-                    paid_amount: "",
-                    payment_method: PAYMENT_METHOD_BKASH.toString(),
-                    payment_status: PAYMENT_STATUS_PAID.toString(),
-                    comment: "",
-                });
-                router.refresh();
+                if (res.success) {
+                    toast.success(res.message || "Payment created successfully");
+                    setIsPaymentDialogOpen(false);
+                    setPaymentFormData({
+                        paid_amount: "",
+                        payment_method: PAYMENT_METHOD_BKASH.toString(),
+                        payment_status: PAYMENT_STATUS_PAID.toString(),
+                        comment: "",
+                    });
+                    setFieldErrors({});
+                    router.refresh();
+                } else {
+                    toast.error(res.message || "Failed to create payment");
+                    if (res.errors) {
+                        setFieldErrors(res.errors as Record<string, string[]>);
+                    }
+                }
             } catch (error: unknown) {
                 if (error instanceof Error) {
                     toast.error(error.message);
@@ -233,7 +243,7 @@ export default function EnrollmentDetails({
                                         Add Payment
                                     </Button>
                                 </DialogTrigger>
-                                <DialogContent className="sm:max-w-[500px]">
+                                <DialogContent className="sm:max-w-[500px]" onPointerDownOutside={(e) => isPending && e.preventDefault()}>
                                     <DialogHeader>
                                         <DialogTitle>Create New Payment</DialogTitle>
                                         <DialogDescription>
@@ -257,7 +267,11 @@ export default function EnrollmentDetails({
                                                         paid_amount: e.target.value,
                                                     })
                                                 }
+                                                disabled={isPending}
                                             />
+                                            {fieldErrors.paid_amount && (
+                                                <p className="text-sm text-red-500">{fieldErrors.paid_amount[0]}</p>
+                                            )}
                                         </div>
                                         <div className="space-y-2">
                                             <Label htmlFor="payment_method">Payment Method *</Label>
@@ -269,6 +283,7 @@ export default function EnrollmentDetails({
                                                         payment_method: value,
                                                     })
                                                 }
+                                                disabled={isPending}
                                             >
                                                 <SelectTrigger id="payment_method" className="w-full">
                                                     <SelectValue placeholder="Select payment method" />
@@ -280,12 +295,16 @@ export default function EnrollmentDetails({
                                                     <SelectItem value={PAYMENT_METHOD_CASH.toString()}>Cash</SelectItem>
                                                 </SelectContent>
                                             </Select>
+                                            {fieldErrors.payment_method && (
+                                                <p className="text-sm text-red-500">{fieldErrors.payment_method[0]}</p>
+                                            )}
                                         </div>
                                         <div className="space-y-2">
                                             <Label htmlFor="payment_status">Payment Status *</Label>
                                             <Select
                                                 value={paymentFormData.payment_status}
                                                 onValueChange={(value) => setPaymentFormData({ ...paymentFormData, payment_status: value })}
+                                                disabled={isPending}
                                             >
                                                 <SelectTrigger id="payment_status" className="w-full">
                                                     <SelectValue placeholder="Select payment status" />
@@ -296,6 +315,9 @@ export default function EnrollmentDetails({
                                                     <SelectItem value={PAYMENT_STATUS_REFUNDED.toString()}>Refunded</SelectItem>
                                                 </SelectContent>
                                             </Select>
+                                            {fieldErrors.payment_status && (
+                                                <p className="text-sm text-red-500">{fieldErrors.payment_status[0]}</p>
+                                            )}
                                         </div>
                                         <div className="space-y-2">
                                             <Label htmlFor="comment">Comment</Label>
@@ -305,7 +327,11 @@ export default function EnrollmentDetails({
                                                 value={paymentFormData.comment}
                                                 onChange={(e) => setPaymentFormData({ ...paymentFormData, comment: e.target.value })}
                                                 rows={3}
+                                                disabled={isPending}
                                             />
+                                            {fieldErrors.comment && (
+                                                <p className="text-sm text-red-500">{fieldErrors.comment[0]}</p>
+                                            )}
                                         </div>
                                     </div>
                                     <DialogFooter>

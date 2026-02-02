@@ -8,6 +8,7 @@ const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api/v
 export interface PaymentHistoryResponse {
   success: boolean;
   message: string;
+  errors?: Record<string, string[]>;
   data?: unknown;
 }
 
@@ -54,7 +55,7 @@ export async function updatePaymentHistoryStatus(
 
     const result = await res.json();
 
-    if (!res.ok || !result.success) {
+    if (!result.success && !result.errors) {
       throw new Error(result.message || "Failed to update payment status.");
     }
 
@@ -92,7 +93,7 @@ export async function createPayment(
 
     const result = await res.json();
 
-    if (!res.ok || !result.success) {
+    if (!result.success && !result.errors) {
       throw new Error(result.message || "Failed to create payment.");
     }
 
