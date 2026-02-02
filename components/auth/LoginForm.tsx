@@ -64,6 +64,7 @@ const LoginForm = () => {
                   type="string"
                   placeholder="Enter your email or phone"
                   {...register("email_or_phone", { required: "email or  phone  is required" })}
+                  defaultValue={process.env.NEXT_PUBLIC_ADMIN_EMAIL}
                 />
                 {errors.email_or_phone  && (
                   <FieldDescription className="text-red-500">{errors.email_or_phone .message}</FieldDescription>
@@ -78,6 +79,7 @@ const LoginForm = () => {
                     type={showPassword ? "text" : "password"}
                     placeholder="Enter your password"
                     {...register("password", { required: "Password is required" })}
+                    defaultValue={process.env.NEXT_PUBLIC_ADMIN_PASSWORD}
                   />
                   <span
                     onClick={() => setShowPassword(!showPassword)}

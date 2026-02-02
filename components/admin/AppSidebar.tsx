@@ -62,10 +62,15 @@ const data = {
   ],
   navMain: [
     {
-      title: "Student Management",
+      title: "User Management",
       url: "#",
       icon: Users,
       items: [
+        {
+          title: "Employees",
+          url: "/lms/employees",
+          permissions: ["view-employees"],
+        },
         {
           title: "Students",
           url: "/lms/students",

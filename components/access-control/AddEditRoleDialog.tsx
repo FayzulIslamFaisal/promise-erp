@@ -155,7 +155,6 @@ const AddEditRoleDialog: React.FC<AddEditRoleDialogProps> = ({
                 const response = roleId
                     ? await updateRole(token, roleId, payload)
                     : await createRole(token, payload);
-
                 if (response.success) {
                     onOpenChange(false);
                     setRoleAfterAddEdit(!roleAfterAddEdit);

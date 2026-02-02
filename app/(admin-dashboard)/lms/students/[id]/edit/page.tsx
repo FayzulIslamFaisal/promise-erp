@@ -1,57 +1,59 @@
-'use client'
+import { getStudentById, SingleStudentResponse } from '@/apiServices/studentService'
+import { BranchResponse, getBranches } from '@/apiServices/branchService'
+import NotFoundComponent from '@/components/common/NotFoundComponent'
+import StudentForm from '@/components/lms/students/StudentForm'
+import ErrorComponent from '@/components/common/ErrorComponent'
 
-import { getStudentById, updateStudent, Student } from '@/apiServices/studentService'
-import UserForm from '@/components/common/UserForm'
-import { useRouter } from 'next/navigation'
-import { useEffect, useState, use } from 'react'
-import { handleFormErrors, handleFormSuccess } from '@/lib/formErrorHandler'
-import { UseFormSetError } from 'react-hook-form'
-import { ApiErrorResponse } from '@/lib/apiErrorHandler'
+interface PageProps {
+  params: Promise<{
+    id: string
+  }>
+}
 
-export default function EditStudentPage({ params }: { params: Promise<{ id: string }> }) {
-  const router = useRouter()
-  const resolvedParams = use(params) // ✅ unwrap the params promise
-  const [student, setStudent] = useState<Student | null>(null)
-  const [error, setError] = useState<string | null>(null)
+export default async function EditStudentPage({ params }: PageProps) {
+  const { id } = await params
 
-  useEffect(() => {
-    const fetchStudent = async () => {
-      try {
-        const response = await getStudentById(resolvedParams.id)
-        setStudent(response.data)
-      } catch (error: unknown) {
-        if (error instanceof Error) {
-          setError(error.message)
-        } else {
-          setError('An unexpected error occurred.')
-        }
-      }
-    }
+  
+  let studentRes: SingleStudentResponse | null = null
+  let branchesRes: BranchResponse | null = null
 
-    fetchStudent()
-  }, [resolvedParams.id])
-
-  const handleSubmit = async (
-    formData: FormData,
-    setFormError: (field: string, message: string) => void
-  ) => {
-    const res = await updateStudent(resolvedParams.id, formData)
-
-    if (res.success) {
-      handleFormSuccess(res.message || 'Student updated successfully!')
-      router.push('/lms/students')
-    } else {
-      handleFormErrors(res as ApiErrorResponse, setFormError as UseFormSetError<any>)
+  try {
+    studentRes = await getStudentById(Number(id))
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error('Error fetching student:', error.message)
     }
   }
 
-  if (error) {
-    return <div>Error: {error}</div>
+  try {
+    branchesRes = await getBranches({ per_page: 999 })
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error('Error fetching branches:', error.message)
+    }
   }
 
-  if (!student) {
-    return <div>Loading...</div>
+
+  if (!studentRes?.data) {
+    return (
+      <NotFoundComponent
+        message={studentRes?.message || 'Student not found.'}
+      />
+    )
+  }
+  if (!studentRes.success) {
+    return (
+      <ErrorComponent
+        message={studentRes?.message || 'Student not found.'}
+      />
+    )
   }
 
-  return <UserForm title="Edit Student" onSubmit={handleSubmit} user={student} />
+  return (
+    <StudentForm
+      title="Edit Student"
+      student={studentRes.data}
+      branches={branchesRes?.data?.branches || []}
+    />
+  )
 }

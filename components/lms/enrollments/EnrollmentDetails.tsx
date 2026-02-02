@@ -14,8 +14,6 @@ import {
     PAYMENT_METHOD_PAYLATER,
     PAYMENT_METHOD_CASH,
 } from "@/apiServices/paymentConstants";
-import { ENROLLMENT_STATUS_PENDING, ENROLLMENT_STATUS_ACTIVE, ENROLLMENT_STATUS_EXPIRED } from "@/apiServices/enrollmentConstants";
-import { approveEnrollment } from "@/apiServices/enrollmentService";
 import EnrollmentStatusDropdown from "./EnrollmentStatusDropdown";
 import PaymentHistoryStatusDropdown from "./PaymentHistoryStatusDropdown";
 import ErrorComponent from "@/components/common/ErrorComponent";
@@ -51,9 +49,9 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { ArrowLeft, Plus } from "lucide-react";
 import Link from "next/link";
-import { useState, useTransition } from "react";
-import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { useEffect, useState, useTransition } from "react";
+import { toast } from "sonner";
 
 interface InfoRowProps {
     label: string;
@@ -64,7 +62,9 @@ interface InfoRowProps {
 const InfoRow = ({ label, value, className }: InfoRowProps) => (
     <div className={`flex items-center justify-between text-sm ${className || ""}`}>
         <span className="text-muted-foreground">{label}</span>
-        <span className="font-medium text-right">{value ?? "N/A"}</span>
+        <span className="font-medium text-right">
+            {typeof value === 'object' && value !== null ? "N/A" : (value ?? "N/A")}
+        </span>
     </div>
 );
 
@@ -80,19 +80,6 @@ const formatCurrency = (amount?: number | null) =>
             maximumFractionDigits: 2,
         })} ৳`
         : "N/A";
-
-const getPaymentStatusBadge = (status?: string) => {
-    if (!status) return null;
-    const statusLower = status.toLowerCase();
-    if (statusLower === "paid") {
-        return <Badge variant="default" className="bg-green-600">Paid</Badge>;
-    } else if (statusLower === "pending") {
-        return <Badge variant="secondary">Pending</Badge>;
-    } else if (statusLower === "refunded") {
-        return <Badge variant="destructive">Refunded</Badge>;
-    }
-    return <Badge variant="secondary">{status}</Badge>;
-};
 
 export default function EnrollmentDetails({
     enrollment,
@@ -167,17 +154,6 @@ export default function EnrollmentDetails({
                 }
             }
         });
-    };
-
-    const getPaymentMethodName = (method: number) => {
-        const methods: Record<number, string> = {
-            [PAYMENT_METHOD_PAYLATER]: "Pay Later",
-            [PAYMENT_METHOD_ROCKET]: "Rocket",
-            [PAYMENT_METHOD_NAGAD]: "Nagad",
-            [PAYMENT_METHOD_BKASH]: "bKash",
-            [PAYMENT_METHOD_CASH]: "Cash",
-        };
-        return methods[method] || "Unknown";
     };
 
     return (
@@ -309,7 +285,7 @@ export default function EnrollmentDetails({
                                             <Label htmlFor="payment_status">Payment Status *</Label>
                                             <Select
                                                 value={paymentFormData.payment_status}
-                                                onValueChange={(value) => setPaymentFormData({ ...paymentFormData, payment_status: value})}
+                                                onValueChange={(value) => setPaymentFormData({ ...paymentFormData, payment_status: value })}
                                             >
                                                 <SelectTrigger id="payment_status" className="w-full">
                                                     <SelectValue placeholder="Select payment status" />
@@ -327,7 +303,7 @@ export default function EnrollmentDetails({
                                                 id="comment"
                                                 placeholder="Add any additional notes..."
                                                 value={paymentFormData.comment}
-                                                onChange={(e) => setPaymentFormData({ ...paymentFormData, comment: e.target.value})}
+                                                onChange={(e) => setPaymentFormData({ ...paymentFormData, comment: e.target.value })}
                                                 rows={3}
                                             />
                                         </div>

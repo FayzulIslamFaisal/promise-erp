@@ -14,7 +14,7 @@ const CategoriesPage = ({
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) => {
   return (
-    <NextAuthGuardWrapper requiredPermissions={["view-course-categories"]}>
+    <NextAuthGuardWrapper requiredPermissions={["view-course-categories","view-batches"]}>
       <div className="mx-auto space-y-6 ">
         <div className="flex justify-between items-center">
           <h1 className="text-2xl font-semibold tracking-tight">Category</h1>

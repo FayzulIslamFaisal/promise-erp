@@ -14,7 +14,7 @@ export default async function CoursesPage({
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
   return (
-    <NextAuthGuardWrapper requiredPermissions={["view-courses"]}>
+    <NextAuthGuardWrapper requiredPermissions={["view-courses","view-batches"]}>
       <div className="mx-auto space-y-6">
         {/* Header */}
         <div className="flex justify-between items-center">

@@ -3,7 +3,6 @@
 import { useTransition } from "react";
 import { Trash2, Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import DeleteStudentAction from "@/actions/DeleteStudentAction";
 import {
   AlertDialog,
   AlertDialogTrigger,
@@ -16,14 +15,18 @@ import {
   AlertDialogAction,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { Spinner } from "@/components/ui/spinner"
+import { Spinner } from "@/components/ui/spinner";
+import { deleteStudent } from "@/apiServices/studentService";
 
 interface DeleteButtonProps {
   id: number;
 }
+
 type ApiResponse = {
   success: boolean;
   message?: string;
+  code?: number;
+  data?: unknown;
 };
 
 const DeleteButton = ({ id }: DeleteButtonProps) => {
@@ -32,18 +35,20 @@ const DeleteButton = ({ id }: DeleteButtonProps) => {
   const handleDelete = () => {
     startTransition(async () => {
       try {
-        const res: ApiResponse = await DeleteStudentAction(id);
+        const res: ApiResponse = await deleteStudent(id);
+
         if (res.success) {
           toast.success(res.message || "Student deleted successfully");
         } else {
           toast.error(res.message || "Delete failed");
         }
-      } catch (error) {
-        const message =
-          error instanceof Error
-            ? error.message
-            : "An unexpected error occurred.";
-        toast.error(message);
+      } catch (error: unknown) {
+        console.error("Student delete failed:", error);
+        if (error instanceof Error) {
+          toast.error(error.message);
+        } else {
+          toast.error("An unknown error occurred while deleting student");
+        }
       }
     });
   };
@@ -58,9 +63,8 @@ const DeleteButton = ({ id }: DeleteButtonProps) => {
         >
           {isPending ? (
             <>
-                <Spinner className="h-4 w-4 mr-2" /> Deleting...
+              <Spinner className="h-4 w-4 mr-2" /> Deleting...
             </>
-            
           ) : (
             <>
               <Trash2 className="h-4 w-4 mr-2" /> Delete
@@ -76,8 +80,10 @@ const DeleteButton = ({ id }: DeleteButtonProps) => {
             This action cannot be undone. The student will be permanently deleted.
           </AlertDialogDescription>
         </AlertDialogHeader>
+
         <AlertDialogFooter>
           <AlertDialogCancel disabled={isPending}>Cancel</AlertDialogCancel>
+
           <AlertDialogAction asChild>
             <Button
               onClick={handleDelete}

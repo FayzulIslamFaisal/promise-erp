@@ -1,75 +1,210 @@
-"use server"
-import { authOptions } from "@/lib/auth"
-import { getServerSession } from "next-auth"
-import { cacheTag, updateTag } from "next/cache"
-import { handleApiError, processApiResponse } from "@/lib/apiErrorHandler"
-import { PaginationType } from "@/types/pagination"
+"use server";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api/v1"
+import { authOptions } from "@/lib/auth";
+import { getServerSession } from "next-auth";
+import { cacheTag, updateTag } from "next/cache";
+import { PaginationType } from "@/types/pagination";
+
+const API_BASE =
+  process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api/v1";
+
+// =======================
+// Interfaces
+// =======================
 
 export interface Student {
-  id: number
-  profile_image?: string | null
-  name: string
-  bn_name: string
-  email: string
-  phone: string
-  is_paid: number
-  branches: string
-  divisions: string
-  status: string
-  is_govt: boolean
-  is_blocked: boolean
-  courses: {
-    id: number
-    title: string
-    batch: string
+  id: number;
+  uuid: string;
+  name: string;
+  email: string;
+  phone: string;
+  alternate_phone: string ;
+  blood_group: string ;
+  nid_no: string ;
+  date_of_birth: string ;
+  present_address: string ;
+  occupation: string ;
+  father_name: string ;
+  father_occupation: string ;
+  father_phone: string ;
+  profile_image: string | null;
+  status: string | null;
+  is_govt: number;
+  gender?: string | null;
+  total_courses: number;
+  courses:
+  | {
+    title: string;
+    batch: string;
   }[]
-  subscription_details?: {
-    id: number
-    name: string
-    price: string
-  } | null
-  organization?: {
-    id: number
-    name: string
-  }
+  | null;
+  branches: string | null;
+  districts: string | null;
+  divisions: string | null;
+  branch_id?: number | null;
+  roles?: string;
+  enrollment_status?: string;
+  created_at?: string;
 }
-
 
 export interface StudentResponse {
-  success: boolean
-  message: string
-  data: {
-    students: Student[]
-    pagination: PaginationType
-  }
-}
-export interface StudentResponseType {
   success: boolean;
-  message?: string;
-  errors?: {
-    [key: string]: string[] | string;
+  message: string;
+  code: number;
+  data: {
+    total_students: number;
+    students: Student[];
+    pagination?: PaginationType;
   };
-  data?: Student;
-  code?: number;
+  errors?: Record<string, string[]>;
 }
 
-// add student
-export async function addStudent(
-  formData: FormData
-): Promise<StudentResponseType> {
+export interface SingleStudentResponse {
+  success: boolean;
+  message?: string;
+  code: number;
+  data: Student | null;
+  errors?: Record<string, string[] | string>;
+}
+
+// =======================
+// GET STUDENTS (CACHED)
+// =======================
+
+export async function getStudentsCached(
+  token: string,
+  params: Record<string, unknown> = {}
+): Promise<StudentResponse> {
+  "use cache";
+  cacheTag("students-list");
+
+  try {
+    const urlParams = new URLSearchParams();
+    for (const key in params) {
+      if (params[key] !== undefined && params[key] !== null) {
+        urlParams.append(key, String(params[key]));
+      }
+    }
+    const url = `${API_BASE}/students?${urlParams.toString()}`;
+    const res = await fetch(url, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!res.ok) {
+      throw new Error(`Status: ${res.status} ${res.statusText}`);
+    }
+
+    return await res.json();
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    } else {
+      throw new Error("Error fetching students");
+    }
+  }
+}
+
+// =======================
+// GET STUDENTS WRAPPER
+// =======================
+
+export async function getStudents(
+  params: Record<string, unknown> = {}
+): Promise<StudentResponse> {
+  const session = await getServerSession(authOptions);
+  const token = session?.accessToken;
+
+  if (!token) throw new Error("No valid session/token");
+
+  return getStudentsCached(token, params);
+}
+
+// =======================
+// GET SINGLE STUDENT
+// =======================
+
+export async function getStudentById(
+  id: number
+): Promise<SingleStudentResponse> {
   try {
     const session = await getServerSession(authOptions);
     const token = session?.accessToken;
 
-    if (!token) {
-      return {
-        success: false,
-        message: "No valid session or access token found.",
-        code: 401,
-      };
+    if (!token) throw new Error("No valid session/token");
+
+    const res = await fetch(`${API_BASE}/students/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!res.ok) {
+      throw new Error(`Get Student By ID API error: ${res.status} ${res.statusText}`);
     }
+
+    return await res.json();
+  } catch (error: unknown) {
+    console.error("Error in getStudentById:", error);
+    if (error instanceof Error) {
+      throw new Error(error.message || "Failed to fetch student");
+    } else {
+      throw new Error("Failed to fetch student");
+    }
+  }
+}
+
+// =======================
+// CREATE STUDENT
+// =======================
+
+export interface CreateStudent {
+  id: number;
+  uuid: string;
+  name: string;
+  email: string;
+  phone: string;
+  alternate_phone: string;
+  blood_group: string;
+  nid_no: string;
+  date_of_birth: string;
+  present_address: string;
+  occupation: string;
+  father_name: string;
+  father_occupation: string;
+  father_phone: string;
+  profile_image: string | null;
+  status: string | null;
+  is_govt: number; // 0 | 1
+  roles: string;
+  total_courses: number;
+  courses: null;
+  branches: string;
+  districts: string;
+  divisions: string;
+  created_at?: string;
+}
+
+export interface CreateStudentResponse {
+  success: boolean;
+  message: string;
+  code: number;
+  data: CreateStudent;
+  errors?: Record<string, string[]>;
+}
+
+
+export async function createStudent(
+  formData: FormData
+): Promise<CreateStudentResponse> {
+  try {
+    const session = await getServerSession(authOptions);
+    const token = session?.accessToken;
+
+    if (!token) throw new Error("No valid session/token");
 
     const res = await fetch(`${API_BASE}/students`, {
       method: "POST",
@@ -79,118 +214,35 @@ export async function addStudent(
       body: formData,
     });
 
-    const result = await processApiResponse(res, "Failed to add student.");
-
-    if (!result.success) {
-      return result;
-    }
+    const result: CreateStudentResponse = await res.json();
 
     updateTag("students-list");
-    return {
-      success: true,
-      message: result.message || "Student added successfully.",
-      data: result.data,
-      code: result.code,
-    };
-  } catch (error) {
-    return await handleApiError(error, "Failed to add student.");
-  }
-}
-
-// Get students
-export async function getStudentsCached(
-token: string,
-  params: Record<string, unknown> = {}
-): Promise<StudentResponse> {
-  "use cache"
-  cacheTag("students-list")
-
-  const urlParams = new URLSearchParams()
- 
-
-  for (const key in params) {
-    if (params.hasOwnProperty(key) && params[key] !== undefined && params[key] !== null) {
-      urlParams.append(key, params[key].toString())
+    return result;
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("Error in createStudent:", error);
+      throw new Error(error.message || "Failed to create student");
+    } else {
+      throw new Error("Failed to create student");
     }
   }
-
-  const res = await fetch(`${API_BASE}/students?${urlParams.toString()}`, {
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-  })
-
-  if (!res.ok) {
-    const errorData = await res.json().catch(() => ({}))
-    const errorMessage = errorData.message || errorData.error || JSON.stringify(errorData.errors || {}) || "Unknown error"
-    throw new Error(errorMessage)
-  }
-
-  return res.json()
-}
-
-export async function getStudents(
-  params: Record<string, unknown> = {}
-): Promise<StudentResponse> {
-  const session = await getServerSession(authOptions)
-  const token = session?.accessToken
-
-  if (!token) {
-    throw new Error("No valid session or access token found.")
-  }
-  return getStudentsCached(token, params)
-}
-
-export interface StudentSingleResponse {
-  success: boolean
-  message: string
-  data: Student
 }
 
 // =======================
-// Get Student By ID
-// =======================
-
-export async function getStudentById(id: string): Promise<StudentSingleResponse> {
-  const session = await getServerSession(authOptions)
-  const token = session?.accessToken
-  if (!token) throw new Error("No valid session or access token found.")
-
-  const res = await fetch(`${API_BASE}/students/${id}`, {
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-  })
-
-  if (!res.ok) {
-    throw new Error(`Failed to fetch student: ${res.statusText}`)
-  }
-
-  return res.json()
-}
-
-// =======================
-// Update Student
+// UPDATE STUDENT
 // =======================
 
 export async function updateStudent(
-  id: string,
+  id: number,
   formData: FormData
-): Promise<StudentResponseType> {
+): Promise<SingleStudentResponse> {
   try {
     const session = await getServerSession(authOptions);
     const token = session?.accessToken;
 
-    if (!token) {
-      return {
-        success: false,
-        message: "No valid session or access token found.",
-        code: 401,
-      };
-    }
+    if (!token) throw new Error("No valid session/token");
 
+    // Use POST with _method=PATCH for FormData handles file uploads in Laravel/PHP
     formData.append("_method", "PATCH");
 
     const res = await fetch(`${API_BASE}/students/${id}`, {
@@ -201,61 +253,53 @@ export async function updateStudent(
       body: formData,
     });
 
-    const result = await processApiResponse(res, "Failed to update student.");
-
-    if (!result.success) {
-      return result;
-    }
+    const result = await res.json();
 
     updateTag("students-list");
-    return {
-      success: true,
-      message: result.message || "Student updated successfully.",
-      data: result.data,
-      code: result.code,
-    };
-  } catch (error) {
-    return await handleApiError(error, "Failed to update student.");
+    return result;
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("Error in updateStudent:", error);
+      throw new Error(error.message || "Failed to update student");
+    } else {
+      throw new Error("Failed to update student");
+    }
   }
 }
 
 // =======================
-//  Delete Student
+// DELETE STUDENT
 // =======================
-export interface MutationResponse {
-  success: boolean;
-  message?: string;
-  errors?: Record<string, string[] | string>;
-  code?: number;
-}
 
-export async function deleteStudent(id: number): Promise<MutationResponse> {
+export async function deleteStudent(
+  id: number
+): Promise<SingleStudentResponse> {
   try {
     const session = await getServerSession(authOptions);
     const token = session?.accessToken;
 
     if (!token) {
-      return { success: false, message: "Unauthorized", code: 401 };
+      throw new Error("No valid session/token");
     }
 
     const res = await fetch(`${API_BASE}/students/${id}`, {
       method: "DELETE",
       headers: {
-        "Authorization": `Bearer ${token}`,
+        Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
     });
 
-    const result = await processApiResponse(res, "Failed to delete student");
-    
-    if (!result.success) {
-      return { success: false, message: result.message, code: result.code };
-    }
-    
+    const result = await res.json();
+
     updateTag("students-list");
-    return { success: true, message: result.message || "Student deleted successfully", code: result.code };
-  } catch (error) {
-    const errorResult = await handleApiError(error, "Failed to delete student");
-    return { success: false, message: errorResult.message, code: errorResult.code };
+    return result;
+  } catch (error: unknown) {
+    console.error("Error in deleteStudent:", error);
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    } else {
+      throw new Error("Failed to delete student");
+    }
   }
 }

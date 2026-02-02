@@ -255,7 +255,7 @@ export async function updateEnrollmentPaymentStatus(
     // Create FormData for multipart/form-data
     const formData = new FormData();
     formData.append("payment_status", data.payment_status.toString());
-    
+
     if (data.payment_reference) {
       formData.append("payment_reference", data.payment_reference);
     }
@@ -330,11 +330,11 @@ export async function createEnrollment(
 ): Promise<EnrollmentDetailResponse> {
   const session = await getServerSession(authOptions);
   const token = session?.accessToken;
-  
+
   if (!token) {
     throw new Error("No valid session or access token found.");
   }
-  
+
   try {
     const res = await fetch(`${API_BASE}/enrollments`, {
       method: "POST",
