@@ -1,5 +1,6 @@
 // app/(protected)/NextAuthGuard.tsx
-import { ReactNode, cache } from "react";
+import { ReactNode } from "react";
+
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import { authOptions } from "@/lib/auth";
@@ -12,23 +13,19 @@ interface AuthGuardProps {
   requiredPermissions?: string[];
 }
 
-/**
- * Cached function to fetch session and permissions once per request.
- * This prevents multiple API calls if NextAuthGuard is used multiple times in a single page.
- */
-const getAuthenticatedAppData = cache(async (): Promise<{
+const getAuthenticatedAppData = async (): Promise<{
   session: Session | null;
   permissions: string[];
   error: string | null;
 }> => {
-  const session = await getServerSession(authOptions);
-
-  if (!session?.user || !session?.accessToken) {
-    return { session: null, permissions: [], error: null };
-  }
-
   try {
-    // You can also use session.user.permissions if they are already up to date
+    const session = await getServerSession(authOptions);
+
+    if (!session?.user || !session?.accessToken) {
+      return { session: null, permissions: [], error: null };
+    }
+
+    // Pass session permissions if available, otherwise fetch
     const { data } = await fetchMyPermissions(session.accessToken);
     return {
       session,
@@ -38,12 +35,12 @@ const getAuthenticatedAppData = cache(async (): Promise<{
   } catch (error) {
     console.error("Guard fetch error:", error);
     return {
-      session,
+      session: null,
       permissions: [],
       error: "Failed to fetch permissions"
     };
   }
-});
+};
 
 export default async function NextAuthGuard({
   children,

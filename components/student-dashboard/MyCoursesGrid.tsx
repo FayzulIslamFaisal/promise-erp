@@ -11,6 +11,7 @@ const MyCoursesGrid = async () => {
 
   const response = await getStudentMyCourses({ params });
   const mockCourses = response?.data?.courses || [];
+  console.log("mockCourses--->",mockCourses);
   if (!response.success) {
     return (
       <ErrorComponent message={response?.message || "Something went wrong"} />

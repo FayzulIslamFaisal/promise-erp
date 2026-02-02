@@ -53,9 +53,15 @@ const MyCourseCard = ({ course }: MyCourseCardProps) => {
       </CardContent>
 
       <CardFooter className="p-4 pt-0 flex justify-center">
-        <Link href={`/student/mycourses/${course?.course?.slug}`}>
-          <Button>Continue Learning</Button>
-        </Link>
+        {
+          course?.status === "Active" ? (
+            <Link href={`/student/mycourses/${course?.course?.slug}`}>
+              <Button>Continue Learning</Button>
+            </Link>
+          ) : (
+            <Button className="cursor-not-allowed bg-red-500"> Contact to Admin</Button>
+          )
+        }
       </CardFooter>
     </Card>
   );

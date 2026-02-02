@@ -6,6 +6,7 @@ import { getCourses } from "@/apiServices/courseService";
 import ErrorComponent from "@/components/common/ErrorComponent";
 
 export default async function AddEnrollmentPage() {
+  console.log("AddEnrollmentPage: Rendering...");
   try {
     // Load all data server-side - per_page max is 100 for students
     const [studentsRes, batchesRes, coursesRes] = await Promise.all([
@@ -17,6 +18,9 @@ export default async function AddEnrollmentPage() {
     const students = studentsRes.data?.students || [];
     const batches = batchesRes.data?.batches || [];
     const courses = coursesRes.data?.courses || [];
+    console.log(students);
+    console.log(batches);
+    console.log(courses);
 
     return (
       <div className="mx-auto space-y-6">
