@@ -56,12 +56,12 @@ export default function PaymentHistoryStatusDropdown({
 
   const handleStatusChange = (newStatus: string) => {
     const statusNum = Number(newStatus);
-    
+
     // If status is not changing, do nothing
     if (statusNum === currentStatusValue) {
       return;
     }
-    
+
     setPendingStatus(statusNum);
     setIsDialogOpen(true);
   };
@@ -74,13 +74,13 @@ export default function PaymentHistoryStatusDropdown({
         await updatePaymentHistoryStatus(paymentHistoryId, {
           payment_status: pendingStatus,
         });
-        
+
         const statusNames: Record<number, string> = {
           [PAYMENT_STATUS_PENDING]: "Pending",
           [PAYMENT_STATUS_PAID]: "Paid",
           [PAYMENT_STATUS_REFUNDED]: "Refunded",
         };
-        
+
         toast.success(`Payment status changed to ${statusNames[pendingStatus]}`);
         setIsDialogOpen(false);
         setPendingStatus(null);
@@ -103,6 +103,19 @@ export default function PaymentHistoryStatusDropdown({
     [PAYMENT_STATUS_REFUNDED]: "Refunded",
   };
 
+  const getStatusColor = (status: number) => {
+    switch (status) {
+      case PAYMENT_STATUS_PAID:
+        return "bg-green-100 text-green-700 hover:bg-green-200 border-green-200";
+      case PAYMENT_STATUS_PENDING:
+        return "bg-amber-100 text-amber-700 hover:bg-amber-200 border-amber-200";
+      case PAYMENT_STATUS_REFUNDED:
+        return "bg-red-100 text-red-700 hover:bg-red-200 border-red-200";
+      default:
+        return "bg-gray-100 text-gray-700 hover:bg-gray-200 border-gray-200";
+    }
+  };
+
   return (
     <>
       <Select
@@ -110,7 +123,7 @@ export default function PaymentHistoryStatusDropdown({
         onValueChange={handleStatusChange}
         disabled={isPending}
       >
-        <SelectTrigger className="w-[130px] h-8">
+        <SelectTrigger className={`w-[130px] h-8 font-medium ${getStatusColor(currentStatusValue)}`}>
           <SelectValue />
         </SelectTrigger>
         <SelectContent>

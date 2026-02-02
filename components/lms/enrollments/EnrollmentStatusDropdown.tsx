@@ -44,12 +44,12 @@ export default function EnrollmentStatusDropdown({
 
   const handleStatusChange = (newStatus: string) => {
     const statusNum = Number(newStatus);
-    
+
     // If status is not changing, do nothing
     if (statusNum === statusValue) {
       return;
     }
-    
+
     setPendingStatus(statusNum);
     setIsDialogOpen(true);
   };
@@ -62,13 +62,13 @@ export default function EnrollmentStatusDropdown({
         await approveEnrollment(enrollmentId, {
           status: pendingStatus,
         });
-        
+
         const statusNames: Record<number, string> = {
           [ENROLLMENT_STATUS_PENDING]: "Pending",
           [ENROLLMENT_STATUS_ACTIVE]: "Active",
           [ENROLLMENT_STATUS_EXPIRED]: "Expired",
         };
-        
+
         toast.success(`Enrollment status changed to ${statusNames[pendingStatus]}`);
         setIsDialogOpen(false);
         setPendingStatus(null);
@@ -91,6 +91,19 @@ export default function EnrollmentStatusDropdown({
     [ENROLLMENT_STATUS_EXPIRED]: "Expired",
   };
 
+  const getStatusColor = (status: number) => {
+    switch (status) {
+      case ENROLLMENT_STATUS_ACTIVE:
+        return "bg-green-100 text-green-700 hover:bg-green-200 border-green-200";
+      case ENROLLMENT_STATUS_PENDING:
+        return "bg-amber-100 text-amber-700 hover:bg-amber-200 border-amber-200";
+      case ENROLLMENT_STATUS_EXPIRED:
+        return "bg-red-100 text-red-700 hover:bg-red-200 border-red-200";
+      default:
+        return "bg-gray-100 text-gray-700 hover:bg-gray-200 border-gray-200";
+    }
+  };
+
   return (
     <>
       <Select
@@ -98,7 +111,7 @@ export default function EnrollmentStatusDropdown({
         onValueChange={handleStatusChange}
         disabled={isPending}
       >
-        <SelectTrigger className="w-[130px] h-8">
+        <SelectTrigger className={`w-[130px] h-8 font-medium ${getStatusColor(statusValue)}`}>
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
