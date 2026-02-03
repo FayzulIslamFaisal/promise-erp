@@ -26,15 +26,14 @@ export default function CategoryPill({ category }: CategoryPillProps) {
   return (
     <div
       onClick={handleClick}
-      className={`flex cursor-pointer flex-col items-center justify-center gap-4 py-6 ${isActive ? "bg-primary" : "bg-secondary"} rounded-2xl`}
+      className={`flex cursor-pointer flex-col items-center justify-center gap-1 py-3 ${isActive ? "bg-primary" : "bg-secondary"} rounded-2xl`}
     >
-      <div className="bg-white text-primary rounded-full w-12 h-12 flex items-center justify-center">
+      <div className="bg-white text-primary shadow relative rounded-full w-12 h-12 flex items-center justify-center p-1">
         <Image
           src={image || "/images/placeholder_img.jpg"}
           alt={name}
-          width={68}
-          height={68}
-          className="object-cover rounded-md"
+          fill
+          className="object-scale-down rounded-full"
         />
       </div>
       <span className="font-medium text-white text-lg">{name}</span>

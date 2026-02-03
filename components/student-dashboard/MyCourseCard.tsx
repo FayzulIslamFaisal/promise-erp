@@ -59,7 +59,7 @@ const MyCourseCard = ({ course }: MyCourseCardProps) => {
               <Button>Continue Learning</Button>
             </Link>
           ) : (
-            <Button className="cursor-not-allowed bg-red-500"> Contact to Admin</Button>
+            <Button variant="outline" className="cursor-not-allowed bg-primary/10 text-primary font-bold "> Wait for Admin to Approve</Button>
           )
         }
       </CardFooter>

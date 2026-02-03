@@ -1,4 +1,4 @@
-import EmptyCoursesState from "@/components/student-dashboard/EmptyCoursesState";
+
 import dynamic from 'next/dynamic';
 const UpcomingCategoryCarousel = dynamic(() => import('@/components/student-dashboard/UpcomingCategoryCarousel'));
 import UpcomingCourseCard from "@/components/student-dashboard/UpcomingCourseCard";
