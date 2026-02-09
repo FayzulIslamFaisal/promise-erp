@@ -9,7 +9,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Funnel } from "lucide-react";
-import { getPublicBranchList, HeaderBranchList } from "@/apiServices/homePageService";
+import {
+  getPublicBranchList,
+  HeaderBranchList,
+} from "@/apiServices/homePageService";
 import { useRouter, useSearchParams } from "next/navigation";
 
 const HeaderBranchDropdown = () => {
@@ -27,14 +30,18 @@ const HeaderBranchDropdown = () => {
         try {
           const res = await getPublicBranchList();
           if (res.success) {
-            setBranchList(Array.isArray(res?.data?.branches) ? res.data.branches : []);
+            setBranchList(res?.data?.branches || []);
 
             // Set default selected branch from query params
             const branchParam = searchParams.get("branch_id");
             if (branchParam) setSelectedBranch(parseInt(branchParam));
           }
-        } catch (err) {
-          console.error("Failed to fetch branch list:", err);
+        } catch (error: unknown) {
+          if (error instanceof Error) {
+            console.error("Error fetching branch list:", error.message);
+          } else {
+            console.error("Unknown error fetching branch list");
+          }
         }
       };
       fetchBranchList();
@@ -53,23 +60,23 @@ const HeaderBranchDropdown = () => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button className="header-branch-filter-btn h-8 px-4 gap-2 bg-transparent hover:bg-transparent border-0">
-          <span className="text-base flex items-center gap-2 text-secondary">
-            <Funnel className="h-4 w-4" />{" "}
-            {selectedBranch && Array.isArray(branchList)
-              ? branchList.find((b) => b.id === selectedBranch)?.name
-              : "Branch"}
-          </span>
-        </Button>
+        <span className="text-base header-branch-filter-btn h-8 px-4 flex items-center gap-2 text-secondary cursor-pointer">
+          <Funnel className="h-4 w-4" />{" "}
+          {isPending
+            ? "Loading..."
+            : branchList.find((b) => b.id === selectedBranch)?.name || "Branch"}
+        </span>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="grid grid-cols-2 gap-1 p-4 w-full">
+      <DropdownMenuContent className="grid grid-cols-4 gap-1 p-4 w-full">
         {isPending ? (
-          <DropdownMenuItem disabled>Loading...</DropdownMenuItem>
+          <DropdownMenuItem disabled>Loading Branch...</DropdownMenuItem>
         ) : (
           <>
             <DropdownMenuItem
               onClick={() => handleBranchSelect(1)}
-              className={selectedBranch === 1 ? "bg-muted" : ""}
+              className={
+                selectedBranch === 1 ? "cursor-pointer" : "cursor-pointer"
+              }
             >
               All Branches
             </DropdownMenuItem>
@@ -77,7 +84,11 @@ const HeaderBranchDropdown = () => {
               <DropdownMenuItem
                 key={branch.id}
                 onClick={() => handleBranchSelect(branch.id)}
-                className={selectedBranch === branch.id ? "bg-muted" : ""}
+                className={
+                  selectedBranch === branch.id
+                    ? "bg-secondary text-white cursor-pointer"
+                    : "cursor-pointer"
+                }
               >
                 {branch.name}
               </DropdownMenuItem>
@@ -90,4 +101,3 @@ const HeaderBranchDropdown = () => {
 };
 
 export default HeaderBranchDropdown;
-

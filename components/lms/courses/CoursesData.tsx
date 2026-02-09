@@ -98,9 +98,15 @@ export default async function CoursesData({
                     </DropdownMenuTrigger>
 
                     <DropdownMenuContent align="center">
-                      <DropdownMenuItem asChild>
+                      {/* <DropdownMenuItem asChild>
                         <Link href={`/lms/courses/${course.id}`}>
                           <Eye className="mr-2 h-4 w-4" /> Details
+                        </Link>
+                      </DropdownMenuItem> */}
+
+                      <DropdownMenuItem asChild>
+                        <Link href={`/courses/${course.slug}`}>
+                          <Eye className="mr-2 h-4 w-4" /> Preview
                         </Link>
                       </DropdownMenuItem>
 

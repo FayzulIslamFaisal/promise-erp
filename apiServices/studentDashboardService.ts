@@ -737,8 +737,8 @@ export async function getStudentMyCourses({
 
 // ****** Start get My Course By Slug ******
 export enum MyCourseBySlugLessonType {
-  Video = 1,
-  Document = 2,
+  Video = 0,
+  Document = 1,
 }
 export interface MyCourseBySlugInfo {
   id: number;
@@ -751,7 +751,7 @@ export interface MyCourseBySlugCurrentLesson {
   title: string;
   description: string;
   duration: number;
-  type?: MyCourseBySlugLessonType; // 1 = video?, 2 = document? (backend logic)
+  type?: MyCourseBySlugLessonType; // 0 = video?, 1 = document? (backend logic)
   video_url?: string | null;
   is_completed: boolean;
   order: number;

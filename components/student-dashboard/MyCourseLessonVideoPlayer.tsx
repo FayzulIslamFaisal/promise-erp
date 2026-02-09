@@ -31,9 +31,9 @@ const MyCourseLessonVideoPlayer = ({ videoUrl }: LessonVideoPlayerProps) => {
       {!isPlaying && (
         <div
           className="absolute inset-0 flex items-center justify-center cursor-pointer bg-black/40"
-          onClick={() => setIsPlaying(true)}
         >
           <button
+            onClick={() => setIsPlaying(true)}
             className="w-18 h-18 cursor-pointer rounded-full bg-primary flex items-center justify-center"
             aria-label="Play video"
           >

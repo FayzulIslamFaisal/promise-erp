@@ -1,4 +1,30 @@
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL + "/auth";
+
+// Register User API Service
+
+export interface RegisterUser {
+  id: number;
+  uuid: string;
+  name: string;
+  email: string;
+  phone: string;
+  image: string | null;
+}
+export interface RegistrationData  {
+  user: RegisterUser;
+  roles: string[];
+  permissions: string[];
+  access_token: string;
+  token_type: "Bearer";
+  expires_at: string; 
+}
+export interface RegisterUserResponse {
+  success: boolean;
+  message: string;
+  code: number;
+  data?: RegisterUser;
+  errors?: Record<string, string[] | string>;
+}
 export interface RegisterPayload {
   name: string;
   email: string;
@@ -7,7 +33,7 @@ export interface RegisterPayload {
   password_confirmation: string;
 }
 
-const RegisterUser = async (data: RegisterPayload) => {
+const RegisterUser = async (payload: RegisterPayload): Promise<RegisterUserResponse> => {
   try {
     const response = await fetch(`${BASE_URL}/register`, {
       method: "POST",
@@ -15,14 +41,18 @@ const RegisterUser = async (data: RegisterPayload) => {
         "Content-Type": "application/json",
         Accept: "application/json",
       },
-      body: JSON.stringify(data),
+      body: JSON.stringify(payload),
     });
 
     const result = await response.json();
     return result;
   } catch (error: unknown) {
-    console.error("Register API Error:", error);
-    throw new Error("Unknown error occurred while registering user");
+    if (error instanceof Error) {
+      console.error("Register API Error:", error.message);
+      throw new Error(error.message);
+    } else {
+      throw new Error("Unknown error occurred while registering user");
+    }
   }
 };
 export default RegisterUser;

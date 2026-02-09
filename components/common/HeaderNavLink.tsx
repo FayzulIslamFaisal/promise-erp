@@ -30,9 +30,9 @@ const HeaderNavLink = async ({ navLinks, isStudentDashboard = false }: HeaderNav
     console.error("Failed to fetch categories:", error);
   }
   return (
-    <nav className={`hidden md:flex items-center justify-between w-full my-3`}>
+    <nav className={`hidden lg:flex items-center justify-between w-full my-3`}>
       <div></div>
-      <div className={`flex items-center gap-6`}>
+      <div className={`flex items-center gap-4 xl:gap-6`}>
         {navLinks.map((link) => (
           <div key={link.name}>
             {link.hasDropdown ? (

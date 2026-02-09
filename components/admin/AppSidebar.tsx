@@ -76,6 +76,10 @@ const data = {
           url: "/lms/students",
           permissions: ["view-students"],
         },
+        // {
+        //   title: "Earning Reports",
+        //   url: "/lms/earning-reports",
+        // },
       ],
     },
     {
@@ -99,16 +103,16 @@ const data = {
           url: "/lms/batches",
           permissions: ["view-batches"],
         },
-        {
-          title: "Projects",
-          url: "/lms/projects",
-          permissions: ["view-course-projects"],
-        },
-        {
-          title: "Groups",
-          url: "/lms/groups",
-          permissions: ["view-groups"],
-        },
+        // {
+        //   title: "Projects",
+        //   url: "/lms/projects",
+        //   permissions: ["view-course-projects"],
+        // },
+        // {
+        //   title: "Groups",
+        //   url: "/lms/groups",
+        //   permissions: ["view-groups"],
+        // },
 
         {
           title: "Facilities",
@@ -135,6 +139,10 @@ const data = {
           title: "Course Reviews",
           url: "/lms/reviews",
           permissions: ["view-reviews"],
+        },
+        {
+          title: "Free Seminars",
+          url: "/lms/free-seminars",
         },
       ],
     },
@@ -218,18 +226,22 @@ const data = {
         {
           title: "Quizs",
           url: "#",
+          permissions: ["view-quizzes"],
         },
         {
           title: "Questions",
           url: "#",
+          permissions: ["view-questions"],
         },
         {
           title: "Assignment",
           url: "#",
+          permissions: ["view-assignments"],
         },
         {
           title: "Results",
           url: "#",
+          permissions: ["view-results"],
         },
       ],
     },
@@ -396,26 +408,32 @@ const data = {
         {
           title: "Job Circular",
           url: "#",
+          permissions: ["view-job-circulars"],
         },
         {
           title: "Application Tracking",
           url: "#",
+          permissions: ["view-application-tracking"],
         },
         {
           title: "Interview Schedule",
           url: "#",
+          permissions: ["view-interview-schedules"],
         },
         {
           title: "Candidate Evaluation",
           url: "#",
+          permissions: ["view-candidate-evaluations"],
         },
         {
           title: "Offer Letter",
           url: "#",
+          permissions: ["view-offer-letters"],
         },
         {
           title: "Onboarding / Joining",
           url: "#",
+          permissions: ["view-onboarding-joining"],
         },
       ],
     },
@@ -427,42 +445,52 @@ const data = {
         {
           title: "Manual Attendance",
           url: "#",
+          permissions: ["view-attendances"],
         },
         {
           title: "Biometric",
           url: "#",
+          permissions: ["view-attendances"],
         },
         {
           title: "Device (Optional)",
           url: "#",
+          permissions: ["view-attendances"],
         },
         {
           title: "Late Report",
           url: "#",
+          permissions: ["view-attendances"],
         },
         {
           title: "Early Leave Report",
           url: "#",
+          permissions: ["view-attendances"],
         },
         {
           title: "Attendance Summary",
           url: "#",
+          permissions: ["view-attendances"],
         },
         {
           title: "Attendance Report",
           url: "#",
+          permissions: ["view-attendances"],
           children: [
             {
               title: "Weekly",
               url: "#",
+              permissions: ["view-attendances"],
             },
             {
               title: "Monthly",
               url: "#",
+              permissions: ["view-attendances"],
             },
             {
               title: "Yearly",
               url: "#",
+              permissions: ["view-attendances"],
             },
           ],
         },
@@ -476,50 +504,62 @@ const data = {
         {
           title: "Salary Structure",
           url: "#",
+          permissions: ["view-salary-structures"],
         },
         {
           title: "Salary Processing",
           url: "#",
+          permissions: ["view-salary-processing"],
         },
         {
           title: "Overtime Calculation",
           url: "#",
+          permissions: ["view-overtime-calculations"],
         },
         {
           title: "Pay Slip Generation",
           url: "#",
+          permissions: ["view-pay-slips"],
         },
         {
           title: "Tax Deduction",
           url: "#",
+          permissions: ["view-tax-deductions"],
         },
         {
           title: "Salary Report",
           url: "#",
+          permissions: ["view-salary-reports"],
         },
         {
           title: "Advance Salary",
           url: "#",
+          permissions: ["view-advance-salaries"],
         },
         {
           title: "Salary Certificate",
           url: "#",
+          permissions: ["view-salary-certificates"],
         },
         {
           title: "Incentive",
           url: "#",
+          permissions: ["view-incentives"],
         },
         {
           title: "Medical Allowance",
           url: "#",
+          permissions: ["view-medical-allowances"],
         },
         {
           title: "Convenance Allowance",
           url: "#",
+          permissions: ["view-convenance-allowances"],
         },
         {
           title: "Bonus",
           url: "#",
+          permissions: ["view-bonuses"],
         },
       ],
     },
@@ -531,26 +571,32 @@ const data = {
         {
           title: "Leave Application ",
           url: "#",
+          permissions: ["view-leave-applications"],
         },
         {
           title: "Leave Application Rules",
           url: "#",
+          permissions: ["view-leave-application-rules"],
         },
         {
           title: "Leave Approval Process",
           url: "#",
+          permissions: ["view-leave-approval-process"],
         },
         {
           title: "Leave Report (Y/M)",
           url: "#",
+          permissions: ["view-leave-reports"],
         },
         {
           title: "Leave Encashment",
           url: "#",
+          permissions: ["view-leave-encashments"],
         },
         {
           title: "Leave Summary",
           url: "#",
+          permissions: ["view-leave-summaries"],
         },
       ],
     },
@@ -562,18 +608,22 @@ const data = {
         {
           title: "Individual Person Promotion",
           url: "#",
+          permissions: ["view-individual-person-promotions"],
         },
         {
           title: "Demotion with Reason",
           url: "#",
+          permissions: ["view-demotions-with-reason"],
         },
         {
           title: "Employee Suspend",
           url: "#",
+          permissions: ["view-employee-suspends"],
         },
         {
           title: "Increment / Decrement with Reason",
           url: "#",
+          permissions: ["view-increment-decrement-with-reason"],
         },
       ],
     },
@@ -585,34 +635,42 @@ const data = {
         {
           title: "Provident Fund Configuration",
           url: "#",
+          permissions: ["view-provident-fund-configurations"],
         },
         {
           title: "PF Opening",
           url: "#",
+          permissions: ["view-pf-openings"],
         },
         {
           title: "Loan Against PR",
           url: "#",
+          permissions: ["view-loan-against-prs"],
         },
         {
           title: "Loan Adjustment",
           url: "#",
+          permissions: ["view-loan-adjustments"],
         },
         {
           title: "PR Settlement",
           url: "#",
+          permissions: ["view-pr-settlements"],
         },
         {
           title: "Interest on PF",
           url: "#",
+          permissions: ["view-interest-on-pfs"],
         },
         {
           title: "PF Ledger",
           url: "#",
+          permissions: ["view-pf-ledgers"],
         },
         {
           title: "PF Report",
           url: "#",
+          permissions: ["view-pf-reports"],
         },
       ],
     },
@@ -624,34 +682,42 @@ const data = {
         {
           title: "Notice Board",
           url: "#",
+          permissions: ["view-notice-boards"],
         },
         {
           title: "HR Policy / Rules",
           url: "#",
+          permissions: ["view-hr-policy-rules"],
         },
         {
           title: "Manage Company Info",
           url: "#",
+          permissions: ["view-manage-company-infos"],
         },
         {
           title: "Designation & Department Setup",
           url: "#",
+          permissions: ["view-designation-department-setups"],
         },
         {
           title: "Roaster Schedule",
           url: "#",
+          permissions: ["view-roaster-schedules"],
         },
         {
           title: "Employee Class Management",
           url: "#",
+          permissions: ["view-employee-class-managements"],
         },
         {
           title: "Work Station & Front Desk Manage",
           url: "#",
+          permissions: ["view-work-station-front-desk-manages"],
         },
         {
           title: "Grade System for Salary",
           url: "#",
+          permissions: ["view-grade-system-for-salaries"],
         },
       ],
     },
@@ -689,31 +755,37 @@ const data = {
         {
           title: "Purchases List",
           url: "#",
-          // permissions: ["view-purchases"], // Not found in list
+          permissions: ["view-purchases"],
         },
         {
           title: "Add Purchases",
           url: "#",
+          permissions: ["create-purchases"],
         },
         {
           title: "List Purchase Return",
           url: "#",
+          permissions: ["view-purchase-returns"],
         },
         {
           title: "Stock Transfers List",
           url: "#",
+          permissions: ["view-stock-transfers"],
         },
         {
           title: "Add Stock Transfer",
           url: "#",
+          permissions: ["create-stock-transfers"],
         },
         {
           title: "Stock Adjustments List",
           url: "#",
+          permissions: ["view-stock-adjustments"],
         },
         {
           title: "Add Stock Adjustment",
           url: "#",
+          permissions: ["create-stock-adjustments"],
         },
       ],
     },
@@ -727,22 +799,27 @@ const data = {
         {
           title: "Accounts List",
           url: "#",
+          permissions: ["view-accounts"],
         },
         {
           title: "Balance Sheet",
           url: "#",
+          permissions: ["view-balance-sheet"],
         },
         {
           title: "Trial Balance",
           url: "#",
+          permissions: ["view-trial-balance"],
         },
         {
           title: "Cash Flow",
           url: "#",
+          permissions: ["view-cash-flow"],
         },
         {
           title: "Payment Account Report",
           url: "#",
+          permissions: ["view-payment-account-report"],
         },
       ],
     },
@@ -756,42 +833,52 @@ const data = {
         {
           title: "Dashboard",
           url: "#",
+          permissions: ["view-inventory-dashboard"],
         },
         {
           title: "Requisitions",
           url: "#",
+          permissions: ["view-requisitions"],
         },
         {
           title: "Requisition Overview",
           url: "#",
+          permissions: ["view-requisition-overview"],
         },
         {
           title: "Requisition Accepts",
           url: "#",
+          permissions: ["view-requisition-accepts"],
         },
         {
           title: "Purchase",
           url: "#",
+          permissions: ["view-purchase"],
         },
         {
           title: "Manual Entry Form / POS",
           url: "#",
+          permissions: ["view-manual-entry-form-pos"],
         },
         {
           title: "Item Management",
           url: "#",
+          permissions: ["view-item-management"],
         },
         {
           title: "Stock Management",
           url: "#",
+          permissions: ["view-stock-management"],
         },
         {
           title: "Supplier / Vendor Management",
           url: "#",
+          permissions: ["view-supplier-vendor-management"],
         },
         {
           title: "Warehouse Management",
           url: "#",
+          permissions: ["view-warehouse-management"],
         },
       ],
     },
@@ -806,30 +893,37 @@ const data = {
         {
           title: "Dashboard",
           url: "#",
+          permissions: ["view-sales-dashboard"],
         },
         {
           title: "Customer Management",
           url: "#",
+          permissions: ["view-customer-management"],
         },
         {
           title: "Product / Item Management",
           url: "#",
+          permissions: ["view-product-item-management"],
         },
         {
           title: "Delivery Management",
           url: "#",
+          permissions: ["view-delivery-management"],
         },
         {
           title: "Sales Report",
           url: "#",
+          permissions: ["view-sales-report"],
         },
         {
           title: "Orders Management",
           url: "#",
+          permissions: ["view-orders-management"],
         },
         {
           title: "Quotation & Proposal",
           url: "#",
+          permissions: ["view-quotation-proposal"],
         },
         {
           title: "Invoice & Billing",
@@ -839,14 +933,17 @@ const data = {
         {
           title: "Payment Collection / Due Management",
           url: "#",
+          permissions: ["view-payment-collection-due-management"],
         },
         {
           title: "Sales Return / Exchange Policy",
           url: "#",
+          permissions: ["view-sales-return-exchange-policy"],
         },
         {
           title: "Sales Target",
           url: "#",
+          permissions: ["view-sales-target"],
         },
       ],
     },
@@ -860,18 +957,22 @@ const data = {
         {
           title: "General",
           url: "#",
+          permissions: ["view-general-settings"],
         },
         {
           title: "Team",
           url: "#",
+          permissions: ["view-team-settings"],
         },
         {
           title: "Billing",
           url: "#",
+          permissions: ["view-billing-settings"],
         },
         {
           title: "Limits",
           url: "#",
+          permissions: ["view-limits-settings"],
         },
       ],
     },
@@ -895,7 +996,7 @@ const data = {
         {
           title: "User Permissions",
           url: "#",
-          permissions: ["view-user-permissions"], // Assuming logic, but listing doesn't explicitly show 'view-user-permissions', only 'view-permissions' and 'assign-user-roles'. 'view-role-permissions' exists. 
+          permissions: ["view-user-permissions"],
         },
         {
           title: "User Activity Logs",
@@ -905,6 +1006,7 @@ const data = {
         {
           title: "User Profile Settings",
           url: "#",
+          permissions: ["view-user-profile-settings"],
         },
       ],
     },

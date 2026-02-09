@@ -13,7 +13,7 @@ interface PageProps {
 export default async function EditStudentPage({ params }: PageProps) {
   const { id } = await params
 
-  
+
   let studentRes: SingleStudentResponse | null = null
   let branchesRes: BranchResponse | null = null
 
@@ -48,7 +48,7 @@ export default async function EditStudentPage({ params }: PageProps) {
       />
     )
   }
-
+  console.log("studentRes--->", studentRes)
   return (
     <StudentForm
       title="Edit Student"

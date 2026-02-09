@@ -12,7 +12,7 @@ const MyCourseBySlugVideoPlayer = ({ currentLesson }: VideoPlayerProps) => {
         <span className="text-primary font-medium text-sm">
           {currentLesson?.chapter_title ?? "---"}
         </span>
-        <h2 className="text-xl font-semibold text-secondary my-1 border-b border-secondary/40">
+        <h2 className="text-xl font-semibold text-secondary pb-2 my-2 border-b border-secondary/40">
           {currentLesson?.title ?? "---"}
         </h2>
         <p className="text-sm text-secondary mb-1">
@@ -26,7 +26,7 @@ const MyCourseBySlugVideoPlayer = ({ currentLesson }: VideoPlayerProps) => {
         </div>
       )}
 
-      {currentLesson?.type === 2 && (
+      {currentLesson?.type === 0 && (
         <div className="mb-4">
           <p className="text-sm text-foreground/80">
             {currentLesson?.description}

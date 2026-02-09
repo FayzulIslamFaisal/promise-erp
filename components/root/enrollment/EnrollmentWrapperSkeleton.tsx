@@ -5,7 +5,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export default function EnrollmentWrapperSkeleton() {
   return (
-    <div className="grid md:grid-cols-[1.8fr_1fr] gap-6 mb-8 relative w-full">
+    <div className="grid lg:grid-cols-[1.8fr_1fr] gap-4 mb-8 relative w-full">
       
       {/* ===== Left: Payment Summary Skeleton ===== */}
       <Card>

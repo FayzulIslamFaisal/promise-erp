@@ -26,8 +26,6 @@ import {
   Camera,
   Hash,
   Calendar as CalendarIcon,
-  Eye,
-  EyeOff,
   X,
   User,
 } from "lucide-react";
@@ -63,7 +61,6 @@ export default function StudentForm({
   branches = [],
 }: StudentFormProps) {
   const router = useRouter();
-  // const [preview, setPreview] = useState<string | null>(student?.profile_image || null);
   const [preview, setPreview] = useState<string | null>(null);
   const [isImageRemoved, setIsImageRemoved] = useState(false);
 
@@ -94,31 +91,16 @@ export default function StudentForm({
       father_occupation: student?.father_occupation || "",
       father_phone: student?.father_phone || "",
       branch_id: branchId,
+      profile_image: undefined,
     },
   });
 
-  // useEffect(() => {
-  //   if (student) {
-  //     reset({
-  //       name: student.name || "",
-  //       email: student.email || "",
-  //       phone: student.phone || "",
-  //       alternate_phone: student.alternate_phone || "",
-  //       blood_group: student.blood_group || "",
-  //       nid_no: student.nid_no || "",
-  //       date_of_birth: student.date_of_birth || "",
-  //       present_address: student.present_address || "",
-  //       occupation: student.occupation || "",
-  //       father_name: student.father_name || "",
-  //       father_occupation: student.father_occupation || "",
-  //       father_phone: student.father_phone || "",
-  //       branch_id: branchId,
-  //     });
-  //     setPreview(student.profile_image ?? null);
-  //   }
-  // }, [student, reset, branchId]);
-
    /* ===== Image handlers ===== */
+   useEffect(() => {
+    if (student?.profile_image) {
+      setPreview(student.profile_image);
+    }
+  }, [student]);
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;

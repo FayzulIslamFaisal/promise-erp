@@ -51,16 +51,15 @@ const MyCourseCard = ({ course }: MyCourseCardProps) => {
         {/* Progress bar */}
         <Progress value={course.progress_percentage} className="h-2" />
       </CardContent>
-
       <CardFooter className="p-4 pt-0 flex justify-center">
         {
           course?.status === "Active" ? (
             <Link href={`/student/mycourses/${course?.course?.slug}`}>
               <Button>Continue Learning</Button>
             </Link>
-          ) : (
+          ) : (course?.status === "Expired" ? (<Button variant="outline" className="cursor-not-allowed bg-red-500/10 border-red-500 text-red-500 font-bold ">Your Access is Terminated</Button>) : (
             <Button variant="outline" className="cursor-not-allowed bg-primary/10 text-primary font-bold "> Wait for Admin to Approve</Button>
-          )
+          ))
         }
       </CardFooter>
     </Card>

@@ -19,7 +19,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { ENROLLMENT_STATUS_PENDING, ENROLLMENT_STATUS_ACTIVE, ENROLLMENT_STATUS_EXPIRED } from "@/apiServices/enrollmentConstants";
+import { ENROLLMENT_STATUS_PENDING, ENROLLMENT_STATUS_ACTIVE, ENROLLMENT_STATUS_EXPIRED, ENROLLMENT_STATUS_CANCELLED } from "@/apiServices/enrollmentConstants";
 import { approveEnrollment } from "@/apiServices/enrollmentService";
 import { useRouter } from "next/navigation";
 import { useTransition } from "react";
@@ -67,6 +67,7 @@ export default function EnrollmentStatusDropdown({
           [ENROLLMENT_STATUS_PENDING]: "Pending",
           [ENROLLMENT_STATUS_ACTIVE]: "Active",
           [ENROLLMENT_STATUS_EXPIRED]: "Expired",
+          [ENROLLMENT_STATUS_CANCELLED]: "Cancelled",
         };
 
         toast.success(`Enrollment status changed to ${statusNames[pendingStatus]}`);
@@ -89,6 +90,7 @@ export default function EnrollmentStatusDropdown({
     [ENROLLMENT_STATUS_PENDING]: "Pending",
     [ENROLLMENT_STATUS_ACTIVE]: "Active",
     [ENROLLMENT_STATUS_EXPIRED]: "Expired",
+    [ENROLLMENT_STATUS_CANCELLED]: "Cancelled",
   };
 
   const getStatusColor = (status: number) => {
