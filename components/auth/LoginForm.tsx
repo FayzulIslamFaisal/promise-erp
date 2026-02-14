@@ -14,7 +14,7 @@ import { toast } from "sonner"
 import { Spinner } from "@/components/ui/spinner"
 
 export interface FormData {
-  email_or_phone : string
+  email_or_phone: string
   password: string
 }
 
@@ -66,8 +66,8 @@ const LoginForm = () => {
                   {...register("email_or_phone", { required: "email or  phone  is required" })}
                   defaultValue={process.env.NEXT_PUBLIC_ADMIN_EMAIL}
                 />
-                {errors.email_or_phone  && (
-                  <FieldDescription className="text-red-500">{errors.email_or_phone .message}</FieldDescription>
+                {errors.email_or_phone && (
+                  <FieldDescription className="text-red-500">{errors.email_or_phone.message}</FieldDescription>
                 )}
               </Field>
 
@@ -109,7 +109,10 @@ const LoginForm = () => {
               </Field>
               <FieldDescription className="px-6 text-center">
                 Don’t have an account?{" "}
-                <Link className="text-blue-600 hover:underline" href="/register">
+                <Link
+                  className="text-blue-600 hover:underline"
+                  href={`/register${redirectPath !== "/" ? `?redirect=${encodeURIComponent(redirectPath)}` : ""}`}
+                >
                   Register
                 </Link>
               </FieldDescription>

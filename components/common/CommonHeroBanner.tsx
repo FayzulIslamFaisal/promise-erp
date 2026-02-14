@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { AspectRatio } from "@/components/ui/aspect-ratio";
 
 interface CommonHeroBannerProps {
   title: string;
@@ -8,7 +9,7 @@ interface CommonHeroBannerProps {
 
 const CommonHeroBanner = ({
   title,
-  subtitle="",
+  subtitle = "",
   bgImage,
 }: CommonHeroBannerProps) => {
   return (
@@ -31,7 +32,7 @@ const CommonHeroBanner = ({
 
       {/* Content */}
       <div className="relative z-10 max-w-full md:max-w-3xl">
-        <h1 className="text-4xl lg:text-6xl font-bold capitalize text-white mb-3">
+        <h1 className="text-3xl lg:text-6xl font-bold capitalize text-white mb-3">
           {title}
         </h1>
         <p className="text-lg md:text-base text-white">{subtitle}</p>

@@ -209,4 +209,8 @@ body {
   animation: wave-flow 4s linear infinite;
   transform-origin: center;
 }
+.writing-vertical {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+}
 

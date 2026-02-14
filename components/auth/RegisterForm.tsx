@@ -24,7 +24,7 @@ import Link from "next/link";
 import RegisterUser from "@/apiServices/auth/RegisterUser";
 import { signIn } from "next-auth/react";
 import { toast } from "sonner";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Spinner } from "@/components/ui/spinner";
 
 interface FormData {
@@ -63,6 +63,8 @@ const RegisterForm = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectPath = searchParams.get("redirect") || "/";
 
   const {
     register,
@@ -99,7 +101,7 @@ const RegisterForm = () => {
 
         const signInResult = await signIn("credentials", {
           redirect: false,
-          email: data.email,
+          email_or_phone: data.email,
           password: data.password,
         });
 
@@ -107,9 +109,9 @@ const RegisterForm = () => {
 
         if (signInResult?.ok) {
           toast.success("Logged in successfully!");
-          router.push("/");
+          router.push(redirectPath);
         } else {
-          router.push("/login");
+          router.push(`/login${redirectPath !== "/" ? `?redirect=${encodeURIComponent(redirectPath)}` : ""}`);
         }
 
         return;
@@ -120,7 +122,7 @@ const RegisterForm = () => {
 
         Object.entries(result.errors).forEach(([field, messages]) => {
           const mappedField = fieldMapping[field] || (field as keyof FormData);
-          
+
           if (mappedField && messages && messages.length > 0) {
             setError(mappedField, {
               type: "server",
@@ -252,7 +254,10 @@ const RegisterForm = () => {
 
               <FieldDescription className="text-center">
                 Already have an account?{" "}
-                <Link href="/login" className="text-blue-600 hover:underline">
+                <Link
+                  href={`/login${redirectPath !== "/" ? `?redirect=${encodeURIComponent(redirectPath)}` : ""}`}
+                  className="text-blue-600 hover:underline"
+                >
                   Login
                 </Link>
               </FieldDescription>

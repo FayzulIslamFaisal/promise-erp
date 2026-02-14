@@ -1,4 +1,4 @@
-// src/lib/auth.js
+// src/lib/auth.ts
 
 import { loginUser } from "@/apiServices/auth/RegisterUser";
 import CredentialsProvider from "next-auth/providers/credentials";

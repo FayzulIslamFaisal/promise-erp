@@ -41,7 +41,7 @@ const FooterWidget = () => {
             <div className="pb-4">
               <Link href="/">
                 <Image
-                  src="/images/logo.svg"
+                  src="/images/footer-logo.svg"
                   alt="Logo"
                   width={213}
                   height={36}
@@ -156,7 +156,7 @@ const FooterWidget = () => {
           </div>
         </div>
         <div className="flex justify-center text-base text-white pt-4 border-t border-primary-foreground/20">
-            <p>2025 E-Learning and Earning Ltd. All Rights Reserved</p>
+          <p>2025 E-Learning and Earning Ltd. All Rights Reserved</p>
         </div>
       </div>
     </section>
