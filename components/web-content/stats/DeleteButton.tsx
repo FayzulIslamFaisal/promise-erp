@@ -4,6 +4,7 @@ import { useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Trash2, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { deleteStats } from "@/apiServices/statsService";
 import {
   AlertDialog,
   AlertDialogTrigger,
@@ -16,55 +17,32 @@ import {
   AlertDialogAction,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { Spinner } from "@/components/ui/spinner";
-
-interface ApiResponse {
-  success: boolean;
-  message?: string;
-}
+import { Spinner } from "@/components/ui/spinner"
 
 interface DeleteButtonProps {
   id: number;
-  deleteAction: (id: number) => Promise<ApiResponse>;
-  itemName?: string;
-  successMessage?: string;
-  errorMessage?: string;
-  onSuccess?: () => void;
-  triggerClassName?: string;
-  showRefresh?: boolean;
 }
 
-const DeleteButton = ({
-  id,
-  deleteAction,
-  itemName = "item",
-  successMessage,
-  errorMessage,
-  onSuccess,
-  triggerClassName,
-  showRefresh = true,
-}: DeleteButtonProps) => {
+const DeleteButton = ({ id }: DeleteButtonProps) => {
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
 
   const handleDelete = () => {
     startTransition(async () => {
       try {
-        const res = await deleteAction(id);
+        const res = await deleteStats(id);
         if (res.success) {
-          toast.success(successMessage || res.message || `${itemName} deleted successfully`);
-          if (showRefresh) {
-            router.refresh();
-          }
-          if (onSuccess) {
-            onSuccess();
-          }
+          toast.success(res.message || "Statistics deleted successfully");
+          router.refresh();
         } else {
-          toast.error(errorMessage || res.message || "Delete failed");
+          toast.error(res.message || "Delete failed");
         }
-      } catch (error) {
-        const message = error instanceof Error ? error.message : "An unexpected error occurred.";
-        toast.error(message);
+      } catch (error: unknown) {
+        if (error instanceof Error) {
+          toast.error(error.message);
+        } else {
+          toast.error("An unexpected error occurred.");
+        }
       }
     });
   };
@@ -74,16 +52,14 @@ const DeleteButton = ({
       <AlertDialogTrigger asChild>
         <Button
           variant="ghost"
-          className={
-            triggerClassName ||
-            "text-red-600 hover:text-red-800 flex items-center cursor-pointer"
-          }
+          className="text-red-600 hover:text-red-800 flex items-center"
           disabled={isPending}
         >
           {isPending ? (
             <>
-              <Spinner className="h-4 w-4 mr-2" /> Deleting...
+                <Spinner className="h-4 w-4 mr-2" /> Deleting...
             </>
+            
           ) : (
             <>
               <Trash2 className="h-4 w-4 mr-2" /> Delete
@@ -96,19 +72,16 @@ const DeleteButton = ({
         <AlertDialogHeader>
           <AlertDialogTitle>Are you sure?</AlertDialogTitle>
           <AlertDialogDescription>
-            This action cannot be undone. The {itemName} will be permanently deleted.
+            This action cannot be undone. The statistics will be permanently deleted.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel className="cursor-pointer" disabled={isPending}>
-            Cancel
-          </AlertDialogCancel>
+          <AlertDialogCancel disabled={isPending}>Cancel</AlertDialogCancel>
           <AlertDialogAction asChild>
             <Button
               onClick={handleDelete}
               variant="destructive"
               disabled={isPending}
-              className="cursor-pointer"
             >
               {isPending ? (
                 <>
@@ -126,4 +99,3 @@ const DeleteButton = ({
 };
 
 export default DeleteButton;
-

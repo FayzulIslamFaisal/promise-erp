@@ -10,10 +10,10 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Pencil } from "lucide-react";
 import Link from "next/link";
-import { getCommonSections, CommonSection, deleteCommonSection } from "@/apiServices/homePageAdminService";
+import { getCommonSections, CommonSection } from "@/apiServices/homePageAdminService";
+import DeleteButton from "./DeleteButton";
 import Image from "next/image";
 import Pagination from "@/components/common/Pagination";
-import DeleteButton from "@/components/common/DeleteButton";
 
 // Function to get badge color based on type
 const getTypeBadgeColor = (type: string): string => {
@@ -33,7 +33,7 @@ const getTypeBadgeColor = (type: string): string => {
     branch: "bg-amber-500 hover:bg-amber-600 text-white",
     none: "bg-gray-500 hover:bg-gray-600 text-white",
   };
-
+  
   return colorMap[type] || "bg-gray-500 hover:bg-gray-600 text-white";
 };
 
@@ -81,7 +81,7 @@ const CommonSectionsData = async ({
 
   const sections = results?.data?.sections || [];
   const paginationData = results?.data?.pagination;
-
+  
   if (!sections || sections.length === 0) {
     return <NotFoundComponent message={results?.message || "No common sections found."} />;
   }
@@ -130,11 +130,7 @@ const CommonSectionsData = async ({
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>
-                        <DeleteButton
-                          id={item.id}
-                          deleteAction={deleteCommonSection}
-                          itemName="common section"
-                        />
+                        <DeleteButton id={item.id} />
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>

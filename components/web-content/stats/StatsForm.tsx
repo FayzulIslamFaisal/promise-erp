@@ -14,7 +14,7 @@ import {
 import {
   addStats,
   updateStats,
-  SingleStatsResponse,
+  StatsResponseType,
   Stats,
 } from "@/apiServices/statsService";
 import { useRouter } from "next/navigation";
@@ -99,12 +99,14 @@ export default function StatsForm({
     formData.append("status", String(data.status));
 
     try {
-      const res: SingleStatsResponse = stats
-        ? await updateStats(stats.id, formData)
+      const res: StatsResponseType = stats
+        ? await updateStats(String(stats.id), formData)
         : await addStats(formData);
 
       if (res?.success) {
-        toast.success(res.message || `Stats ${stats ? "updated" : "added"} successfully!`);
+        toast.success(
+          res.message || `Stats ${stats ? "updated" : "added"} successfully!`
+        );
         reset();
         setPreviewImage(null);
         router.push("/web-content/stats");
@@ -120,7 +122,9 @@ export default function StatsForm({
           }
         });
       } else {
-        toast.error(res?.message || `Failed to ${stats ? "update" : "add"} stats.`);
+        toast.error(
+          res?.message || `Failed to ${stats ? "update" : "add"} stats.`
+        );
       }
     } catch (error: unknown) {
       console.error("Error in handleFormSubmit:", error);
