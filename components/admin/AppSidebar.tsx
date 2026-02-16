@@ -267,7 +267,7 @@ const data = {
         },
         {
           title: "Blog Categories",
-          url: "#",
+          url: "/web-content/blog-categories",
           permissions: ["view-blog-categories"],
         },
         {

@@ -1,4 +1,4 @@
-import { getStats, Stats } from "@/apiServices/statsService"; // This will be created later
+import { deleteStats, getStats, Stats } from "@/apiServices/statsService"; // This will be created later
 import ErrorComponent from "@/components/common/ErrorComponent";
 import NotFoundComponent from "@/components/common/NotFoundComponent";
 import { Badge } from "@/components/ui/badge";
@@ -18,10 +18,10 @@ import {
 } from "@/components/ui/table";
 import { Eye, Pencil } from "lucide-react";
 import Link from "next/link";
-import DeleteButton from "./DeleteButton"; // This will be created later
 import Pagination from "@/components/common/Pagination";
 import Image from "next/image";
 import { StatsSearchParamsProps } from "@/app/(admin-dashboard)/web-content/stats/page";
+import DeleteButton from "@/components/common/DeleteButton";
 
 export default async function StatsData({
   searchParams }: StatsSearchParamsProps) {
@@ -31,22 +31,10 @@ export default async function StatsData({
 
   const params = {
     page,
-    search:
-      typeof resolvedSearchParams.search === "string"
-        ? resolvedSearchParams.search
-        : undefined,
-    sort_order:
-      typeof resolvedSearchParams.sort_order === "string"
-        ? resolvedSearchParams.sort_order
-        : undefined,
-    type:
-      typeof resolvedSearchParams.type === "string"
-        ? resolvedSearchParams.type
-        : undefined,
-    status:
-      typeof resolvedSearchParams.status === "string"
-        ? resolvedSearchParams.status
-        : undefined,
+    search: typeof resolvedSearchParams.search === "string" ? resolvedSearchParams.search : undefined,
+    sort_order: typeof resolvedSearchParams.sort_order === "string" ? resolvedSearchParams.sort_order : undefined,
+    type: typeof resolvedSearchParams.type === "string" ? resolvedSearchParams.type : undefined,
+    status: typeof resolvedSearchParams.status === "string" ? resolvedSearchParams.status : undefined,
   };
 
   let data;
@@ -119,7 +107,11 @@ export default async function StatsData({
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>
-                        <DeleteButton id={statData?.id} />
+                        <DeleteButton
+                          id={statData?.id}
+                          deleteAction={deleteStats}
+                          itemName="stat"
+                        />
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
