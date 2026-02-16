@@ -19,28 +19,25 @@ export interface Stats {
 export interface StatsResponse {
   success: boolean;
   message: string;
+  code: number;
   data: {
     total_stats: number;
     stats: Stats[];
     pagination: PaginationType;
   };
+  errors?: Record<string, string[]>;
 }
-export interface StatsResponseType {
-  success: boolean;
-  message: string;
-  errors?: Record<string, string[] | string>;
-  data: Stats | null;
-  code: number;
-}
+
 export interface SingleStatsResponse {
   success: boolean;
   message: string;
   code: number;
   data?: Stats;
+  errors?: Record<string, string[] | string>;
 }
 
 // add lesson
-export async function addStats(formData: FormData): Promise<StatsResponseType> {
+export async function addStats(formData: FormData): Promise<SingleStatsResponse> {
   try {
     const session = await getServerSession(authOptions);
     const token = session?.accessToken;
@@ -72,6 +69,8 @@ async function getStatsCached(
   token: string,
   params: Record<string, unknown> = {}
 ): Promise<StatsResponse> {
+  "use cache"
+  cacheTag("stats-list");
   try {
     const urlParams = new URLSearchParams();
 
@@ -92,12 +91,11 @@ async function getStatsCached(
       },
     });
 
-    if (!res.ok) {
-      const errorData = await res.json().catch(() => ({}));
-      throw new Error(`Message: ${errorData.message || "Unknown error"}`);
+    const data = await res.json();
+    if (!data.success) {
+      throw new Error(data.message);
     }
-
-    return await res.json();
+    return data;
   } catch (error: unknown) {
     console.error("Error in getStatsCached:", error);
     if (error instanceof Error) {
@@ -116,7 +114,9 @@ export async function getStats(
     const session = await getServerSession(authOptions);
     const token = session?.accessToken;
     if (!token) throw new Error("No valid session or access token found.");
-    return await getStatsCached(token, params);
+
+    const data = await getStatsCached(token, params);
+    return data;
   } catch (error: unknown) {
     console.error("Error in getStats:", error);
     if (error instanceof Error) {
@@ -138,9 +138,9 @@ export interface StatsSingleResponse {
 // =======================
 
 export async function updateStats(
-  id: string,
+  id: number,
   formData: FormData
-): Promise<StatsResponseType> {
+): Promise<SingleStatsResponse> {
   try {
     const session = await getServerSession(authOptions);
     const token = session?.accessToken;
@@ -149,10 +149,8 @@ export async function updateStats(
       throw new Error("No valid session or access token found.");
     }
 
-    formData.append("_method", "PATCH");
-
     const res = await fetch(`${API_BASE}/stats/${id}`, {
-      method: "POST",
+      method: "PUT",
       headers: {
         Authorization: `Bearer ${token}`,
       },

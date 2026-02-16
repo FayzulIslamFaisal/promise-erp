@@ -1,9 +1,14 @@
 import BlogCategorySidebar from "@/components/root/blog/BlogCategorySidebar";
-import BlogFeaturedPost from "@/components/root/blog/BlogFeaturedPost";
 import BloggWrapperBanner from "@/components/root/blog/BloggWrapperBanner";
-import BlogPostCard from "@/components/root/blog/BlogPostCard";
+import BlogPostWrapper from "@/components/root/blog/BlogPostWrapper";
+import { Loader2 } from "lucide-react";
+import { Suspense } from "react";
 
-const BlogPage = () => {
+interface BlogPageParams {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}
+const BlogPage = ({ searchParams }: BlogPageParams) => {
+
   return (
     <>
       <BloggWrapperBanner />
@@ -13,17 +18,16 @@ const BlogPage = () => {
             {/* Sidebar */}
             <aside className="lg:col-span-4 xl:col-span-3">
               <div className="lg:sticky lg:top-24">
-                <BlogCategorySidebar />
+                <Suspense fallback={<div className="flex items-center justify-center h-full"><Loader2 className="h-8 w-8 animate-spin" /></div>}>
+                  <BlogCategorySidebar />
+                </Suspense>
               </div>
             </aside>
 
             {/* Main Content */}
-            <div className="lg:col-span-8 xl:col-span-9 space-y-8">
-              {/* Featured Posts Section */}
-              <BlogFeaturedPost />
-              {/* Recent Posts Section */}
-              <BlogPostCard />
-            </div>
+            <Suspense fallback={<div className="lg:col-span-8 xl:col-span-9 flex items-center justify-center h-full"><Loader2 className="h-8 w-8 animate-spin" /></div>}>
+              <BlogPostWrapper searchParams={searchParams} />
+            </Suspense>
           </div>
         </div>
       </section>
