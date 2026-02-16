@@ -72,7 +72,6 @@ export async function getPublicBlogInfo({
 }
 // ******* End Blog Info API *******
 
-
 // ******* Start Blog Category API *******
 export interface BlogCategory {
   id: number;
