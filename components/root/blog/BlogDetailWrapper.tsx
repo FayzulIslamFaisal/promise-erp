@@ -53,7 +53,7 @@ const BlogDetailWrapper = async ({ slug }: BlogDetailWrapperProps) => {
             {blogData.title}
           </h1>
         </div>
-        <div className="">
+        <div className="pb-9">
           <Image
             src={blogData.thumbnail || "/images/placeholder_img.jpg"}
             alt={blogData.title}
@@ -62,6 +62,10 @@ const BlogDetailWrapper = async ({ slug }: BlogDetailWrapperProps) => {
             className="rounded-lg object-fill w-full h-full"
           />
         </div>
+        <div
+          className="prose max-w-none"
+          dangerouslySetInnerHTML={{ __html: blogData.description }}
+        />
       </div>
     </section>
   );
